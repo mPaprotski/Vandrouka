@@ -1,40 +1,94 @@
 name: CI
-on: [push, pull_request]
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   backend:
+    name: Go checks and PostgreSQL integration
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      POSTGRES_DSN: postgres://postgres:postgres@localhost:5432/vandrouka_ci?sslmode=disable
+      TEST_DATABASE_DSN: postgres://postgres:postgres@localhost:5432/vandrouka_ci?sslmode=disable
     services:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_DB: vandrouka
+          POSTGRES_DB: vandrouka_ci
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-        ports: ["5432:5432"]
+        ports:
+          - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres"
+          --health-cmd "pg_isready -U postgres -d vandrouka_ci"
           --health-interval 5s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with: { go-version: "1.23" }
-      - name: Test
-        run: cd backend && go test ./... -v
-      - name: Vet
-        run: cd backend && go vet ./...
-      - name: Fmt check
-        run: test -z "$(cd backend && gofmt -l .)"
-      - name: Migration round trip
-        env:
-          POSTGRES_DSN: postgres://postgres:postgres@localhost:5432/vandrouka?sslmode=disable
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+
+      - name: Verify dependencies
+        run: go mod verify
+
+      - name: Check formatting
         run: |
-          cd backend
+          files=$(gofmt -l .)
+          if [ -n "$files" ]; then
+            echo "Go files need formatting:"
+            echo "$files"
+            exit 1
+          fi
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Build all commands
+        run: go build ./...
+
+      - name: Check migration round trip
+        run: |
           go run ./cmd/migrate up
           go run ./cmd/migrate reset
           go run ./cmd/migrate up
-      - name: PostgreSQL integration tests
-        env:
-          TEST_DATABASE_DSN: postgres://postgres:postgres@localhost:5432/vandrouka?sslmode=disable
-        run: cd backend && go test ./... -race -count=1
+
+      - name: Run tests with PostgreSQL and race detector
+        run: go test ./... -race -count=1 -timeout 2m -v
+
+      - name: Check importer CLI and repeated import
+        run: |
+          go run ./cmd/import -check-links=false ../data/places/minsk
+          go run ./cmd/import -check-links=false ../data/places/minsk
+
+  docker:
+    name: Build API Docker image
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Validate Compose configuration
+        run: docker compose --profile routing config --quiet
+
+      - name: Build API image
+        run: docker build --tag vandrouka-api:ci ./backend

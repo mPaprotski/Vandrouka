@@ -1,5 +1,7 @@
 # Вандроўка
 
+[![CI](https://github.com/mPaprotski/Vandrouka/actions/workflows/ci.yml/badge.svg)](https://github.com/mPaprotski/Vandrouka/actions/workflows/ci.yml)
+
 Мобильное приложение для пешеходных маршрутов по достопримечательностям Минска.
 
 Реализованы каркас Go API, PostgreSQL, миграции, импорт YAML, каталог мест и
@@ -100,7 +102,16 @@ TEST_DATABASE_DSN='postgres://postgres:postgres@localhost:25432/vandrouka_test?s
 ```
 
 Интеграционные тесты записывают и изменяют тестовые данные.
-CI выполняет тесты, vet, проверку форматирования, цикл миграций и интеграцию БД.
+GitHub Actions запускает [CI](https://github.com/mPaprotski/Vandrouka/actions/workflows/ci.yml)
+на каждый push и pull request; доступен также ручной запуск `workflow_dispatch`.
+Версия Go берётся из `backend/go.mod`, зависимости и сборки кешируются.
+
+CI проверяет зависимости, форматирование, `go vet`, сборку всех команд,
+полный цикл миграций, тесты с PostgreSQL и детектором гонок, повторный импорт.
+Внешние ссылки в CI не запрашиваются: CLI использует `-check-links=false`.
+Отдельный job проверяет Compose и собирает Docker-образ API.
+PostgreSQL создаётся отдельно для каждого запуска; секреты для этих проверок
+не нужны. При новом push предыдущий запуск для той же ветки отменяется.
 Проверки доступности ссылок тестируются локальным HTTP-сервером без внешней сети.
 
 ## Документация
