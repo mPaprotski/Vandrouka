@@ -1,0 +1,25 @@
+slug: holy-spirit-cathedral
+name: Свято-Духов собор — внешний осмотр
+summary: Двухбашенный собор в Верхнем городе. Маршрут предусматривает внешний осмотр;
+  возможность входа и расписание богослужений нужно уточнять отдельно.
+lat: 53.905
+lon: 27.556111
+importance: 5
+must_see: true
+visit_minutes: 15
+hours_known: false
+price_known: true
+verified_at: '2026-10-08'
+categories:
+- religious
+- architecture
+opening_hours: {}
+opening_exceptions: []
+prices:
+- kind: free
+  amount: 0
+  currency: BYN
+links:
+- kind: encyclopedia
+  url: https://ru.wikipedia.org/wiki/Свято-Духов_собор_(Минск)
+  title: Свято-Духов собор — внешний осмотр

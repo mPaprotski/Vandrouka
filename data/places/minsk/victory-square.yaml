@@ -1,0 +1,25 @@
+slug: victory-square
+name: Площадь Победы
+summary: Мемориальная площадь с обелиском и Вечным огнём. Здесь можно осмотреть монумент
+  снаружи; подземный зал памяти в эту остановку не входит.
+lat: 53.9084
+lon: 27.5756
+importance: 5
+must_see: true
+visit_minutes: 20
+hours_known: false
+price_known: true
+verified_at: '2026-10-08'
+categories:
+- monuments
+- streets
+opening_hours: {}
+opening_exceptions: []
+prices:
+- kind: free
+  amount: 0
+  currency: BYN
+links:
+- kind: encyclopedia
+  url: https://ru.wikipedia.org/wiki/Площадь_Победы_(Минск)
+  title: Площадь Победы

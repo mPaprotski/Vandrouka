@@ -1,0 +1,24 @@
+slug: national-library
+name: Национальная библиотека — внешний осмотр
+summary: Современное здание библиотеки необычной многогранной формы. Остановка рассчитана
+  на внешний осмотр; смотровая площадка и экскурсии не включены.
+lat: 53.931389
+lon: 27.645833
+importance: 4
+must_see: false
+visit_minutes: 20
+hours_known: false
+price_known: true
+verified_at: '2026-10-08'
+categories:
+- architecture
+opening_hours: {}
+opening_exceptions: []
+prices:
+- kind: free
+  amount: 0
+  currency: BYN
+links:
+- kind: encyclopedia
+  url: https://ru.wikipedia.org/wiki/Национальная_библиотека_Беларуси
+  title: Национальная библиотека — внешний осмотр

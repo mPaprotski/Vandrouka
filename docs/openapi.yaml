@@ -1,0 +1,201 @@
+openapi: 3.0.3
+info:
+  title: Вандроўка API
+  version: 0.1.0
+  description: Каталог Минска. Маршрутные эндпоинты будут добавлены после планировщика.
+servers:
+  - url: http://localhost:8080
+paths:
+  /health:
+    get:
+      operationId: health
+      responses:
+        '200':
+          description: API и PostgreSQL доступны
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status: {type: string, enum: [ok]}
+        '503': {description: PostgreSQL недоступен}
+  /v1/cities:
+    get:
+      operationId: listCities
+      responses:
+        '200':
+          description: Города
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [cities]
+                properties:
+                  cities:
+                    type: array
+                    items: {$ref: '#/components/schemas/City'}
+        '500': {$ref: '#/components/responses/Error'}
+  /v1/cities/{slug}/categories:
+    parameters:
+      - {$ref: '#/components/parameters/CitySlug'}
+    get:
+      operationId: listCategories
+      responses:
+        '200':
+          description: Категории и число активных мест в городе
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [categories]
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      type: object
+                      required: [slug, name, places_count]
+                      properties:
+                        slug: {type: string}
+                        name: {type: string}
+                        places_count: {type: integer, minimum: 0}
+        '400': {$ref: '#/components/responses/Error'}
+        '404': {$ref: '#/components/responses/Error'}
+        '500': {$ref: '#/components/responses/Error'}
+  /v1/cities/{slug}/places:
+    parameters:
+      - {$ref: '#/components/parameters/CitySlug'}
+    get:
+      operationId: listPlaces
+      parameters:
+        - name: category
+          in: query
+          schema: {type: string, maxLength: 100}
+        - name: q
+          in: query
+          description: Подстрока имени или описания без учёта регистра
+          schema: {type: string, maxLength: 200}
+      responses:
+        '200':
+          description: Активные места с полными карточками, по важности и slug
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [places]
+                properties:
+                  places:
+                    type: array
+                    items: {$ref: '#/components/schemas/Place'}
+        '400': {$ref: '#/components/responses/Error'}
+        '404': {$ref: '#/components/responses/Error'}
+        '500': {$ref: '#/components/responses/Error'}
+  /v1/places/{id}:
+    get:
+      operationId: getPlace
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer, format: int64, minimum: 1}
+      responses:
+        '200':
+          description: Полная карточка активного места
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Place'}
+        '400': {$ref: '#/components/responses/Error'}
+        '404': {$ref: '#/components/responses/Error'}
+        '500': {$ref: '#/components/responses/Error'}
+components:
+  parameters:
+    CitySlug:
+      name: slug
+      in: path
+      required: true
+      schema: {type: string, maxLength: 100, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$'}
+  responses:
+    Error:
+      description: Ошибка запроса
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [error]
+            properties:
+              error:
+                type: object
+                required: [code, message]
+                properties:
+                  code: {type: string, enum: [invalid_request, not_found, internal]}
+                  message: {type: string}
+  schemas:
+    City:
+      type: object
+      required: [id, slug, name, center_lat, center_lon, timezone]
+      properties:
+        id: {type: integer, format: int64}
+        slug: {type: string}
+        name: {type: string}
+        center_lat: {type: number, format: double}
+        center_lon: {type: number, format: double}
+        timezone: {type: string}
+    Place:
+      type: object
+      required: [id, slug, city, name, summary, lat, lon, importance, must_see, visit_minutes, hours_known, price_known, verified_at, categories, opening_hours, opening_exceptions, prices, links, updated_at]
+      properties:
+        id: {type: integer, format: int64}
+        slug: {type: string}
+        city: {type: string}
+        name: {type: string}
+        summary: {type: string}
+        lat: {type: number, format: double}
+        lon: {type: number, format: double}
+        importance: {type: integer, minimum: 1, maximum: 5}
+        must_see: {type: boolean}
+        visit_minutes: {type: integer, minimum: 1}
+        hours_known: {type: boolean}
+        price_known: {type: boolean}
+        verified_at: {type: string, format: date}
+        updated_at: {type: string, format: date-time}
+        categories:
+          type: array
+          items: {type: string}
+        opening_hours:
+          type: array
+          items:
+            type: object
+            required: [weekday, open_time, close_time]
+            properties:
+              weekday: {type: integer, minimum: 0, maximum: 6, description: '0 — воскресенье'}
+              open_time: {type: string, example: '11:00'}
+              close_time: {type: string, example: '24:00'}
+        opening_exceptions:
+          type: array
+          items:
+            type: object
+            required: [date, closed, open_time, close_time, note]
+            properties:
+              date: {type: string, format: date}
+              closed: {type: boolean}
+              open_time: {type: string, nullable: true}
+              close_time: {type: string, nullable: true}
+              note: {type: string}
+        prices:
+          type: array
+          items:
+            type: object
+            required: [kind, amount, currency]
+            properties:
+              kind: {type: string, enum: [adult, discount, free]}
+              amount: {type: number, minimum: 0}
+              currency: {type: string, enum: [BYN]}
+        links:
+          type: array
+          items:
+            type: object
+            required: [kind, url, title]
+            properties:
+              kind: {type: string, enum: [official, article, encyclopedia]}
+              url: {type: string, format: uri}
+              title: {type: string}

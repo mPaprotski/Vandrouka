@@ -1,0 +1,24 @@
+slug: national-history-museum
+name: Национальный исторический музей
+summary: 'Музей на улице Карла Маркса, посвящённый истории Беларуси. Перед посещением
+  уточните действующие часы и стоимость: эти сведения пока не подтверждены.'
+lat: 53.896667
+lon: 27.555278
+importance: 4
+must_see: false
+visit_minutes: 60
+hours_known: false
+price_known: false
+verified_at: '2026-10-08'
+categories:
+- museums
+opening_hours: {}
+opening_exceptions: []
+prices: []
+links:
+- kind: encyclopedia
+  url: https://ru.wikipedia.org/wiki/Национальный_исторический_музей_Республики_Беларусь
+  title: Национальный исторический музей
+- kind: official
+  url: https://histmuseum.by/
+  title: Официальный сайт музея

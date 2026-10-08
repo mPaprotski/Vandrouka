@@ -1,0 +1,25 @@
+slug: independence-square
+name: Площадь Независимости
+summary: Большая центральная площадь с ансамблем общественных зданий. Прогулка проходит
+  по открытой части площади, без посещения зданий и торгового центра.
+lat: 53.895556
+lon: 27.547778
+importance: 4
+must_see: false
+visit_minutes: 20
+hours_known: false
+price_known: true
+verified_at: '2026-10-08'
+categories:
+- streets
+- architecture
+opening_hours: {}
+opening_exceptions: []
+prices:
+- kind: free
+  amount: 0
+  currency: BYN
+links:
+- kind: encyclopedia
+  url: https://ru.wikipedia.org/wiki/Площадь_Независимости_(Минск)
+  title: Площадь Независимости

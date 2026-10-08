@@ -1,0 +1,24 @@
+slug: minsk-gates
+name: Ворота Минска
+summary: Две башни на Привокзальной площади обрамляют начало улицы Кирова. Остановка
+  предназначена для осмотра архитектурного ансамбля снаружи.
+lat: 53.891667
+lon: 27.551667
+importance: 4
+must_see: false
+visit_minutes: 15
+hours_known: false
+price_known: true
+verified_at: '2026-10-08'
+categories:
+- architecture
+opening_hours: {}
+opening_exceptions: []
+prices:
+- kind: free
+  amount: 0
+  currency: BYN
+links:
+- kind: encyclopedia
+  url: https://ru.wikipedia.org/wiki/Ворота_Минска
+  title: Ворота Минска

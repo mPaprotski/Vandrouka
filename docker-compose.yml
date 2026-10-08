@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: vandrouka
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "25432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_DSN: postgres://postgres:postgres@postgres:5432/vandrouka?sslmode=disable
+      VALHALLA_URL: http://valhalla:8002
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  valhalla:
+    image: ghcr.io/valhalla/valhalla-scripted@sha256:b8c4c818575668aa6dc459ce62f5fc1b12832e39992d84aa57318fa6417253ad
+    profiles: [routing]
+    ports:
+      - "127.0.0.1:8002:8002"
+    volumes:
+      - ./infra/valhalla:/custom_files
+    environment:
+      server_threads: "2"
+      tile_urls: ""
+      build_admins: "False"
+      build_time_zones: "False"
+      use_default_speeds_config: "False"
+      build_elevation: "False"
+      build_transit: "False"
+      build_tar: "True"
+      serve_tiles: "True"
+
+volumes:
+  pgdata:

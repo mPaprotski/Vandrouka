@@ -1,0 +1,24 @@
+slug: island-of-tears
+name: Остров Мужества и Скорби
+summary: Мемориальный остров на Свислочи возле Троицкого предместья. Пешеходный мост
+  ведёт к композиции, посвящённой погибшим в Афганистане.
+lat: 53.909722
+lon: 27.554444
+importance: 4
+must_see: false
+visit_minutes: 15
+hours_known: false
+price_known: true
+verified_at: '2026-10-08'
+categories:
+- monuments
+opening_hours: {}
+opening_exceptions: []
+prices:
+- kind: free
+  amount: 0
+  currency: BYN
+links:
+- kind: encyclopedia
+  url: https://ru.wikipedia.org/wiki/Остров_Мужества_и_Скорби
+  title: Остров Мужества и Скорби

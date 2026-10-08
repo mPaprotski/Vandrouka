@@ -1,0 +1,43 @@
+slug: national-art-museum
+name: Национальный художественный музей
+summary: Музей на улице Ленина с коллекциями белорусского и зарубежного искусства.
+  Время рассчитано на знакомство с основной экспозицией; временные выставки могут
+  требовать отдельного билета.
+lat: 53.89845
+lon: 27.560577
+importance: 5
+must_see: true
+visit_minutes: 75
+hours_known: true
+price_known: true
+verified_at: '2026-10-08'
+categories:
+- museums
+opening_hours:
+  monday:
+  - 11:00-19:00
+  wednesday:
+  - 11:00-19:00
+  thursday:
+  - 13:00-21:00
+  friday:
+  - 11:00-19:00
+  saturday:
+  - 11:00-19:00
+  sunday:
+  - 11:00-19:00
+opening_exceptions: []
+prices:
+- kind: adult
+  amount: 15
+  currency: BYN
+links:
+- kind: official
+  url: https://artmuseum.by/
+  title: Часы работы и адрес
+- kind: official
+  url: https://artmuseum.by/services
+  title: 'Билеты: основной корпус'
+- kind: encyclopedia
+  url: https://fr.wikipedia.org/wiki/Musée_national_des_Beaux-Arts_de_Biélorussie
+  title: Координаты музея

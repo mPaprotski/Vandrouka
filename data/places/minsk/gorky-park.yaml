@@ -1,0 +1,24 @@
+slug: gorky-park
+name: Парк Горького
+summary: Центральный детский парк у Свислочи с аллеями и аттракционами. В маршрут
+  входит прогулка по парку; билеты на аттракционы оплачиваются отдельно.
+lat: 53.903056
+lon: 27.573333
+importance: 4
+must_see: false
+visit_minutes: 30
+hours_known: false
+price_known: true
+verified_at: '2026-10-08'
+categories:
+- parks
+opening_hours: {}
+opening_exceptions: []
+prices:
+- kind: free
+  amount: 0
+  currency: BYN
+links:
+- kind: encyclopedia
+  url: https://ru.wikipedia.org/wiki/Парк_Горького_(Минск)
+  title: Парк Горького

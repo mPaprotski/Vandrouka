@@ -1,0 +1,24 @@
+slug: bolshoi-theatre
+name: Большой театр — внешний осмотр
+summary: Здание театра оперы и балета на площади Парижской Коммуны. Остановка включает
+  внешний осмотр здания и площади; посещение спектакля не предусмотрено.
+lat: 53.910556
+lon: 27.561389
+importance: 4
+must_see: false
+visit_minutes: 20
+hours_known: false
+price_known: true
+verified_at: '2026-10-08'
+categories:
+- architecture
+opening_hours: {}
+opening_exceptions: []
+prices:
+- kind: free
+  amount: 0
+  currency: BYN
+links:
+- kind: encyclopedia
+  url: https://ru.wikipedia.org/wiki/Большой_театр_Беларуси
+  title: Большой театр — внешний осмотр

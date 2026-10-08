@@ -1,0 +1,24 @@
+slug: town-hall
+name: Минская ратуша — внешний осмотр
+summary: Восстановленная ратуша на площади Свободы с башней и колоннами. Осмотрите
+  фасады и окружающую площадь; вход в музей не входит в эту остановку.
+lat: 53.903333
+lon: 27.556111
+importance: 5
+must_see: true
+visit_minutes: 15
+hours_known: false
+price_known: true
+verified_at: '2026-10-08'
+categories:
+- architecture
+opening_hours: {}
+opening_exceptions: []
+prices:
+- kind: free
+  amount: 0
+  currency: BYN
+links:
+- kind: encyclopedia
+  url: https://ru.wikipedia.org/wiki/Минская_ратуша
+  title: Минская ратуша — внешний осмотр

@@ -1,0 +1,25 @@
+slug: trinity-suburb
+name: Троицкое предместье
+summary: Исторический квартал у Свислочи с невысокими домами и небольшими дворами.
+  Остановка предполагает прогулку по улицам, без посещения музеев и заведений.
+lat: 53.908333
+lon: 27.555833
+importance: 5
+must_see: true
+visit_minutes: 25
+hours_known: false
+price_known: true
+verified_at: '2026-10-08'
+categories:
+- streets
+- architecture
+opening_hours: {}
+opening_exceptions: []
+prices:
+- kind: free
+  amount: 0
+  currency: BYN
+links:
+- kind: encyclopedia
+  url: https://ru.wikipedia.org/wiki/Троицкое_предместье
+  title: Троицкое предместье

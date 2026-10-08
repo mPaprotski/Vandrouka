@@ -1,0 +1,24 @@
+slug: alexandrovsky-square
+name: Александровский сквер
+summary: Небольшой сквер в центре города с фонтаном «Мальчик с лебедем». Подходит
+  для короткой остановки среди деревьев; работа фонтана зависит от сезона.
+lat: 53.901389
+lon: 27.563056
+importance: 3
+must_see: false
+visit_minutes: 15
+hours_known: false
+price_known: true
+verified_at: '2026-10-08'
+categories:
+- parks
+opening_hours: {}
+opening_exceptions: []
+prices:
+- kind: free
+  amount: 0
+  currency: BYN
+links:
+- kind: encyclopedia
+  url: https://ru.wikipedia.org/wiki/Александровский_сквер_(Минск)
+  title: Александровский сквер
