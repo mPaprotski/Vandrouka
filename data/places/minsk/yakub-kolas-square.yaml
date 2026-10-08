@@ -1,9 +1,11 @@
 slug: yakub-kolas-square
 name: Площадь Якуба Коласа
-summary: Площадь со сквером и памятником Якубу Коласу. Рядом со скульптурой поэта
-  представлены герои его произведений.
-lat: 53.915853
-lon: 27.583019
+summary: >-
+  Сквер на площади Якуба Коласа с памятником поэту и скульптурами героев его
+  произведений. Остановка включает короткую прогулку и внешний осмотр
+  композиций.
+lat: 53.9158709
+lon: 27.5830039
 importance: 3
 must_see: false
 visit_minutes: 15
@@ -24,5 +26,5 @@ links:
   url: https://ru.wikipedia.org/wiki/Площадь_Якуба_Коласа
   title: Площадь Якуба Коласа
 - kind: article
-  url: https://openarium.ru/poi/86025526/
-  title: Координаты площади
+  url: https://www.openstreetmap.org/node/455991953
+  title: Пешеходная точка осмотра — OpenStreetMap
