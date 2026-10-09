@@ -13,6 +13,37 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  planner:
+    name: Planner constraints without external services
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+
+      - name: Test planner constraints and schedules
+        run: go test ./internal/planner -race -count=1 -timeout 2m -coverprofile=planner-coverage.out -v
+
+      - name: Build planner CLI
+        run: go build -o "$RUNNER_TEMP/vandrouka-planner" ./cmd/planner
+
+      - name: Check CLI rejects invalid budget before accessing services
+        run: |
+          if "$RUNNER_TEMP/vandrouka-planner" --budget 0 > "$RUNNER_TEMP/planner-error.txt" 2>&1; then
+            echo "CLI accepted an invalid time budget"
+            exit 1
+          fi
+          grep -F 'бюджет времени должен быть положительным' "$RUNNER_TEMP/planner-error.txt"
+
   backend:
     name: Go checks and PostgreSQL integration
     runs-on: ubuntu-latest
