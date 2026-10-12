@@ -15,21 +15,6 @@ import (
 
 var ErrUnavailable = errors.New("routing unavailable")
 
-type Point struct {
-	Lat float64 `json:"lat"`
-	Lon float64 `json:"lon"`
-}
-type Leg struct {
-	Seconds    float64 `json:"seconds"`
-	Kilometers float64 `json:"kilometers"`
-	Reachable  bool    `json:"reachable"`
-}
-type Matrix [][]Leg
-
-type Router interface {
-	Matrix(context.Context, []Point) (Matrix, error)
-}
-
 type Client struct {
 	baseURL string
 	http    *http.Client
@@ -123,12 +108,6 @@ func (c *Client) Between(ctx context.Context, sources, targets []Point) (Matrix,
 		}
 	}
 	return matrix, nil
-}
-
-type Route struct {
-	Shapes     []string `json:"shapes"`
-	Seconds    float64  `json:"seconds"`
-	Kilometers float64  `json:"kilometers"`
 }
 
 func (c *Client) Route(ctx context.Context, points []Point) (Route, error) {

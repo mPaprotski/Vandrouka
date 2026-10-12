@@ -43,3 +43,6 @@ links:
 - kind: encyclopedia
   url: https://www.wikidata.org/wiki/Q3916003
   title: Координаты дома
+- kind: article
+  url: https://globus.by/
+  title: "Globus: GPX 2015-12-28, точка 318; см. data/sources/globus-minsk.json"

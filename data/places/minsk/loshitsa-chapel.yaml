@@ -1,0 +1,21 @@
+slug: "loshitsa-chapel"
+name: "Лошицкая усадьба — руины часовни Прушинских"
+summary: "Лошицкая усадьба — руины часовни Прушинских. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки."
+lat: 53.852511
+lon: 27.576169
+importance: 3
+must_see: false
+visit_minutes: 15
+hours_known: false
+price_known: false
+verified_at: "2026-10-13"
+categories:
+  - "religious"
+  - "architecture"
+opening_hours: {}
+opening_exceptions: []
+prices: []
+links:
+  - kind: "article"
+    url: "https://globus.by/"
+    title: "Globus: GPX 2015-12-28, точка 1527; см. data/sources/globus-minsk.json"

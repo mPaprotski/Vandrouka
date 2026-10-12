@@ -1,0 +1,25 @@
+slug: first-congress-museum
+name: Дом-музей I съезда РСДРП
+summary: 'Небольшой музей у Свислочи на проспекте Независимости, 31а. Остановка предназначена
+  для осмотра экспозиции, связанной со съездом и историей Минска. Актуальные часы и взрослый
+  билет не подтверждены: уточните их перед посещением.'
+lat: 53.9078406
+lon: 27.5716016
+importance: 3
+must_see: false
+visit_minutes: 35
+hours_known: false
+price_known: false
+verified_at: '2026-10-09'
+categories:
+- museums
+opening_hours: {}
+opening_exceptions: []
+prices: []
+links:
+- kind: article
+  url: https://izi.travel/ru/cfa4-dom-muzey-i-sezda-rsdrp/ru
+  title: Источник сведений о месте и посещении
+- kind: article
+  url: https://www.openstreetmap.org/node/6419331125
+  title: Пешеходная точка остановки (OSM)

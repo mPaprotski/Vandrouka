@@ -1,0 +1,28 @@
+slug: kupala-museum
+name: Государственный литературный музей Янки Купалы
+summary: Музей на улице Янки Купалы, посвящённый жизни и творчеству поэта. Билет включает
+  основную экспозицию; отдельные выставки и экскурсии не включены. Касса до 18:30. Второй
+  вторник месяца — санитарный день; перед посещением уточните график.
+lat: 53.9060878
+lon: 27.5653432
+importance: 4
+must_see: false
+visit_minutes: 50
+hours_known: false
+price_known: true
+verified_at: '2026-10-09'
+categories:
+- museums
+opening_hours: {}
+opening_exceptions: []
+prices:
+- kind: adult
+  amount: 12
+  currency: BYN
+links:
+- kind: official
+  url: https://kupala-museum.by/navedvalniku/kosht-paslug
+  title: Источник сведений о месте и посещении
+- kind: article
+  url: https://www.openstreetmap.org/node/378828544
+  title: Пешеходная точка остановки (OSM)

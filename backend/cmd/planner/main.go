@@ -42,6 +42,10 @@ func run(args []string) error {
 	paceStr := fs.String("pace", "normal", "Темп ходьбы: slow, normal, fast (по умолчанию: normal)")
 	ticketBudget := fs.Float64("ticket-budget", -1, "Максимальный бюджет на билеты в BYN (по умолчанию: без ограничений)")
 	seed := fs.Int64("seed", 42, "Случайное зерно (seed) для детерминированного выбора (по умолчанию: 42)")
+	variants := fs.Bool("variants", true, "Показать до трёх разных вариантов маршрута")
+	geometry := fs.Bool("geometry", true, "Проверить итоговый путь и получить геометрию через Mapbox Directions")
+	profile := fs.String("profile", "best_match", "Профиль одного маршрута: best_match, more_places, less_walking, budget")
+	optimize := fs.Bool("optimize", true, "Уменьшить время ходьбы с помощью 2-opt и swap")
 
 	if err := fs.Parse(args); err != nil {
 		return err
@@ -51,6 +55,11 @@ func run(args []string) error {
 		return fmt.Errorf("бюджет времени должен быть положительным числом минут (--budget %d)", *budget)
 	}
 
+	switch planner.Profile(*profile) {
+	case planner.ProfileBestMatch, planner.ProfileMorePlaces, planner.ProfileLessWalking, planner.ProfileBudget:
+	default:
+		return fmt.Errorf("неизвестный профиль %q", *profile)
+	}
 	loc, err := time.LoadLocation(minskTimezone)
 	if err != nil {
 		return fmt.Errorf("не удалось загрузить часовой пояс %s: %w", minskTimezone, err)
@@ -97,7 +106,16 @@ func run(args []string) error {
 		return fmt.Errorf("ошибка конфигурации: %w. Убедитесь, что переменная POSTGRES_DSN задана", err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	if strings.TrimSpace(cfg.MapboxAccessToken) == "" {
+		return fmt.Errorf("задайте MAPBOX_ACCESS_TOKEN для маршрутизации Mapbox")
+	}
+
+	pln, err := planner.NewWithWeights(planner.ScoringWeights{WalkKM: cfg.PlannerWalkPenalty, CostBYN: cfg.PlannerCostPenalty, Unverified: cfg.PlannerUnverifiedPenalty})
+	if err != nil {
+		return err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancel()
 
 	pool, err := store.Open(ctx, cfg.PostgresDSN)
@@ -120,15 +138,15 @@ func run(args []string) error {
 		plannerPlaces[i] = planner.FromCatalogPlace(cp)
 	}
 
-	routingClient := routing.NewClient(cfg.ValhallaURL, 15*time.Second)
+	routingClient := routing.NewMapboxClient(cfg.MapboxURL, cfg.MapboxAccessToken, 15*time.Second)
 	matrixBuilder := planner.NewRouterMatrixBuilder(routingClient)
 
 	matrix, err := matrixBuilder.BuildMatrix(ctx, startPoint, plannerPlaces)
 	if err != nil {
 		if errors.Is(err, routing.ErrUnavailable) {
-			return fmt.Errorf("сервис маршрутизации Valhalla недоступен (%s): %w", cfg.ValhallaURL, err)
+			return fmt.Errorf("сервис маршрутизации Mapbox недоступен: %w", err)
 		}
-		return fmt.Errorf("ошибка построения матрицы расстояний Valhalla: %w", err)
+		return fmt.Errorf("ошибка построения матрицы расстояний Mapbox: %w", err)
 	}
 
 	req := planner.Request{
@@ -139,15 +157,124 @@ func run(args []string) error {
 		Pace:               pace,
 		MaxTicketCostMinor: maxTicketMinor,
 		Seed:               *seed,
+		Profile:            planner.Profile(*profile),
 	}
 
-	pln := planner.New()
-	route, err := pln.Plan(req, plannerPlaces, matrix)
+	var results []planner.Variant
+	if *variants {
+		results, err = pln.PlanVariants(req, plannerPlaces, matrix, *optimize)
+	} else {
+		var route planner.Route
+		route, err = pln.Plan(req, plannerPlaces, matrix)
+		if err == nil {
+			before := route.Metrics.WalkMinutes
+			if *optimize {
+				route, err = pln.Optimize(req, plannerPlaces, matrix, route)
+			}
+			results = []planner.Variant{{Profile: req.Profile, Route: route, BeforeWalkMinutes: before}}
+		}
+	}
 	if err != nil {
-		return fmt.Errorf("ошибка планирования маршрута: %w", err)
+		return fmt.Errorf("ошибка планирования маршрутов: %w", err)
+	}
+	if len(results) == 0 {
+		fmt.Println("Маршруты не найдены для выбранных ограничений.")
+		return nil
+	}
+	type finalVariant struct {
+		variant    planner.Variant
+		matrix     planner.DistanceMatrix
+		shapes     []string
+		matrixWalk float64
+	}
+	var finals []finalVariant
+	for _, variant := range results {
+		route := variant.Route
+		var shapes []string
+		displayMatrix := matrix
+		if *geometry && len(route.Stops) > 0 {
+			points := []routing.Point{{Lat: req.Start.Lat, Lon: req.Start.Lon}}
+			order := make([]int64, len(route.Stops))
+			indices := make(map[int64]int, len(plannerPlaces))
+			for i, place := range plannerPlaces {
+				if _, ok := indices[place.ID]; !ok {
+					indices[place.ID] = i
+				}
+			}
+			for i, stop := range route.Stops {
+				place := plannerPlaces[indices[stop.PlaceID]]
+				points = append(points, routing.Point{Lat: place.Location.Lat, Lon: place.Location.Lon})
+				order[i] = stop.PlaceID
+			}
+			path, pathErr := routingClient.Route(ctx, points)
+			if errors.Is(pathErr, routing.ErrNoRoute) {
+				fmt.Fprintln(os.Stderr, "Вариант пропущен: Mapbox Directions не нашёл путь.")
+				continue
+			}
+			if pathErr != nil {
+				return fmt.Errorf("ошибка Mapbox Directions: %w", pathErr)
+			}
+			confirmed := routeMatrix{base: matrix, legs: make(map[[2]int]routing.Leg)}
+			from := 0
+			for i, id := range order {
+				to := indices[id] + 1
+				confirmed.legs[[2]int{from, to}] = path.Legs[i]
+				from = to
+			}
+			verifiedReq := req
+			verifiedReq.Profile = variant.Profile
+			route, pathErr = pln.EvaluateOrder(verifiedReq, plannerPlaces, confirmed, order)
+			if errors.Is(pathErr, planner.ErrInfeasible) {
+				fmt.Fprintln(os.Stderr, "Вариант пропущен: уточнённый путь Directions нарушает ограничения времени или расписания.")
+				continue
+			}
+			if pathErr != nil {
+				return pathErr
+			}
+			displayMatrix = confirmed
+			shapes = path.Shapes
+		}
+		matrixWalk := variant.Route.Metrics.WalkMinutes
+		variant.Route = route
+		finals = append(finals, finalVariant{variant: variant, matrix: displayMatrix, shapes: shapes, matrixWalk: matrixWalk})
+	}
+	if len(finals) == 0 {
+		return fmt.Errorf("ни один вариант не прошёл уточнение пути Mapbox Directions")
+	}
+	finalVariants := make([]planner.Variant, len(finals))
+	for i, f := range finals {
+		finalVariants[i] = f.variant
+	}
+	labeled := planner.AssignLabels(finalVariants)
+	placeNames := make(map[int64]string, len(plannerPlaces))
+	for _, place := range plannerPlaces {
+		if _, exists := placeNames[place.ID]; !exists {
+			placeNames[place.ID] = place.Name
+		}
+	}
+	for i, f := range finals {
+		variant := labeled[i]
+		fmt.Printf("Вариант %d (профиль: %s)\n", i+1, variant.Profile)
+		if len(variant.Labels) > 0 {
+			names := make([]string, len(variant.Labels))
+			for j, label := range variant.Labels {
+				names[j] = string(label)
+			}
+			fmt.Printf("Метки: %s\n", strings.Join(names, ", "))
+		}
+		fmt.Println(planner.Explain(variant.Route))
+		if i > 0 {
+			fmt.Printf("По сравнению с вариантом 1: %s\n", planner.ExplainDiff(planner.DiffRoutes(labeled[0].Route, variant.Route), placeNames))
+		}
+		printRouteResult(req, variant.Route, plannerPlaces, f.matrix, pace)
+		if *optimize {
+			fmt.Printf("Ходьба по Matrix: до оптимизации %.2f мин; после %.2f мин; экономия %.2f мин\n", variant.BeforeWalkMinutes, f.matrixWalk, variant.BeforeWalkMinutes-f.matrixWalk)
+		}
+		if *geometry {
+			fmt.Printf("Итоговые переходы и геометрия проверены через Directions (%d частей пути).\n", len(f.shapes))
+		}
 	}
 
-	printRouteResult(req, route, plannerPlaces, matrix, pace)
 	return nil
 }
 
@@ -270,4 +397,18 @@ func printRouteResult(req planner.Request, route planner.Route, places []planner
 		fmt.Printf("  Категории:                %s\n", strings.Join(cats, ", "))
 	}
 	fmt.Printf("  Оценка маршрута (score):  %.2f\n\n", route.Metrics.Score)
+}
+
+// routeMatrix replaces only the selected path edges with Directions durations.
+// Other pairs retain Matrix estimates; planner applies the user's pace once.
+type routeMatrix struct {
+	base planner.DistanceMatrix
+	legs map[[2]int]routing.Leg
+}
+
+func (m routeMatrix) Leg(from, to int) routing.Leg {
+	if leg, ok := m.legs[[2]int{from, to}]; ok {
+		return leg
+	}
+	return m.base.Leg(from, to)
 }

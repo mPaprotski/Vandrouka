@@ -1,0 +1,35 @@
+slug: roch-church
+name: Костёл Пресвятой Троицы (Святого Роха)
+summary: Внешний осмотр неоготического костёла на Золотой Горке, в стороне от проспекта
+  Независимости. Вход внутрь, службы и концерты не включены. Доступ к конкретному входу
+  и двору требует проверки на месте.
+lat: 53.9108444
+lon: 27.5801996
+importance: 4
+must_see: false
+visit_minutes: 20
+hours_known: false
+price_known: true
+verified_at: '2026-10-09'
+categories:
+- religious
+- architecture
+opening_hours: {}
+opening_exceptions: []
+prices:
+- kind: free
+  amount: 0
+  currency: BYN
+links:
+- kind: official
+  url: https://www.roch.by/
+  title: Источник сведений о месте и посещении
+- kind: article
+  url: https://www.openstreetmap.org/node/1596637719
+  title: Пешеходная точка остановки (OSM)
+- kind: encyclopedia
+  url: https://ru.wikipedia.org/wiki/Костёл_Пресвятой_Троицы_(Минск)
+  title: Сведения об архитектуре костёла
+- kind: article
+  url: https://globus.by/
+  title: "Globus: GPX 2015-12-28, точка 305; см. data/sources/globus-minsk.json"

@@ -7,3 +7,7 @@ dist/
 coverage.out
 infra/valhalla/
 infra/osm/
+
+__pycache__/
+*.pyc
+*-coverage.out

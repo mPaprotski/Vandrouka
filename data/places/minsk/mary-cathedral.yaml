@@ -1,0 +1,35 @@
+slug: mary-cathedral
+name: Архикафедральный собор Пресвятой Девы Марии
+summary: Внешний осмотр католического собора на площади Свободы, напротив ратуши. Посещение
+  интерьера, участие в службе и концерты не входят в эту остановку; расписание богослужений
+  не используется как туристические часы работы.
+lat: 53.9029928
+lon: 27.5546861
+importance: 4
+must_see: false
+visit_minutes: 20
+hours_known: false
+price_known: true
+verified_at: '2026-10-09'
+categories:
+- religious
+- architecture
+opening_hours: {}
+opening_exceptions: []
+prices:
+- kind: free
+  amount: 0
+  currency: BYN
+links:
+- kind: official
+  url: https://katedra.by/
+  title: Источник сведений о месте и посещении
+- kind: article
+  url: https://www.openstreetmap.org/node/10939005213
+  title: Пешеходная точка остановки (OSM)
+- kind: encyclopedia
+  url: https://ru.wikipedia.org/wiki/Собор_Пресвятого_Имени_Пресвятой_Девы_Марии_(Минск)
+  title: Сведения об архитектуре собора
+- kind: article
+  url: https://globus.by/
+  title: "Globus: GPX 2015-12-28, точка 308; см. data/sources/globus-minsk.json"

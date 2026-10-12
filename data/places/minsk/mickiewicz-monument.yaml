@@ -1,0 +1,28 @@
+slug: mickiewicz-monument
+name: Памятник Адаму Мицкевичу
+summary: Короткая остановка возле бронзового памятника поэту в сквере на Городском Валу.
+  Включён осмотр скульптуры и ближайшей части сквера. Отдельные памятники и события вне
+  этой точки не входят.
+lat: 53.9004994
+lon: 27.5497328
+importance: 3
+must_see: false
+visit_minutes: 15
+hours_known: false
+price_known: true
+verified_at: '2026-10-09'
+categories:
+- monuments
+opening_hours: {}
+opening_exceptions: []
+prices:
+- kind: free
+  amount: 0
+  currency: BYN
+links:
+- kind: encyclopedia
+  url: https://ru.wikipedia.org/wiki/Памятник_Адаму_Мицкевичу_(Минск)
+  title: Источник сведений о месте и посещении
+- kind: article
+  url: https://www.openstreetmap.org/node/2608439873
+  title: Пешеходная точка остановки (OSM)

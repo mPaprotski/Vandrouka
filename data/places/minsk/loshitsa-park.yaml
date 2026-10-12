@@ -1,0 +1,29 @@
+slug: loshitsa-park
+name: Лошицкий парк
+summary: Прогулка по части усадебно-паркового комплекса «Лошица» с внешним осмотром усадьбы.
+  Музейные интерьеры, экскурсии и платные события не включены. Остановка рассчитана на
+  аллеи возле усадьбы, без обхода всего парка.
+lat: 53.8509124
+lon: 27.5777145
+importance: 4
+must_see: false
+visit_minutes: 60
+hours_known: false
+price_known: true
+verified_at: '2026-10-09'
+categories:
+- parks
+- architecture
+opening_hours: {}
+opening_exceptions: []
+prices:
+- kind: free
+  amount: 0
+  currency: BYN
+links:
+- kind: encyclopedia
+  url: https://ru.wikipedia.org/wiki/Лошица_(усадьба)
+  title: Источник сведений о месте и посещении
+- kind: article
+  url: https://www.openstreetmap.org/node/292216690
+  title: Пешеходная точка остановки (OSM)

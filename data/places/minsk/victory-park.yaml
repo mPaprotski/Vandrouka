@@ -1,0 +1,28 @@
+slug: victory-park
+name: Парк Победы
+summary: Прогулка по части парка у Комсомольского озера. Время рассчитано на ближайшие
+  аллеи и берег, без обхода всей территории. Музей истории войны, водные прогулки, прокат
+  и платные мероприятия не входят.
+lat: 53.9213608
+lon: 27.5306839
+importance: 4
+must_see: false
+visit_minutes: 45
+hours_known: false
+price_known: true
+verified_at: '2026-10-09'
+categories:
+- parks
+opening_hours: {}
+opening_exceptions: []
+prices:
+- kind: free
+  amount: 0
+  currency: BYN
+links:
+- kind: encyclopedia
+  url: https://ru.wikipedia.org/wiki/Парк_Победы_(Минск)
+  title: Источник сведений о месте и посещении
+- kind: article
+  url: https://www.openstreetmap.org/node/1777216564
+  title: Пешеходная точка остановки (OSM)

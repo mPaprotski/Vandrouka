@@ -31,7 +31,8 @@ func TestCatalogIntegration(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := importer.Import(ctx, pool, "minsk", data, time.Date(2026, 10, 8, 12, 0, 0, 0, time.UTC)); err != nil {
+	// The checked-in catalog includes the GPX review dated 13 October.
+	if err := importer.Import(ctx, pool, "minsk", data, time.Date(2026, 10, 13, 12, 0, 0, 0, time.UTC)); err != nil {
 		t.Fatal(err)
 	}
 	router := chi.NewRouter()
@@ -42,7 +43,7 @@ func TestCatalogIntegration(t *testing.T) {
 		contains string
 	}{
 		{"/v1/cities", 200, `"timezone":"Europe/Minsk"`},
-		{"/v1/cities/minsk/categories", 200, `"places_count":3`},
+		{"/v1/cities/minsk/categories", 200, `"places_count":8`},
 		{"/v1/cities/minsk/places?category=museums", 200, `"name":"Национальный художественный музей"`},
 		{"/v1/cities/minsk/places?q=ПОБЕДЫ", 200, `"slug":"victory-square"`},
 		{"/v1/cities/minsk/places?q=%25", 200, `"places":[]`},

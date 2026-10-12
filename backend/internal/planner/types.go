@@ -56,7 +56,17 @@ type Place struct {
 	TicketCostMinor int64 // BYN kopecks; integer arithmetic avoids rounding errors.
 }
 
+type Profile string
+
+const (
+	ProfileBestMatch   Profile = "best_match"
+	ProfileMorePlaces  Profile = "more_places"
+	ProfileLessWalking Profile = "less_walking"
+	ProfileBudget      Profile = "budget"
+)
+
 type Request struct {
+	Profile            Profile
 	Categories         []string
 	BudgetMinutes      int
 	Start              Point
@@ -75,6 +85,7 @@ type Stop struct {
 }
 
 type Metrics struct {
+	InterestValue   float64
 	WalkMinutes     float64
 	VisitMinutes    int
 	TotalMinutes    float64

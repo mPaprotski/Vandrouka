@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   planner:
-    name: Planner constraints without external services
+    name: Planner and Mapbox checks without external services
     runs-on: ubuntu-latest
     timeout-minutes: 10
     defaults:
@@ -22,16 +22,16 @@ jobs:
         working-directory: backend
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Go
-        uses: actions/setup-go@v7
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
         with:
           go-version-file: backend/go.mod
           cache-dependency-path: backend/go.sum
 
-      - name: Test planner constraints and schedules
-        run: go test ./internal/planner -race -count=1 -timeout 2m -coverprofile=planner-coverage.out -v
+      - name: Test planner, Mapbox adapters and CLI
+        run: go test ./internal/planner ./internal/routing ./cmd/planner -race -count=1 -timeout 2m -coverprofile=planner-coverage.out -v
 
       - name: Build planner CLI
         run: go build -o "$RUNNER_TEMP/vandrouka-planner" ./cmd/planner
@@ -70,10 +70,10 @@ jobs:
           --health-retries 10
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Go
-        uses: actions/setup-go@v7
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
         with:
           go-version-file: backend/go.mod
           cache-dependency-path: backend/go.sum
@@ -108,7 +108,27 @@ jobs:
       - name: Check importer CLI and repeated import
         run: |
           go run ./cmd/import -check-links=false ../data/places/minsk
+          psql "$POSTGRES_DSN" -Atc 'SELECT slug,id FROM places ORDER BY slug' > "$RUNNER_TEMP/places-before.txt"
           go run ./cmd/import -check-links=false ../data/places/minsk
+          psql "$POSTGRES_DSN" -Atc 'SELECT slug,id FROM places ORDER BY slug' > "$RUNNER_TEMP/places-after.txt"
+          diff -u "$RUNNER_TEMP/places-before.txt" "$RUNNER_TEMP/places-after.txt"
+          expected=$(find ../data/places/minsk -name '*.yaml' | wc -l)
+          actual=$(psql "$POSTGRES_DSN" -Atc 'SELECT count(*) FROM places WHERE is_active')
+          test "$actual" -eq "$expected"
+
+  catalog:
+    name: Catalog source integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Check Python syntax
+        run: python3 -m py_compile scripts/*.py
+
+      - name: Check GPX provenance and catalog mappings
+        run: python3 scripts/check_catalog_sources.py
 
   docker:
     name: Build API Docker image
@@ -116,10 +136,10 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Validate Compose configuration
-        run: docker compose --profile routing config --quiet
+        run: docker compose config --quiet
 
       - name: Build API image
         run: docker build --tag vandrouka-api:ci ./backend

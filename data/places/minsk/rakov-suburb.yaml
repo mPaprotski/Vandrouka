@@ -1,0 +1,29 @@
+slug: rakov-suburb
+name: Раковское предместье
+summary: Короткая прогулка по историческому кварталу вдоль Раковской улицы. Внешний осмотр
+  застройки не включает посещение заведений и интерьеров. Петропавловский собор учитывается
+  отдельной остановкой, чтобы не прибавлять его осмотр дважды.
+lat: 53.9047205
+lon: 27.5495516
+importance: 4
+must_see: false
+visit_minutes: 30
+hours_known: false
+price_known: true
+verified_at: '2026-10-09'
+categories:
+- streets
+- architecture
+opening_hours: {}
+opening_exceptions: []
+prices:
+- kind: free
+  amount: 0
+  currency: BYN
+links:
+- kind: encyclopedia
+  url: https://ru.wikipedia.org/wiki/Раковское_предместье
+  title: Источник сведений о месте и посещении
+- kind: article
+  url: https://www.openstreetmap.org/node/6071647223
+  title: Пешеходная точка остановки (OSM)

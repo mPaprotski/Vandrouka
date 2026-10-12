@@ -1,0 +1,28 @@
+slug: war-museum
+name: Белорусский государственный музей истории Великой Отечественной войны
+summary: 'Экспозиция о войне с документами, предметами быта и военной техникой. Включён
+  самостоятельный осмотр постоянных залов; экскурсия и аудиогид оплачиваются отдельно.
+  Касса и вход до 18:30. Перед праздниками часы меняются: уточните график на сайте.'
+lat: 53.9161517
+lon: 27.5380077
+importance: 5
+must_see: true
+visit_minutes: 90
+hours_known: false
+price_known: true
+verified_at: '2026-10-09'
+categories:
+- museums
+opening_hours: {}
+opening_exceptions: []
+prices:
+- kind: adult
+  amount: 20
+  currency: BYN
+links:
+- kind: official
+  url: https://www.warmuseum.by/posetitelyam/rezhim-raboty-i-stoimost/
+  title: Источник сведений о месте и посещении
+- kind: article
+  url: https://www.openstreetmap.org/node/1407534135
+  title: Пешеходная точка остановки (OSM)

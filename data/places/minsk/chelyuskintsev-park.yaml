@@ -1,0 +1,28 @@
+slug: chelyuskintsev-park
+name: Парк Челюскинцев
+summary: Прогулка по части аллей парка рядом с проспектом Независимости. Остановка не означает
+  обход всей территории. Аттракционы, прокат и платные мероприятия в стоимость и время
+  посещения не входят.
+lat: 53.9237818
+lon: 27.6168495
+importance: 4
+must_see: false
+visit_minutes: 45
+hours_known: false
+price_known: true
+verified_at: '2026-10-09'
+categories:
+- parks
+opening_hours: {}
+opening_exceptions: []
+prices:
+- kind: free
+  amount: 0
+  currency: BYN
+links:
+- kind: encyclopedia
+  url: https://ru.wikipedia.org/wiki/Парк_Челюскинцев_(Минск)
+  title: Источник сведений о месте и посещении
+- kind: article
+  url: https://www.openstreetmap.org/node/512738684
+  title: Пешеходная точка остановки (OSM)

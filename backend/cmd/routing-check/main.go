@@ -47,7 +47,7 @@ func run() error {
 		points[i] = routing.Point{Lat: p.Lat, Lon: p.Lon}
 		names[i] = p.Slug
 	}
-	client := routing.NewClient(cfg.ValhallaURL, 10*time.Second)
+	client := routing.NewMapboxClient(cfg.MapboxURL, cfg.MapboxAccessToken, 15*time.Second)
 	start := time.Now()
 	matrix, err := client.Matrix(ctx, points)
 	if err != nil {

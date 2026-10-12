@@ -24,3 +24,6 @@ links:
 - kind: encyclopedia
   url: https://ru.wikipedia.org/wiki/Свято-Духов_собор_(Минск)
   title: Свято-Духов собор — внешний осмотр
+- kind: article
+  url: https://globus.by/
+  title: "Globus: GPX 2015-12-28, точка 306; см. data/sources/globus-minsk.json"

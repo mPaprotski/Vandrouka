@@ -1,0 +1,28 @@
+slug: national-academy
+name: Главный корпус Национальной академии наук Беларуси
+summary: Внешний осмотр главного корпуса академии на проспекте Независимости, 66. Остановка
+  на прогулке по проспекту не включает вход на служебную территорию, посещение музея академии
+  или экскурсионные программы.
+lat: 53.9205526
+lon: 27.5981733
+importance: 3
+must_see: false
+visit_minutes: 15
+hours_known: false
+price_known: true
+verified_at: '2026-10-09'
+categories:
+- architecture
+opening_hours: {}
+opening_exceptions: []
+prices:
+- kind: free
+  amount: 0
+  currency: BYN
+links:
+- kind: official
+  url: https://nasb.gov.by/rus/about/kontakty/
+  title: Источник сведений о месте и посещении
+- kind: article
+  url: https://www.openstreetmap.org/node/6431170852
+  title: Пешеходная точка остановки (OSM)

@@ -1,0 +1,28 @@
+slug: oktyabrskaya-street
+name: Октябрьская улица
+summary: Прогулка по части улицы с промышленной застройкой и уличными рисунками. Время
+  рассчитано на участок возле выбранной точки, без прохождения всей улицы. Посещение кафе,
+  галерей, клубов и событий не включено; рисунки могут меняться.
+lat: 53.8915899
+lon: 27.5707875
+importance: 4
+must_see: false
+visit_minutes: 35
+hours_known: false
+price_known: true
+verified_at: '2026-10-09'
+categories:
+- streets
+opening_hours: {}
+opening_exceptions: []
+prices:
+- kind: free
+  amount: 0
+  currency: BYN
+links:
+- kind: encyclopedia
+  url: https://ru.wikipedia.org/wiki/Октябрьская_улица_(Минск)
+  title: Источник сведений о месте и посещении
+- kind: article
+  url: https://www.openstreetmap.org/node/275066903
+  title: Пешеходная точка остановки (OSM)

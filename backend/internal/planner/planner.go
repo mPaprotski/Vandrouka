@@ -9,10 +9,10 @@ import (
 )
 
 // Planner implements the greedy route planning algorithm.
-type Planner struct{}
+type Planner struct{ weights ScoringWeights }
 
 func New() *Planner {
-	return &Planner{}
+	return &Planner{weights: DefaultScoringWeights()}
 }
 
 // candidate holds information about a potential next place to visit.
@@ -36,35 +36,13 @@ type candidate struct {
 // - Index 0 is the starting location.
 // - Index 1 + i corresponds to places[i].
 func (p *Planner) Plan(req Request, places []Place, matrix DistanceMatrix) (Route, error) {
-	if req.BudgetMinutes <= 0 || int64(req.BudgetMinutes) > math.MaxInt64/int64(time.Minute) {
-		return Route{}, fmt.Errorf("budget must be greater than zero")
-	}
-	if req.StartAt.IsZero() {
-		return Route{}, fmt.Errorf("start time must not be zero")
-	}
-	if req.MaxTicketCostMinor != nil && *req.MaxTicketCostMinor < 0 {
-		return Route{}, fmt.Errorf("ticket budget cannot be negative")
-	}
-	if matrix == nil {
-		return Route{}, fmt.Errorf("distance matrix is required")
-	}
+	return p.plan(req, places, matrix, 0)
+}
 
-	if req.Pace != "" && req.Pace != PaceNormal && req.Pace != PaceSlow && req.Pace != PaceFast {
-		return Route{}, fmt.Errorf("invalid walking pace %q", req.Pace)
-	}
-	if !validPoint(req.Start) {
-		return Route{}, fmt.Errorf("invalid start coordinates")
-	}
-	// First record for each ID is authoritative, including its matrix index.
-	firstIndex := make(map[int64]int, len(places))
-	for i, place := range places {
-		if _, exists := firstIndex[place.ID]; exists {
-			continue
-		}
-		firstIndex[place.ID] = i
-		if place.ID <= 0 || place.Importance < 1 || place.Importance > 5 || place.VisitMinutes <= 0 || place.VisitMinutes > 1440 || place.TicketCostMinor < 0 || !validPoint(place.Location) {
-			return Route{}, fmt.Errorf("invalid place at index %d", i)
-		}
+func (p *Planner) plan(req Request, places []Place, matrix DistanceMatrix, variation uint64) (Route, error) {
+	firstIndex, err := validateInputs(req, places, matrix)
+	if err != nil {
+		return Route{}, err
 	}
 
 	paceMult := req.Pace.WalkMultiplier()
@@ -84,6 +62,10 @@ func (p *Planner) Plan(req Request, places []Place, matrix DistanceMatrix) (Rout
 		rng = rand.New(rand.NewPCG(uint64(req.Seed), uint64(req.Seed)^0x5851f42d4c957f2d))
 	} else {
 		rng = rand.New(rand.NewPCG(1, 2))
+	}
+
+	if variation != 0 {
+		rng = rand.New(rand.NewPCG(uint64(req.Seed)^variation, variation+0x5851f42d4c957f2d))
 	}
 
 	// Track visited places by both slice index and unique PlaceID.
@@ -197,6 +179,21 @@ func (p *Planner) Plan(req Request, places []Place, matrix DistanceMatrix) (Rout
 			hoursUnconf := !place.Schedule.Known
 
 			efficiency := value / deltaTime
+			switch req.Profile {
+			case ProfileMorePlaces:
+				efficiency = 1 / deltaTime
+			case ProfileLessWalking:
+				efficiency = value / (float64(place.VisitMinutes) + 4*scaledWalkMin)
+			case ProfileBudget:
+				penalty := 1 + float64(placeCostMinor)/100
+				if priceUnconf {
+					penalty += 2
+				}
+				efficiency = value / (deltaTime * penalty)
+			}
+			if variation != 0 {
+				efficiency *= 0.9 + rng.Float64()*0.2
+			}
 
 			candidates = append(candidates, candidate{
 				placeIndex:    i,
@@ -277,15 +274,6 @@ func (p *Planner) Plan(req Request, places []Place, matrix DistanceMatrix) (Rout
 		}
 	}
 
-	// Score calculation per requirements/specs:
-	// score = Σ value - α·walk_km - β·cost - γ·unverified_count
-	// α = 0.5, β = 0.1 (per 1 BYN), γ = 0.5
-	const alpha = 0.5
-	const betaPerBYN = 0.1
-	const gamma = 0.5
-	costBYN := float64(accumulatedCostMinor) / 100.0
-	score := totalValue - (alpha * totalWalkKM) - (betaPerBYN * costBYN) - (gamma * float64(unverifiedCount))
-
 	metrics := Metrics{
 		WalkMinutes:     totalWalkMin,
 		VisitMinutes:    totalVisitMin,
@@ -294,9 +282,10 @@ func (p *Planner) Plan(req Request, places []Place, matrix DistanceMatrix) (Rout
 		CostMinor:       accumulatedCostMinor,
 		UnverifiedCount: unverifiedCount,
 		CategoryCounts:  categoryCounts,
-		Score:           score,
+		InterestValue:   totalValue,
 	}
 
+	metrics.Score = p.score(metrics)
 	return Route{
 		Stops:   stops,
 		Metrics: metrics,
@@ -306,4 +295,44 @@ func (p *Planner) Plan(req Request, places []Place, matrix DistanceMatrix) (Rout
 
 func validPoint(p Point) bool {
 	return !math.IsNaN(p.Lat) && !math.IsNaN(p.Lon) && !math.IsInf(p.Lat, 0) && !math.IsInf(p.Lon, 0) && math.Abs(p.Lat) <= 90 && math.Abs(p.Lon) <= 180
+}
+
+func validateInputs(req Request, places []Place, matrix DistanceMatrix) (map[int64]int, error) {
+	if req.BudgetMinutes <= 0 || int64(req.BudgetMinutes) > math.MaxInt64/int64(time.Minute) {
+		return nil, fmt.Errorf("budget must be greater than zero")
+	}
+	if req.StartAt.IsZero() {
+		return nil, fmt.Errorf("start time must not be zero")
+	}
+	if req.MaxTicketCostMinor != nil && *req.MaxTicketCostMinor < 0 {
+		return nil, fmt.Errorf("ticket budget cannot be negative")
+	}
+	if matrix == nil {
+		return nil, fmt.Errorf("distance matrix is required")
+	}
+
+	switch req.Profile {
+	case "", ProfileBestMatch, ProfileMorePlaces, ProfileLessWalking, ProfileBudget:
+	default:
+		return nil, fmt.Errorf("unknown planning profile %q", req.Profile)
+	}
+	if req.Pace != "" && req.Pace != PaceNormal && req.Pace != PaceSlow && req.Pace != PaceFast {
+		return nil, fmt.Errorf("invalid walking pace %q", req.Pace)
+	}
+	if !validPoint(req.Start) {
+		return nil, fmt.Errorf("invalid start coordinates")
+	}
+	// First record for each ID is authoritative, including its matrix index.
+	firstIndex := make(map[int64]int, len(places))
+	for i, place := range places {
+		if _, exists := firstIndex[place.ID]; exists {
+			continue
+		}
+		firstIndex[place.ID] = i
+		if place.ID <= 0 || place.Importance < 1 || place.Importance > 5 || place.VisitMinutes <= 0 || place.VisitMinutes > 1440 || place.TicketCostMinor < 0 || !validPoint(place.Location) {
+			return nil, fmt.Errorf("invalid place at index %d", i)
+		}
+	}
+
+	return firstIndex, nil
 }
