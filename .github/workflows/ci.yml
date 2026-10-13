@@ -109,7 +109,15 @@ jobs:
           go run ./cmd/migrate up
 
       - name: Run tests with PostgreSQL and race detector
+        env:
+          ROUTE_RESPONSE_EXAMPLES_DIR: ${{ runner.temp }}
         run: go test ./... -race -count=1 -timeout 2m -v
+
+      - name: Validate serialized Go route response
+        run: |
+          python3 -m venv "$RUNNER_TEMP/route-contract-venv"
+          "$RUNNER_TEMP/route-contract-venv/bin/pip" install -r ../scripts/requirements-openapi.txt
+          "$RUNNER_TEMP/route-contract-venv/bin/python" ../scripts/check_openapi.py --route-response "$RUNNER_TEMP/route-response.json"
 
       - name: Check importer CLI and repeated import
         run: |

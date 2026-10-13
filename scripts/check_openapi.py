@@ -2,6 +2,8 @@
 """Validate OpenAPI, inline examples, and registered versus planned endpoints."""
 from pathlib import Path
 import re
+import argparse
+import json
 import yaml
 from openapi_spec_validator import validate_spec
 from openapi_schema_validator import OAS30Validator, oas30_format_checker
@@ -10,6 +12,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--route-response', type=Path, help='Validate JSON serialized by Go HTTP models')
+    args = parser.parse_args()
     spec = yaml.safe_load((ROOT / 'docs/openapi.yaml').read_text())
     validate_spec(spec)
 
@@ -100,6 +105,9 @@ def main():
         change.validate({'type': kind, 'place_id': 1})
     if not list(change.iter_errors({'type': 'pin', 'place_id': 1})):
         raise ValueError('Unimplemented pin operation accepted')
+    if args.route_response is not None:
+        response_check.validate(json.loads(args.route_response.read_text()))
+        print('Actual Go route response matches OpenAPI')
     print(f'OpenAPI valid; {count} examples and request boundaries checked; {len(registered)} implemented endpoints match Go')
 
 
