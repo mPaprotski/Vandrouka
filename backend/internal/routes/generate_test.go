@@ -47,6 +47,8 @@ func (e *engineSpy) PlanVariants(req planner.Request, p []planner.Place, m plann
 }
 func candidateFixture() (*catalogStub, planner.Request, routing.Matrix) {
 	a, b := card(70, "museums"), card(20, "parks")
+	a.Lat, a.Lon = 53.901, 27.501
+	b.Lat, b.Lon = 53.902, 27.502
 	a.VisitMinutes = 10
 	b.VisitMinutes = 15
 	a.PriceKnown = true

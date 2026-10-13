@@ -13,7 +13,7 @@ import (
 )
 
 var ErrCityNotFound = errors.New("route city not found")
-var ErrRoutingUnavailable = errors.New("route matrix unavailable")
+var ErrRoutingUnavailable = errors.New("route routing unavailable")
 
 // Catalog returns active places only, in stable repository order. Filtering
 // multiple categories is a union handled by the service, without repeat queries.
@@ -26,10 +26,16 @@ type VariantPlanner interface {
 	PlanVariants(planner.Request, []planner.Place, planner.DistanceMatrix, bool) ([]planner.Variant, error)
 }
 
+type RouteEvaluator interface {
+	EvaluateOrder(planner.Request, []planner.Place, planner.DistanceMatrix, []int64) (planner.Route, error)
+}
+
 type Service struct {
-	catalog Catalog
-	matrix  planner.MatrixBuilder
-	engine  VariantPlanner
+	catalog    Catalog
+	matrix     planner.MatrixBuilder
+	engine     VariantPlanner
+	evaluator  RouteEvaluator
+	directions Directions
 }
 
 type Option func(*Service)
@@ -39,11 +45,23 @@ func WithMatrixBuilder(matrix planner.MatrixBuilder) Option {
 }
 
 func WithVariantPlanner(engine VariantPlanner) Option {
-	return func(s *Service) { s.engine = engine }
+	return func(s *Service) {
+		s.engine = engine
+		s.evaluator, _ = engine.(RouteEvaluator)
+	}
+}
+
+func WithRouteEvaluator(evaluator RouteEvaluator) Option {
+	return func(s *Service) { s.evaluator = evaluator }
+}
+
+func WithDirections(directions Directions) Option {
+	return func(s *Service) { s.directions = directions }
 }
 
 func NewService(catalog Catalog, options ...Option) *Service {
-	s := &Service{catalog: catalog, engine: planner.New()}
+	engine := planner.New()
+	s := &Service{catalog: catalog, engine: engine, evaluator: engine}
 	for _, option := range options {
 		option(s)
 	}
@@ -65,6 +83,10 @@ func (s *Service) GenerateCandidates(ctx context.Context, citySlug string, reque
 	if err != nil {
 		return Candidates{}, err
 	}
+	return s.generateCandidates(ctx, prepared)
+}
+
+func (s *Service) generateCandidates(ctx context.Context, prepared Prepared) (Candidates, error) {
 	result := Candidates{Prepared: prepared, Variants: []planner.Variant{}}
 	if prepared.Empty() {
 		return result, nil
