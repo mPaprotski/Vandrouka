@@ -1,0 +1,1720 @@
+{
+  "matrix_source": "synthetic-directed-v1",
+  "catalog_size": 60,
+  "slugs": {
+    "1": "alexander-nevsky-church",
+    "10": "calvary-gate",
+    "11": "chelyuskintsev-park",
+    "12": "first-congress-museum",
+    "13": "freedom-square-manor",
+    "14": "gorky-park",
+    "15": "guest-court",
+    "16": "holy-spirit-cathedral",
+    "17": "independence-square",
+    "18": "island-of-tears",
+    "19": "kupala-museum",
+    "2": "alexandrovsky-square",
+    "20": "kupala-park",
+    "21": "loshitsa-chapel",
+    "22": "loshitsa-distillery",
+    "23": "loshitsa-gate",
+    "24": "loshitsa-manager-house",
+    "25": "loshitsa-manor-house",
+    "26": "loshitsa-mill-ruins",
+    "27": "loshitsa-park",
+    "28": "loshitsa-service-building",
+    "29": "loshitsa-water-mill",
+    "3": "all-saints-church",
+    "30": "loshitsa-workers-house",
+    "31": "main-post-office",
+    "32": "mary-cathedral",
+    "33": "mary-magdalene-church",
+    "34": "masons-house",
+    "35": "mickiewicz-monument",
+    "36": "mikhailovsky-square",
+    "37": "minsk-gates",
+    "38": "national-academy",
+    "39": "national-art-museum",
+    "4": "azgur-museum",
+    "40": "national-history-museum",
+    "41": "national-library",
+    "42": "oktyabrskaya-street",
+    "43": "peter-paul-cathedral",
+    "44": "pishchalovsky-castle",
+    "45": "rakov-suburb",
+    "46": "red-church",
+    "47": "roch-church",
+    "48": "saint-joseph-church",
+    "49": "town-hall",
+    "5": "basilian-convent-building",
+    "50": "trinity-basilian-convent",
+    "51": "trinity-suburb",
+    "52": "upper-town",
+    "53": "vankovich-house",
+    "54": "vankovich-large-slepyanka",
+    "55": "victory-park",
+    "56": "victory-square",
+    "57": "war-museum",
+    "58": "white-dacha",
+    "59": "yakub-kolas-square",
+    "6": "basilian-monastery-building",
+    "60": "zero-kilometer",
+    "7": "bolshoi-theatre",
+    "8": "boulder-museum",
+    "9": "calvary-church"
+  },
+  "results": [
+    {
+      "name": "one-hour",
+      "budget_minutes": 60,
+      "compute_ms": 0.563013,
+      "rejected_by_directions": 0,
+      "variants": [
+        {
+          "Profile": "best_match",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 49,
+                "Arrival": "2026-10-24T11:00:04.199640129+03:00",
+                "Departure": "2026-10-24T11:15:04.199640129+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 32,
+                "Arrival": "2026-10-24T11:16:43.392576316+03:00",
+                "Departure": "2026-10-24T11:36:43.392576316+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 16,
+                "Arrival": "2026-10-24T11:40:37.386124766+03:00",
+                "Departure": "2026-10-24T11:55:37.386124766+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 19,
+              "WalkMinutes": 5.623102079433333,
+              "VisitMinutes": 50,
+              "TotalMinutes": 55.62310207943333,
+              "WalkKM": 0.44984816635239355,
+              "CostMinor": 0,
+              "UnverifiedCount": 3,
+              "CategoryCounts": {
+                "architecture": 3,
+                "religious": 2
+              },
+              "Score": 17.275075916823802
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 7.123997146800001,
+          "Labels": null
+        },
+        {
+          "Profile": "budget",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 49,
+                "Arrival": "2026-10-24T11:00:04.199640129+03:00",
+                "Departure": "2026-10-24T11:15:04.199640129+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 16,
+                "Arrival": "2026-10-24T11:18:11.152225961+03:00",
+                "Departure": "2026-10-24T11:33:11.152225961+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 18,
+                "Arrival": "2026-10-24T11:41:25.254647382+03:00",
+                "Departure": "2026-10-24T11:56:25.254647382+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 19,
+              "WalkMinutes": 11.4209107897,
+              "VisitMinutes": 45,
+              "TotalMinutes": 56.4209107897,
+              "WalkKM": 0.9136728631740088,
+              "CostMinor": 0,
+              "UnverifiedCount": 3,
+              "CategoryCounts": {
+                "architecture": 2,
+                "monuments": 1,
+                "religious": 1
+              },
+              "Score": 17.043163568412997
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 11.4209107897,
+          "Labels": null
+        },
+        {
+          "Profile": "best_match",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 49,
+                "Arrival": "2026-10-24T11:00:04.199640129+03:00",
+                "Departure": "2026-10-24T11:15:04.199640129+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 15,
+                "Arrival": "2026-10-24T11:16:46.248984722+03:00",
+                "Departure": "2026-10-24T11:31:46.248984722+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 16,
+                "Arrival": "2026-10-24T11:33:20.903516111+03:00",
+                "Departure": "2026-10-24T11:48:20.903516111+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 18,
+              "WalkMinutes": 3.3483919351833333,
+              "VisitMinutes": 45,
+              "TotalMinutes": 48.348391935183336,
+              "WalkKM": 0.26787135481206026,
+              "CostMinor": 0,
+              "UnverifiedCount": 3,
+              "CategoryCounts": {
+                "architecture": 3,
+                "religious": 1
+              },
+              "Score": 16.36606432259397
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 4.748129688616666,
+          "Labels": [
+            "Меньше ходьбы"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "two-hours",
+      "budget_minutes": 120,
+      "compute_ms": 3.151903,
+      "rejected_by_directions": 0,
+      "variants": [
+        {
+          "Profile": "best_match",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 49,
+                "Arrival": "2026-10-24T11:00:04.199640129+03:00",
+                "Departure": "2026-10-24T11:15:04.199640129+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 16,
+                "Arrival": "2026-10-24T11:18:11.152225961+03:00",
+                "Departure": "2026-10-24T11:33:11.152225961+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 51,
+                "Arrival": "2026-10-24T11:38:51.687055468+03:00",
+                "Departure": "2026-10-24T12:08:51.687055468+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 18,
+                "Arrival": "2026-10-24T12:11:33.363942529+03:00",
+                "Departure": "2026-10-24T12:26:33.363942529+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 7,
+                "Arrival": "2026-10-24T12:33:55.431633785+03:00",
+                "Departure": "2026-10-24T12:48:55.431633785+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 30.5,
+              "WalkMinutes": 18.923860563083334,
+              "VisitMinutes": 90,
+              "TotalMinutes": 108.92386056308334,
+              "WalkKM": 1.5139088450420843,
+              "CostMinor": 0,
+              "UnverifiedCount": 5,
+              "CategoryCounts": {
+                "architecture": 4,
+                "monuments": 1,
+                "religious": 1,
+                "streets": 1
+              },
+              "Score": 27.24304557747896
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 18.92386056308333,
+          "Labels": null
+        },
+        {
+          "Profile": "best_match",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 49,
+                "Arrival": "2026-10-24T11:00:04.199640129+03:00",
+                "Departure": "2026-10-24T11:15:04.199640129+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 16,
+                "Arrival": "2026-10-24T11:18:11.152225961+03:00",
+                "Departure": "2026-10-24T11:33:11.152225961+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 51,
+                "Arrival": "2026-10-24T11:38:51.687055468+03:00",
+                "Departure": "2026-10-24T12:08:51.687055468+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 56,
+                "Arrival": "2026-10-24T12:29:21.732698339+03:00",
+                "Departure": "2026-10-24T12:44:21.732698339+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 30,
+              "WalkMinutes": 29.362211638983332,
+              "VisitMinutes": 75,
+              "TotalMinutes": 104.36221163898333,
+              "WalkKM": 2.348976931114663,
+              "CostMinor": 0,
+              "UnverifiedCount": 4,
+              "CategoryCounts": {
+                "architecture": 3,
+                "monuments": 1,
+                "religious": 1,
+                "streets": 2
+              },
+              "Score": 26.82551153444267
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 44.890388872816665,
+          "Labels": null
+        },
+        {
+          "Profile": "more_places",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 49,
+                "Arrival": "2026-10-24T11:00:04.199640129+03:00",
+                "Departure": "2026-10-24T11:15:04.199640129+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 6,
+                "Arrival": "2026-10-24T11:16:40.746645705+03:00",
+                "Departure": "2026-10-24T11:31:40.746645705+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 5,
+                "Arrival": "2026-10-24T11:32:39.420189525+03:00",
+                "Departure": "2026-10-24T11:47:39.420189525+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 16,
+                "Arrival": "2026-10-24T11:50:10.89486991+03:00",
+                "Departure": "2026-10-24T12:05:10.89486991+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 15,
+                "Arrival": "2026-10-24T12:06:44.630425266+03:00",
+                "Departure": "2026-10-24T12:21:44.630425266+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 13,
+                "Arrival": "2026-10-24T12:24:05.276350927+03:00",
+                "Departure": "2026-10-24T12:39:05.276350927+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 27,
+              "WalkMinutes": 9.087939182116667,
+              "VisitMinutes": 90,
+              "TotalMinutes": 99.08793918211667,
+              "WalkKM": 0.7270351345656682,
+              "CostMinor": 0,
+              "UnverifiedCount": 6,
+              "CategoryCounts": {
+                "architecture": 6,
+                "religious": 3
+              },
+              "Score": 23.636482432717166
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 9.700732483700001,
+          "Labels": [
+            "Больше мест",
+            "Меньше ходьбы"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "three-hours",
+      "budget_minutes": 180,
+      "compute_ms": 4.60526,
+      "rejected_by_directions": 0,
+      "variants": [
+        {
+          "Profile": "less_walking",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 49,
+                "Arrival": "2026-10-24T11:00:05.039568155+03:00",
+                "Departure": "2026-10-24T11:15:05.039568155+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 32,
+                "Arrival": "2026-10-24T11:17:04.071091579+03:00",
+                "Departure": "2026-10-24T11:37:04.071091579+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 15,
+                "Arrival": "2026-10-24T11:39:57.943101661+03:00",
+                "Departure": "2026-10-24T11:54:57.943101661+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 16,
+                "Arrival": "2026-10-24T11:56:51.528539328+03:00",
+                "Departure": "2026-10-24T12:11:51.528539328+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 13,
+                "Arrival": "2026-10-24T12:15:46.273568666+03:00",
+                "Departure": "2026-10-24T12:30:46.273568666+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 43,
+                "Arrival": "2026-10-24T12:33:49.07084266+03:00",
+                "Departure": "2026-10-24T12:53:49.07084266+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 51,
+                "Arrival": "2026-10-24T13:03:32.19303049+03:00",
+                "Departure": "2026-10-24T13:33:32.19303049+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 18,
+                "Arrival": "2026-10-24T13:36:46.205294963+03:00",
+                "Departure": "2026-10-24T13:51:46.205294963+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 40.5,
+              "WalkMinutes": 26.770088249383335,
+              "VisitMinutes": 145,
+              "TotalMinutes": 171.77008824938332,
+              "WalkKM": 1.7846725499528682,
+              "CostMinor": 0,
+              "UnverifiedCount": 8,
+              "CategoryCounts": {
+                "architecture": 7,
+                "monuments": 1,
+                "religious": 3,
+                "streets": 1
+              },
+              "Score": 35.60766372502356
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 26.8856956392,
+          "Labels": null
+        },
+        {
+          "Profile": "best_match",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 49,
+                "Arrival": "2026-10-24T11:00:05.039568155+03:00",
+                "Departure": "2026-10-24T11:15:05.039568155+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 16,
+                "Arrival": "2026-10-24T11:18:49.382671153+03:00",
+                "Departure": "2026-10-24T11:33:49.382671153+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 51,
+                "Arrival": "2026-10-24T11:40:38.024466561+03:00",
+                "Departure": "2026-10-24T12:10:38.024466561+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 18,
+                "Arrival": "2026-10-24T12:13:52.036731034+03:00",
+                "Departure": "2026-10-24T12:28:52.036731034+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 56,
+                "Arrival": "2026-10-24T12:56:07.578900394+03:00",
+                "Departure": "2026-10-24T13:11:07.578900394+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 47,
+                "Arrival": "2026-10-24T13:18:43.673065159+03:00",
+                "Departure": "2026-10-24T13:38:43.673065159+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 38,
+              "WalkMinutes": 48.727884419316666,
+              "VisitMinutes": 110,
+              "TotalMinutes": 158.72788441931667,
+              "WalkKM": 3.2485256279503325,
+              "CostMinor": 0,
+              "UnverifiedCount": 6,
+              "CategoryCounts": {
+                "architecture": 4,
+                "monuments": 2,
+                "religious": 2,
+                "streets": 2
+              },
+              "Score": 33.375737186024836
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 48.72788441931667,
+          "Labels": null
+        },
+        {
+          "Profile": "more_places",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 49,
+                "Arrival": "2026-10-24T11:00:05.039568155+03:00",
+                "Departure": "2026-10-24T11:15:05.039568155+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 32,
+                "Arrival": "2026-10-24T11:17:04.071091579+03:00",
+                "Departure": "2026-10-24T11:37:04.071091579+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 13,
+                "Arrival": "2026-10-24T11:39:26.559294725+03:00",
+                "Departure": "2026-10-24T11:54:26.559294725+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 15,
+                "Arrival": "2026-10-24T11:57:10.465892707+03:00",
+                "Departure": "2026-10-24T12:12:10.465892707+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 16,
+                "Arrival": "2026-10-24T12:14:04.051330374+03:00",
+                "Departure": "2026-10-24T12:29:04.051330374+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 6,
+                "Arrival": "2026-10-24T12:32:38.247501793+03:00",
+                "Departure": "2026-10-24T12:47:38.247501793+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 5,
+                "Arrival": "2026-10-24T12:48:48.655754377+03:00",
+                "Departure": "2026-10-24T13:03:48.655754377+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 34,
+                "Arrival": "2026-10-24T13:06:46.348626647+03:00",
+                "Departure": "2026-10-24T13:21:46.348626647+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 50,
+                "Arrival": "2026-10-24T13:27:43.62515194+03:00",
+                "Departure": "2026-10-24T13:42:43.62515194+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 37,
+              "WalkMinutes": 22.727085865666666,
+              "VisitMinutes": 140,
+              "TotalMinutes": 162.72708586566665,
+              "WalkKM": 1.515139057704608,
+              "CostMinor": 0,
+              "UnverifiedCount": 9,
+              "CategoryCounts": {
+                "architecture": 9,
+                "religious": 5
+              },
+              "Score": 31.7424304711477
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 27.47257202276667,
+          "Labels": [
+            "Больше мест",
+            "Меньше ходьбы"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "five-hours",
+      "budget_minutes": 300,
+      "compute_ms": 23.7928,
+      "rejected_by_directions": 0,
+      "variants": [
+        {
+          "Profile": "best_match",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 49,
+                "Arrival": "2026-10-24T11:00:03.56969411+03:00",
+                "Departure": "2026-10-24T11:15:03.56969411+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 31,
+                "Arrival": "2026-10-24T11:26:02.148608641+03:00",
+                "Departure": "2026-10-24T11:41:02.148608641+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 37,
+                "Arrival": "2026-10-24T11:48:21.803102808+03:00",
+                "Departure": "2026-10-24T11:58:21.803102808+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 17,
+                "Arrival": "2026-10-24T12:05:03.085675104+03:00",
+                "Departure": "2026-10-24T12:25:03.085675104+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 46,
+                "Arrival": "2026-10-24T12:26:10.975192066+03:00",
+                "Departure": "2026-10-24T12:46:10.975192066+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 35,
+                "Arrival": "2026-10-24T12:52:43.333119077+03:00",
+                "Departure": "2026-10-24T13:07:43.333119077+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 32,
+                "Arrival": "2026-10-24T13:13:27.281384283+03:00",
+                "Departure": "2026-10-24T13:33:27.281384283+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 13,
+                "Arrival": "2026-10-24T13:35:08.210528178+03:00",
+                "Departure": "2026-10-24T13:50:08.210528178+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 16,
+                "Arrival": "2026-10-24T13:52:59.427199741+03:00",
+                "Departure": "2026-10-24T14:07:59.427199741+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 51,
+                "Arrival": "2026-10-24T14:12:48.881804822+03:00",
+                "Departure": "2026-10-24T14:42:48.881804822+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 18,
+                "Arrival": "2026-10-24T14:45:06.307158824+03:00",
+                "Departure": "2026-10-24T15:00:06.307158824+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 56,
+                "Arrival": "2026-10-24T15:19:24.816195454+03:00",
+                "Departure": "2026-10-24T15:34:24.816195454+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 62.5,
+              "WalkMinutes": 69.41360325756666,
+              "VisitMinutes": 205,
+              "TotalMinutes": 274.41360325756665,
+              "WalkKM": 6.533045012465989,
+              "CostMinor": 0,
+              "UnverifiedCount": 12,
+              "CategoryCounts": {
+                "architecture": 9,
+                "monuments": 3,
+                "religious": 3,
+                "streets": 3
+              },
+              "Score": 53.233477493767005
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 93.58542310698334,
+          "Labels": null
+        },
+        {
+          "Profile": "best_match",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 49,
+                "Arrival": "2026-10-24T11:00:03.56969411+03:00",
+                "Departure": "2026-10-24T11:15:03.56969411+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 31,
+                "Arrival": "2026-10-24T11:26:02.148608641+03:00",
+                "Departure": "2026-10-24T11:41:02.148608641+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 37,
+                "Arrival": "2026-10-24T11:48:21.803102808+03:00",
+                "Departure": "2026-10-24T11:58:21.803102808+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 17,
+                "Arrival": "2026-10-24T12:05:03.085675104+03:00",
+                "Departure": "2026-10-24T12:25:03.085675104+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 46,
+                "Arrival": "2026-10-24T12:26:10.975192066+03:00",
+                "Departure": "2026-10-24T12:46:10.975192066+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 35,
+                "Arrival": "2026-10-24T12:52:43.333119077+03:00",
+                "Departure": "2026-10-24T13:07:43.333119077+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 16,
+                "Arrival": "2026-10-24T13:16:37.264642923+03:00",
+                "Departure": "2026-10-24T13:31:37.264642923+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 51,
+                "Arrival": "2026-10-24T13:36:26.719248004+03:00",
+                "Departure": "2026-10-24T14:06:26.719248004+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 18,
+                "Arrival": "2026-10-24T14:08:44.144602006+03:00",
+                "Departure": "2026-10-24T14:23:44.144602006+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 7,
+                "Arrival": "2026-10-24T14:29:59.902139574+03:00",
+                "Departure": "2026-10-24T14:44:59.902139574+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 56,
+                "Arrival": "2026-10-24T14:57:47.73405242+03:00",
+                "Departure": "2026-10-24T15:12:47.73405242+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 59.5,
+              "WalkMinutes": 67.79556754033334,
+              "VisitMinutes": 185,
+              "TotalMinutes": 252.79556754033334,
+              "WalkKM": 6.380759297902528,
+              "CostMinor": 0,
+              "UnverifiedCount": 11,
+              "CategoryCounts": {
+                "architecture": 8,
+                "monuments": 3,
+                "religious": 2,
+                "streets": 3
+              },
+              "Score": 50.809620351048736
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 94.93495735700002,
+          "Labels": null
+        },
+        {
+          "Profile": "more_places",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 49,
+                "Arrival": "2026-10-24T11:00:03.56969411+03:00",
+                "Departure": "2026-10-24T11:15:03.56969411+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 32,
+                "Arrival": "2026-10-24T11:16:27.883689869+03:00",
+                "Departure": "2026-10-24T11:36:27.883689869+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 35,
+                "Arrival": "2026-10-24T11:42:22.04824018+03:00",
+                "Departure": "2026-10-24T11:57:22.04824018+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 13,
+                "Arrival": "2026-10-24T12:03:34.375628693+03:00",
+                "Departure": "2026-10-24T12:18:34.375628693+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 15,
+                "Arrival": "2026-10-24T12:20:30.476135597+03:00",
+                "Departure": "2026-10-24T12:35:30.476135597+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 16,
+                "Arrival": "2026-10-24T12:36:50.932487278+03:00",
+                "Departure": "2026-10-24T12:51:50.932487278+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 48,
+                "Arrival": "2026-10-24T12:52:59.094477804+03:00",
+                "Departure": "2026-10-24T13:12:59.094477804+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 5,
+                "Arrival": "2026-10-24T13:13:58.678122125+03:00",
+                "Departure": "2026-10-24T13:28:58.678122125+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 6,
+                "Arrival": "2026-10-24T13:29:49.03958057+03:00",
+                "Departure": "2026-10-24T13:44:49.03958057+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 60,
+                "Arrival": "2026-10-24T13:48:32.787932512+03:00",
+                "Departure": "2026-10-24T14:08:32.787932512+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 2,
+                "Arrival": "2026-10-24T14:10:53.104099533+03:00",
+                "Departure": "2026-10-24T14:25:53.104099533+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 34,
+                "Arrival": "2026-10-24T14:32:23.297644285+03:00",
+                "Departure": "2026-10-24T14:47:23.297644285+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 50,
+                "Arrival": "2026-10-24T14:51:36.368516368+03:00",
+                "Departure": "2026-10-24T15:06:36.368516368+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 18,
+                "Arrival": "2026-10-24T15:10:43.286488617+03:00",
+                "Departure": "2026-10-24T15:25:43.286488617+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 7,
+                "Arrival": "2026-10-24T15:31:59.044026185+03:00",
+                "Departure": "2026-10-24T15:46:59.044026185+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 58,
+              "WalkMinutes": 46.98406710308333,
+              "VisitMinutes": 240,
+              "TotalMinutes": 286.98406710308336,
+              "WalkKM": 4.422029844984924,
+              "CostMinor": 0,
+              "UnverifiedCount": 15,
+              "CategoryCounts": {
+                "architecture": 11,
+                "monuments": 3,
+                "parks": 1,
+                "religious": 6,
+                "streets": 1
+              },
+              "Score": 48.28898507750754
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 58.00355402820001,
+          "Labels": [
+            "Больше мест",
+            "Меньше ходьбы"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "museums",
+      "budget_minutes": 180,
+      "compute_ms": 0.198373,
+      "rejected_by_directions": 0,
+      "variants": [
+        {
+          "Profile": "best_match",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 53,
+                "Arrival": "2026-10-24T11:05:16.390480725+03:00",
+                "Departure": "2026-10-24T11:45:16.390480725+03:00",
+                "HoursUnconfirmed": false,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 39,
+                "Arrival": "2026-10-24T11:56:49.877141934+03:00",
+                "Departure": "2026-10-24T13:11:49.877141934+03:00",
+                "HoursUnconfirmed": false,
+                "PriceUnconfirmed": false
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 11.5,
+              "WalkMinutes": 16.8312856989,
+              "VisitMinutes": 115,
+              "TotalMinutes": 131.8312856989,
+              "WalkKM": 1.346502855910354,
+              "CostMinor": 2500,
+              "UnverifiedCount": 0,
+              "CategoryCounts": {
+                "architecture": 1,
+                "museums": 2
+              },
+              "Score": 8.326748572044822
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 16.8312856989,
+          "Labels": null
+        },
+        {
+          "Profile": "more_places",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 53,
+                "Arrival": "2026-10-24T11:05:16.390480725+03:00",
+                "Departure": "2026-10-24T11:45:16.390480725+03:00",
+                "HoursUnconfirmed": false,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 19,
+                "Arrival": "2026-10-24T11:51:03.887561253+03:00",
+                "Departure": "2026-10-24T12:41:03.887561253+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 12,
+                "Arrival": "2026-10-24T12:48:27.083388688+03:00",
+                "Departure": "2026-10-24T13:23:27.083388688+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 11,
+              "WalkMinutes": 18.451389811466665,
+              "VisitMinutes": 125,
+              "TotalMinutes": 143.45138981146667,
+              "WalkKM": 1.476111184915271,
+              "CostMinor": 2200,
+              "UnverifiedCount": 2,
+              "CategoryCounts": {
+                "architecture": 1,
+                "museums": 3
+              },
+              "Score": 7.061944407542363
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 25.411995156283332,
+          "Labels": [
+            "Больше мест"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "parks",
+      "budget_minutes": 180,
+      "compute_ms": 0.455951,
+      "rejected_by_directions": 0,
+      "variants": [
+        {
+          "Profile": "best_match",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 20,
+                "Arrival": "2026-10-24T11:13:40.038779079+03:00",
+                "Departure": "2026-10-24T11:43:40.038779079+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 14,
+                "Arrival": "2026-10-24T11:53:36.343769442+03:00",
+                "Departure": "2026-10-24T12:23:36.343769442+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 2,
+                "Arrival": "2026-10-24T12:36:53.414513364+03:00",
+                "Departure": "2026-10-24T12:51:53.414513364+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 36,
+                "Arrival": "2026-10-24T13:12:15.637657454+03:00",
+                "Departure": "2026-10-24T13:32:15.637657454+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 14,
+              "WalkMinutes": 57.26062762423334,
+              "VisitMinutes": 95,
+              "TotalMinutes": 152.26062762423334,
+              "WalkKM": 3.8173751749465104,
+              "CostMinor": 0,
+              "UnverifiedCount": 4,
+              "CategoryCounts": {
+                "monuments": 2,
+                "parks": 4
+              },
+              "Score": 10.091312412526745
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 61.961146862583334,
+          "Labels": null
+        }
+      ]
+    },
+    {
+      "name": "architecture",
+      "budget_minutes": 120,
+      "compute_ms": 0.830751,
+      "rejected_by_directions": 0,
+      "variants": [
+        {
+          "Profile": "best_match",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 49,
+                "Arrival": "2026-10-24T11:00:04.199640129+03:00",
+                "Departure": "2026-10-24T11:15:04.199640129+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 16,
+                "Arrival": "2026-10-24T11:18:11.152225961+03:00",
+                "Departure": "2026-10-24T11:33:11.152225961+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 51,
+                "Arrival": "2026-10-24T11:38:51.687055468+03:00",
+                "Departure": "2026-10-24T12:08:51.687055468+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 46,
+                "Arrival": "2026-10-24T12:31:18.898504257+03:00",
+                "Departure": "2026-10-24T12:51:18.898504257+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 30,
+              "WalkMinutes": 31.31497507095,
+              "VisitMinutes": 80,
+              "TotalMinutes": 111.31497507095,
+              "WalkKM": 2.505198005672447,
+              "CostMinor": 0,
+              "UnverifiedCount": 4,
+              "CategoryCounts": {
+                "architecture": 4,
+                "religious": 2,
+                "streets": 1
+              },
+              "Score": 26.747400997163776
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 31.31497507095,
+          "Labels": null
+        },
+        {
+          "Profile": "best_match",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 49,
+                "Arrival": "2026-10-24T11:00:04.199640129+03:00",
+                "Departure": "2026-10-24T11:15:04.199640129+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 16,
+                "Arrival": "2026-10-24T11:18:11.152225961+03:00",
+                "Departure": "2026-10-24T11:33:11.152225961+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 51,
+                "Arrival": "2026-10-24T11:38:51.687055468+03:00",
+                "Departure": "2026-10-24T12:08:51.687055468+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 50,
+                "Arrival": "2026-10-24T12:11:06.623198861+03:00",
+                "Departure": "2026-10-24T12:26:06.623198861+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 7,
+                "Arrival": "2026-10-24T12:31:44.311189925+03:00",
+                "Departure": "2026-10-24T12:46:44.311189925+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 29.5,
+              "WalkMinutes": 16.738519832083334,
+              "VisitMinutes": 90,
+              "TotalMinutes": 106.73851983208334,
+              "WalkKM": 1.3390815865623416,
+              "CostMinor": 0,
+              "UnverifiedCount": 5,
+              "CategoryCounts": {
+                "architecture": 5,
+                "religious": 2,
+                "streets": 1
+              },
+              "Score": 26.330459206718828
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 21.461681591999998,
+          "Labels": null
+        },
+        {
+          "Profile": "more_places",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 49,
+                "Arrival": "2026-10-24T11:00:04.199640129+03:00",
+                "Departure": "2026-10-24T11:15:04.199640129+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 6,
+                "Arrival": "2026-10-24T11:16:40.746645705+03:00",
+                "Departure": "2026-10-24T11:31:40.746645705+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 5,
+                "Arrival": "2026-10-24T11:32:39.420189525+03:00",
+                "Departure": "2026-10-24T11:47:39.420189525+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 16,
+                "Arrival": "2026-10-24T11:50:10.89486991+03:00",
+                "Departure": "2026-10-24T12:05:10.89486991+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 15,
+                "Arrival": "2026-10-24T12:06:44.630425266+03:00",
+                "Departure": "2026-10-24T12:21:44.630425266+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 13,
+                "Arrival": "2026-10-24T12:24:05.276350927+03:00",
+                "Departure": "2026-10-24T12:39:05.276350927+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 27,
+              "WalkMinutes": 9.087939182116667,
+              "VisitMinutes": 90,
+              "TotalMinutes": 99.08793918211667,
+              "WalkKM": 0.7270351345656682,
+              "CostMinor": 0,
+              "UnverifiedCount": 6,
+              "CategoryCounts": {
+                "architecture": 6,
+                "religious": 3
+              },
+              "Score": 23.636482432717166
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 9.700732483700001,
+          "Labels": [
+            "Больше мест",
+            "Меньше ходьбы"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "mixed",
+      "budget_minutes": 180,
+      "compute_ms": 1.359534,
+      "rejected_by_directions": 0,
+      "variants": [
+        {
+          "Profile": "less_walking",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 60,
+                "Arrival": "2026-10-24T11:05:30.386161742+03:00",
+                "Departure": "2026-10-24T11:25:30.386161742+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 2,
+                "Arrival": "2026-10-24T11:28:15.464005296+03:00",
+                "Departure": "2026-10-24T11:43:15.464005296+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 20,
+                "Arrival": "2026-10-24T11:51:55.577314319+03:00",
+                "Departure": "2026-10-24T12:21:55.577314319+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 14,
+                "Arrival": "2026-10-24T12:30:12.498139622+03:00",
+                "Departure": "2026-10-24T13:00:12.498139622+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 56,
+                "Arrival": "2026-10-24T13:09:59.353866835+03:00",
+                "Departure": "2026-10-24T13:24:59.353866835+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 22.5,
+              "WalkMinutes": 34.98923111391667,
+              "VisitMinutes": 110,
+              "TotalMinutes": 144.98923111391667,
+              "WalkKM": 2.7991384891105735,
+              "CostMinor": 0,
+              "UnverifiedCount": 5,
+              "CategoryCounts": {
+                "monuments": 3,
+                "parks": 3,
+                "streets": 2
+              },
+              "Score": 18.600430755444712
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 44.97904013376666,
+          "Labels": [
+            "Меньше ходьбы"
+          ]
+        },
+        {
+          "Profile": "best_match",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 18,
+                "Arrival": "2026-10-24T11:11:36.807640927+03:00",
+                "Departure": "2026-10-24T11:26:36.807640927+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 60,
+                "Arrival": "2026-10-24T11:40:58.229663785+03:00",
+                "Departure": "2026-10-24T12:00:58.229663785+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 2,
+                "Arrival": "2026-10-24T12:03:43.307507339+03:00",
+                "Departure": "2026-10-24T12:18:43.307507339+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 20,
+                "Arrival": "2026-10-24T12:27:23.420816362+03:00",
+                "Departure": "2026-10-24T12:57:23.420816362+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 56,
+                "Arrival": "2026-10-24T13:08:23.21750939+03:00",
+                "Departure": "2026-10-24T13:23:23.21750939+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 22.5,
+              "WalkMinutes": 48.38695848983333,
+              "VisitMinutes": 95,
+              "TotalMinutes": 143.38695848983332,
+              "WalkKM": 3.8709566791835543,
+              "CostMinor": 0,
+              "UnverifiedCount": 5,
+              "CategoryCounts": {
+                "monuments": 4,
+                "parks": 2,
+                "streets": 2
+              },
+              "Score": 18.06452166040822
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 70.54521073110001,
+          "Labels": null
+        },
+        {
+          "Profile": "best_match",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 18,
+                "Arrival": "2026-10-24T11:11:36.807640927+03:00",
+                "Departure": "2026-10-24T11:26:36.807640927+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 60,
+                "Arrival": "2026-10-24T11:40:58.229663785+03:00",
+                "Departure": "2026-10-24T12:00:58.229663785+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 2,
+                "Arrival": "2026-10-24T12:03:43.307507339+03:00",
+                "Departure": "2026-10-24T12:18:43.307507339+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 14,
+                "Arrival": "2026-10-24T12:29:28.372772853+03:00",
+                "Departure": "2026-10-24T12:59:28.372772853+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 56,
+                "Arrival": "2026-10-24T13:09:15.228500066+03:00",
+                "Departure": "2026-10-24T13:24:15.228500066+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 22.5,
+              "WalkMinutes": 49.25380833443333,
+              "VisitMinutes": 95,
+              "TotalMinutes": 144.25380833443333,
+              "WalkKM": 3.9403046667512704,
+              "CostMinor": 0,
+              "UnverifiedCount": 5,
+              "CategoryCounts": {
+                "monuments": 3,
+                "parks": 2,
+                "streets": 2
+              },
+              "Score": 18.029847666624363
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 61.466104083333335,
+          "Labels": null
+        }
+      ]
+    },
+    {
+      "name": "center",
+      "budget_minutes": 120,
+      "compute_ms": 1.171161,
+      "rejected_by_directions": 0,
+      "variants": [
+        {
+          "Profile": "best_match",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 16,
+                "Arrival": "2026-10-24T11:02:38.8833571+03:00",
+                "Departure": "2026-10-24T11:17:38.8833571+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 51,
+                "Arrival": "2026-10-24T11:22:28.337962181+03:00",
+                "Departure": "2026-10-24T11:52:28.337962181+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 50,
+                "Arrival": "2026-10-24T11:54:23.033684065+03:00",
+                "Departure": "2026-10-24T12:09:23.033684065+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 56,
+                "Arrival": "2026-10-24T12:25:39.680216268+03:00",
+                "Departure": "2026-10-24T12:40:39.680216268+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 25.5,
+              "WalkMinutes": 25.6613369378,
+              "VisitMinutes": 75,
+              "TotalMinutes": 100.6613369378,
+              "WalkKM": 2.415184652965241,
+              "CostMinor": 0,
+              "UnverifiedCount": 4,
+              "CategoryCounts": {
+                "architecture": 3,
+                "monuments": 1,
+                "religious": 2,
+                "streets": 2
+              },
+              "Score": 22.29240767351738
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 40.008491990500005,
+          "Labels": null
+        },
+        {
+          "Profile": "more_places",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 32,
+                "Arrival": "2026-10-24T11:01:21.171600469+03:00",
+                "Departure": "2026-10-24T11:21:21.171600469+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 6,
+                "Arrival": "2026-10-24T11:24:06.64993313+03:00",
+                "Departure": "2026-10-24T11:39:06.64993313+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 5,
+                "Arrival": "2026-10-24T11:39:56.522445377+03:00",
+                "Departure": "2026-10-24T11:54:56.522445377+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 48,
+                "Arrival": "2026-10-24T11:55:57.875900916+03:00",
+                "Departure": "2026-10-24T12:15:57.875900916+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              },
+              {
+                "PlaceID": 16,
+                "Arrival": "2026-10-24T12:17:08.062505022+03:00",
+                "Departure": "2026-10-24T12:32:08.062505022+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 50,
+                "Arrival": "2026-10-24T12:36:27.499092106+03:00",
+                "Departure": "2026-10-24T12:51:27.499092106+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": true
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 23.5,
+              "WalkMinutes": 11.458318201766666,
+              "VisitMinutes": 100,
+              "TotalMinutes": 111.45831820176667,
+              "WalkKM": 1.0784299483975948,
+              "CostMinor": 0,
+              "UnverifiedCount": 6,
+              "CategoryCounts": {
+                "architecture": 6,
+                "religious": 6
+              },
+              "Score": 19.960785025801204
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 16.732593784216668,
+          "Labels": [
+            "Больше мест",
+            "Меньше ходьбы"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "outskirts",
+      "budget_minutes": 120,
+      "compute_ms": 0.152135,
+      "rejected_by_directions": 0,
+      "variants": [
+        {
+          "Profile": "best_match",
+          "Route": {
+            "Stops": [
+              {
+                "PlaceID": 41,
+                "Arrival": "2026-10-24T11:00:00+03:00",
+                "Departure": "2026-10-24T11:20:00+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              },
+              {
+                "PlaceID": 3,
+                "Arrival": "2026-10-24T11:39:02.021762963+03:00",
+                "Departure": "2026-10-24T12:04:02.021762963+03:00",
+                "HoursUnconfirmed": true,
+                "PriceUnconfirmed": false
+              }
+            ],
+            "Metrics": {
+              "InterestValue": 8,
+              "WalkMinutes": 19.033696049383334,
+              "VisitMinutes": 45,
+              "TotalMinutes": 64.03369604938334,
+              "WalkKM": 1.522695683950016,
+              "CostMinor": 0,
+              "UnverifiedCount": 2,
+              "CategoryCounts": {
+                "architecture": 2,
+                "religious": 1
+              },
+              "Score": 6.238652158024992
+            },
+            "Seed": 42
+          },
+          "BeforeWalkMinutes": 19.033696049383334,
+          "Labels": null
+        }
+      ]
+    }
+  ]
+}

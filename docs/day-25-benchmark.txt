@@ -1,0 +1,36 @@
+goos: linux
+goarch: amd64
+pkg: github.com/yourname/vandrouka/backend/internal/plannercheck
+cpu: Intel(R) Core(TM) i5-8250U CPU @ 1.60GHz
+BenchmarkPlannerGolden/one-hour-8         	     596	    354363 ns/op	  350785 B/op	    1244 allocs/op
+BenchmarkPlannerGolden/one-hour-8         	     632	    362246 ns/op	  350787 B/op	    1244 allocs/op
+BenchmarkPlannerGolden/one-hour-8         	     594	    365724 ns/op	  350787 B/op	    1244 allocs/op
+BenchmarkPlannerGolden/two-hours-8        	     216	   1087234 ns/op	 1019925 B/op	    3411 allocs/op
+BenchmarkPlannerGolden/two-hours-8        	     241	    944007 ns/op	 1019913 B/op	    3411 allocs/op
+BenchmarkPlannerGolden/two-hours-8        	     241	    946865 ns/op	 1019905 B/op	    3411 allocs/op
+BenchmarkPlannerGolden/three-hours-8      	      98	   2630137 ns/op	 2394629 B/op	   11418 allocs/op
+BenchmarkPlannerGolden/three-hours-8      	      72	   2897353 ns/op	 2394643 B/op	   11419 allocs/op
+BenchmarkPlannerGolden/three-hours-8      	     100	   2755024 ns/op	 2394635 B/op	   11419 allocs/op
+BenchmarkPlannerGolden/five-hours-8       	       9	  23928626 ns/op	16054009 B/op	  110429 allocs/op
+BenchmarkPlannerGolden/five-hours-8       	       9	  24918298 ns/op	16054164 B/op	  110432 allocs/op
+BenchmarkPlannerGolden/five-hours-8       	      10	  23544075 ns/op	16054156 B/op	  110431 allocs/op
+BenchmarkPlannerGolden/museums-8          	    1022	    230458 ns/op	  134328 B/op	     655 allocs/op
+BenchmarkPlannerGolden/museums-8          	    1096	    219284 ns/op	  134328 B/op	     655 allocs/op
+BenchmarkPlannerGolden/museums-8          	    1035	    254370 ns/op	  134328 B/op	     655 allocs/op
+BenchmarkPlannerGolden/parks-8            	     316	    635245 ns/op	  276564 B/op	    2315 allocs/op
+BenchmarkPlannerGolden/parks-8            	     446	    523249 ns/op	  276556 B/op	    2315 allocs/op
+BenchmarkPlannerGolden/parks-8            	     370	    622360 ns/op	  276564 B/op	    2315 allocs/op
+BenchmarkPlannerGolden/architecture-8     	     189	   1088993 ns/op	  828077 B/op	    3370 allocs/op
+BenchmarkPlannerGolden/architecture-8     	     223	   1073858 ns/op	  828062 B/op	    3370 allocs/op
+BenchmarkPlannerGolden/architecture-8     	     218	   1093936 ns/op	  828062 B/op	    3370 allocs/op
+BenchmarkPlannerGolden/mixed-8            	     170	   1412043 ns/op	  828346 B/op	    5141 allocs/op
+BenchmarkPlannerGolden/mixed-8            	     171	   1368048 ns/op	  828349 B/op	    5141 allocs/op
+BenchmarkPlannerGolden/mixed-8            	     182	   1436118 ns/op	  828357 B/op	    5141 allocs/op
+BenchmarkPlannerGolden/center-8           	     195	   1216620 ns/op	  687924 B/op	    4303 allocs/op
+BenchmarkPlannerGolden/center-8           	     192	   1170103 ns/op	  687910 B/op	    4303 allocs/op
+BenchmarkPlannerGolden/center-8           	     206	   1091422 ns/op	  687927 B/op	    4303 allocs/op
+BenchmarkPlannerGolden/outskirts-8        	    1213	    178410 ns/op	  160296 B/op	     466 allocs/op
+BenchmarkPlannerGolden/outskirts-8        	    1314	    175593 ns/op	  160300 B/op	     466 allocs/op
+BenchmarkPlannerGolden/outskirts-8        	    1407	    185058 ns/op	  160296 B/op	     466 allocs/op
+PASS
+ok  	github.com/yourname/vandrouka/backend/internal/plannercheck	9.011s

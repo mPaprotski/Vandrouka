@@ -1,0 +1,108 @@
+- name: one-hour
+  budget_minutes: 60
+  categories: []
+  pace: normal
+  ticket_budget_minor: null
+  start:
+    lat: 53.903333
+    lon: 27.556111
+  start_at: '2026-10-24T11:00:00+03:00'
+  seed: 42
+- name: two-hours
+  budget_minutes: 120
+  categories: []
+  pace: normal
+  ticket_budget_minor: 2500
+  start:
+    lat: 53.903333
+    lon: 27.556111
+  start_at: '2026-10-24T11:00:00+03:00'
+  seed: 42
+- name: three-hours
+  budget_minutes: 180
+  categories: []
+  pace: slow
+  ticket_budget_minor: 2500
+  start:
+    lat: 53.903333
+    lon: 27.556111
+  start_at: '2026-10-24T11:00:00+03:00'
+  seed: 42
+- name: five-hours
+  budget_minutes: 300
+  categories: []
+  pace: fast
+  ticket_budget_minor: 5000
+  start:
+    lat: 53.903333
+    lon: 27.556111
+  start_at: '2026-10-24T11:00:00+03:00'
+  seed: 42
+- name: museums
+  budget_minutes: 180
+  categories:
+  - museums
+  pace: normal
+  ticket_budget_minor: 2500
+  start:
+    lat: 53.903333
+    lon: 27.556111
+  start_at: '2026-10-24T11:00:00+03:00'
+  seed: 42
+- name: parks
+  budget_minutes: 180
+  categories:
+  - parks
+  pace: slow
+  ticket_budget_minor: 0
+  start:
+    lat: 53.903333
+    lon: 27.556111
+  start_at: '2026-10-24T11:00:00+03:00'
+  seed: 42
+- name: architecture
+  budget_minutes: 120
+  categories:
+  - architecture
+  pace: normal
+  ticket_budget_minor: null
+  start:
+    lat: 53.903333
+    lon: 27.556111
+  start_at: '2026-10-24T11:00:00+03:00'
+  seed: 42
+- name: mixed
+  budget_minutes: 180
+  categories:
+  - museums
+  - parks
+  - monuments
+  pace: normal
+  ticket_budget_minor: 1500
+  start:
+    lat: 53.903333
+    lon: 27.556111
+  start_at: '2026-10-24T11:00:00+03:00'
+  seed: 42
+- name: center
+  budget_minutes: 120
+  categories:
+  - streets
+  - religious
+  pace: fast
+  ticket_budget_minor: 0
+  start:
+    lat: 53.903333
+    lon: 27.556111
+  start_at: '2026-10-24T11:00:00+03:00'
+  seed: 42
+- name: outskirts
+  budget_minutes: 120
+  categories: []
+  pace: normal
+  ticket_budget_minor: 0
+  start:
+    lat: 53.9322587
+    lon: 27.646469
+  start_at: '2026-10-24T11:00:00+03:00'
+  seed: 42

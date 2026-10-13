@@ -31,7 +31,13 @@ jobs:
           cache-dependency-path: backend/go.sum
 
       - name: Test planner, Mapbox adapters and CLI
-        run: go test ./internal/planner ./internal/routing ./cmd/planner -race -count=1 -timeout 2m -coverprofile=planner-coverage.out -v
+        run: go test ./internal/planner ./internal/plannercheck ./internal/routing ./cmd/planner -race -count=1 -timeout 2m -coverprofile=planner-coverage.out -v
+
+      - name: Run offline acceptance report
+        run: go run ./cmd/planner-bench -output "$RUNNER_TEMP/planner-report.json"
+
+      - name: Benchmark fixed planner scenarios
+        run: go test ./internal/plannercheck -run '^$' -bench BenchmarkPlannerGolden -benchmem -benchtime=200ms
 
       - name: Build planner CLI
         run: go build -o "$RUNNER_TEMP/vandrouka-planner" ./cmd/planner
@@ -129,6 +135,14 @@ jobs:
 
       - name: Check GPX provenance and catalog mappings
         run: python3 scripts/check_catalog_sources.py
+
+      - name: Install OpenAPI validators
+        run: |
+          python3 -m venv "$RUNNER_TEMP/openapi-venv"
+          "$RUNNER_TEMP/openapi-venv/bin/pip" install -r scripts/requirements-openapi.txt
+
+      - name: Validate API contract and examples
+        run: '"$RUNNER_TEMP/openapi-venv/bin/python" scripts/check_openapi.py'
 
   docker:
     name: Build API Docker image

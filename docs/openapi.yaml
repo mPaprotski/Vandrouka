@@ -1,10 +1,12 @@
 openapi: 3.0.3
 info:
   title: Вандроўка API
-  version: 0.1.0
-  description: Каталог Минска. Маршрутные эндпоинты будут добавлены после планировщика.
+  version: 0.2.0
+  description: Каталог и контракт маршрутов «Вандроўкі». GET каталога реализованы. POST маршрутов описаны
+    для этапов 27–28 октября и пока не зарегистрированы в сервере. Часы и цены неизвестных мест не считаются
+    подтверждёнными.
 servers:
-  - url: http://localhost:8080
+- url: http://localhost:8080
 paths:
   /health:
     get:
@@ -16,10 +18,32 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [status]
+                required:
+                - status
                 properties:
-                  status: {type: string, enum: [ok]}
-        '503': {description: PostgreSQL недоступен}
+                  status:
+                    type: string
+                    enum:
+                    - ok
+        '503':
+          description: PostgreSQL недоступен
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - status
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - unavailable
+              example:
+                status: unavailable
+      x-implementation-status: implemented
+      tags:
+      - Catalog
   /v1/cities:
     get:
       operationId: listCities
@@ -30,15 +54,21 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [cities]
+                required:
+                - cities
                 properties:
                   cities:
                     type: array
-                    items: {$ref: '#/components/schemas/City'}
-        '500': {$ref: '#/components/responses/Error'}
+                    items:
+                      $ref: '#/components/schemas/City'
+        '500':
+          $ref: '#/components/responses/Error'
+      x-implementation-status: implemented
+      tags:
+      - Catalog
   /v1/cities/{slug}/categories:
     parameters:
-      - {$ref: '#/components/parameters/CitySlug'}
+    - $ref: '#/components/parameters/CitySlug'
     get:
       operationId: listCategories
       responses:
@@ -48,33 +78,51 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [categories]
+                required:
+                - categories
                 properties:
                   categories:
                     type: array
                     items:
                       type: object
-                      required: [slug, name, places_count]
+                      required:
+                      - slug
+                      - name
+                      - places_count
                       properties:
-                        slug: {type: string}
-                        name: {type: string}
-                        places_count: {type: integer, minimum: 0}
-        '400': {$ref: '#/components/responses/Error'}
-        '404': {$ref: '#/components/responses/Error'}
-        '500': {$ref: '#/components/responses/Error'}
+                        slug:
+                          type: string
+                        name:
+                          type: string
+                        places_count:
+                          type: integer
+                          minimum: 0
+        '400':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+      x-implementation-status: implemented
+      tags:
+      - Catalog
   /v1/cities/{slug}/places:
     parameters:
-      - {$ref: '#/components/parameters/CitySlug'}
+    - $ref: '#/components/parameters/CitySlug'
     get:
       operationId: listPlaces
       parameters:
-        - name: category
-          in: query
-          schema: {type: string, maxLength: 100}
-        - name: q
-          in: query
-          description: Подстрока имени или описания без учёта регистра
-          schema: {type: string, maxLength: 200}
+      - name: category
+        in: query
+        schema:
+          type: string
+          maxLength: 100
+      - name: q
+        in: query
+        description: Подстрока имени или описания без учёта регистра
+        schema:
+          type: string
+          maxLength: 200
       responses:
         '200':
           description: Активные места с полными карточками, по важности и slug
@@ -82,120 +130,892 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [places]
+                required:
+                - places
                 properties:
                   places:
                     type: array
-                    items: {$ref: '#/components/schemas/Place'}
-        '400': {$ref: '#/components/responses/Error'}
-        '404': {$ref: '#/components/responses/Error'}
-        '500': {$ref: '#/components/responses/Error'}
+                    items:
+                      $ref: '#/components/schemas/Place'
+        '400':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+      x-implementation-status: implemented
+      tags:
+      - Catalog
   /v1/places/{id}:
     get:
       operationId: getPlace
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema: {type: integer, format: int64, minimum: 1}
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
       responses:
         '200':
           description: Полная карточка активного места
           content:
             application/json:
-              schema: {$ref: '#/components/schemas/Place'}
-        '400': {$ref: '#/components/responses/Error'}
-        '404': {$ref: '#/components/responses/Error'}
-        '500': {$ref: '#/components/responses/Error'}
+              schema:
+                $ref: '#/components/schemas/Place'
+        '400':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+      x-implementation-status: implemented
+      tags:
+      - Catalog
+  /v1/routes/generate:
+    post:
+      tags:
+      - Routes
+      operationId: generateRoutes
+      summary: Генерация маршрутов
+      description: Получить до трёх различных маршрутов. Все окончательные варианты пересчитаны по Directions;
+        невыполнимые отбрасываются. Неизвестная цена не равна бесплатному билету.
+      x-implementation-status: planned
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateRouteRequest'
+            examples:
+              normal:
+                value: &id002
+                  city: minsk
+                  start: &id001
+                    lat: 53.903333
+                    lon: 27.556111
+                  start_at: '2026-10-24T11:00:00+03:00'
+                  budget_minutes: 120
+                  pace: normal
+                  categories: []
+                  ticket_budget_minor: 0
+                  seed: 42
+                  include_geometry: false
+      responses:
+        '200':
+          description: Результат расчёта
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerateRouteResponse'
+              examples:
+                normal:
+                  value:
+                    seed: 42
+                    timezone: Europe/Minsk
+                    variants:
+                    - variant_id: variant-1
+                      profile: best_match
+                      labels: &id003 []
+                      stops:
+                      - place_id: 1
+                        name: Ратуша (условный ID для примера)
+                        location: *id001
+                        arrival: '2026-10-24T11:01:00+03:00'
+                        departure: '2026-10-24T11:11:00+03:00'
+                        visit_seconds: 600
+                        incoming_leg:
+                          walk_seconds: 60
+                          distance_m: 60
+                        hours_unconfirmed: true
+                        price_unconfirmed: false
+                      totals:
+                        walk_seconds: 60
+                        visit_seconds: 600
+                        total_seconds: 660
+                        distance_m: 60
+                        cost_minor: 0
+                        currency: BYN
+                        cost_complete: true
+                        stops_count: 1
+                        unverified_stops_count: 1
+                      explanation:
+                        text: Один внешний осмотр; часы не подтверждены.
+                        hours_unconfirmed_count: 1
+                        prices_unconfirmed_count: 0
+                        category_counts:
+                          architecture: 1
+                      geometry: null
+                empty:
+                  value:
+                    seed: 42
+                    timezone: Europe/Minsk
+                    variants: []
+        '400':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '422':
+          $ref: '#/components/responses/ConstraintsViolation'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/RoutingUnavailable'
+  /v1/routes/recalculate:
+    post:
+      tags:
+      - Routes
+      operationId: recalculateRoute
+      summary: Пересчёт маршрута
+      description: 'remove: место обязано присутствовать в base_place_ids, исключается из кандидатов,
+        освободившееся время может заполняться. add: место должно отсутствовать в base_place_ids и обязательно
+        войти в результат. Если обязательное добавление не укладывается в ограничения — 422; скрытого
+        увеличения бюджета нет. Неактивные/неизвестные ID — 404. Сначала исходный порядок проверяется
+        на свежих данных; невыполнимый исходный порядок — 422.'
+      x-implementation-status: planned
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecalculateRouteRequest'
+            examples:
+              normal:
+                value:
+                  request: *id002
+                  base_place_ids:
+                  - 1
+                  change:
+                    type: remove
+                    place_id: 1
+      responses:
+        '200':
+          description: Результат расчёта
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecalculateRouteResponse'
+              examples:
+                normal:
+                  value:
+                    seed: 42
+                    timezone: Europe/Minsk
+                    variant:
+                      variant_id: variant-1
+                      profile: best_match
+                      labels: *id003
+                      stops: []
+                      totals:
+                        walk_seconds: 0
+                        visit_seconds: 0
+                        total_seconds: 0
+                        distance_m: 0
+                        cost_minor: 0
+                        currency: BYN
+                        cost_complete: true
+                        stops_count: 0
+                        unverified_stops_count: 0
+                      explanation:
+                        text: Подходящих мест после исключения нет.
+                        hours_unconfirmed_count: 0
+                        prices_unconfirmed_count: 0
+                        category_counts: {}
+                      geometry: null
+                    diff:
+                      total_seconds_delta: -660
+                      distance_m_delta: -60
+                      cost_minor_delta: 0
+                      added_place_ids: []
+                      removed_place_ids:
+                      - 1
+                      prices_confirmed: true
+                      text: Удалено одно место; маршрут пуст.
+        '400':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '422':
+          $ref: '#/components/responses/ConstraintsViolation'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/RoutingUnavailable'
 components:
   parameters:
     CitySlug:
       name: slug
       in: path
       required: true
-      schema: {type: string, maxLength: 100, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$'}
+      schema:
+        type: string
+        maxLength: 100
+        pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
   responses:
     Error:
       description: Ошибка запроса
       content:
         application/json:
           schema:
-            type: object
-            required: [error]
-            properties:
-              error:
-                type: object
-                required: [code, message]
-                properties:
-                  code: {type: string, enum: [invalid_request, not_found, internal]}
-                  message: {type: string}
+            $ref: '#/components/schemas/APIError'
+    ConstraintsViolation:
+      description: Обязательное добавление или исходный порядок несовместимы с временем, расписанием,
+        достижимостью или бюджетом.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+          example:
+            error:
+              code: constraints_violation
+              message: Обязательное добавление или исходный порядок несовместимы с временем, расписанием,
+                достижимостью или бюджетом.
+    RoutingUnavailable:
+      description: Mapbox недоступен, превышена квота, отсутствует/отклонён серверный токен или истёк
+        срок запроса. Токен и внутренние URL не возвращаются клиенту.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+          example:
+            error:
+              code: routing_unavailable
+              message: Mapbox недоступен, превышена квота, отсутствует/отклонён серверный токен или истёк
+                срок запроса. Токен и внутренние URL не возвращаются клиенту.
   schemas:
     City:
       type: object
-      required: [id, slug, name, center_lat, center_lon, timezone]
+      required:
+      - id
+      - slug
+      - name
+      - center_lat
+      - center_lon
+      - timezone
       properties:
-        id: {type: integer, format: int64}
-        slug: {type: string}
-        name: {type: string}
-        center_lat: {type: number, format: double}
-        center_lon: {type: number, format: double}
-        timezone: {type: string}
+        id:
+          type: integer
+          format: int64
+        slug:
+          type: string
+        name:
+          type: string
+        center_lat:
+          type: number
+          format: double
+        center_lon:
+          type: number
+          format: double
+        timezone:
+          type: string
     Place:
       type: object
-      required: [id, slug, city, name, summary, lat, lon, importance, must_see, visit_minutes, hours_known, price_known, verified_at, categories, opening_hours, opening_exceptions, prices, links, updated_at]
+      required:
+      - id
+      - slug
+      - city
+      - name
+      - summary
+      - lat
+      - lon
+      - importance
+      - must_see
+      - visit_minutes
+      - hours_known
+      - price_known
+      - verified_at
+      - categories
+      - opening_hours
+      - opening_exceptions
+      - prices
+      - links
+      - updated_at
       properties:
-        id: {type: integer, format: int64}
-        slug: {type: string}
-        city: {type: string}
-        name: {type: string}
-        summary: {type: string}
-        lat: {type: number, format: double}
-        lon: {type: number, format: double}
-        importance: {type: integer, minimum: 1, maximum: 5}
-        must_see: {type: boolean}
-        visit_minutes: {type: integer, minimum: 1}
-        hours_known: {type: boolean}
-        price_known: {type: boolean}
-        verified_at: {type: string, format: date}
-        updated_at: {type: string, format: date-time}
+        id:
+          type: integer
+          format: int64
+        slug:
+          type: string
+        city:
+          type: string
+        name:
+          type: string
+        summary:
+          type: string
+        lat:
+          type: number
+          format: double
+        lon:
+          type: number
+          format: double
+        importance:
+          type: integer
+          minimum: 1
+          maximum: 5
+        must_see:
+          type: boolean
+        visit_minutes:
+          type: integer
+          minimum: 1
+        hours_known:
+          type: boolean
+        price_known:
+          type: boolean
+        verified_at:
+          type: string
+          format: date
+        updated_at:
+          type: string
+          format: date-time
         categories:
           type: array
-          items: {type: string}
+          items:
+            type: string
         opening_hours:
           type: array
           items:
             type: object
-            required: [weekday, open_time, close_time]
+            required:
+            - weekday
+            - open_time
+            - close_time
             properties:
-              weekday: {type: integer, minimum: 0, maximum: 6, description: '0 — воскресенье'}
-              open_time: {type: string, example: '11:00'}
-              close_time: {type: string, example: '24:00'}
+              weekday:
+                type: integer
+                minimum: 0
+                maximum: 6
+                description: 0 — воскресенье
+              open_time:
+                type: string
+                example: '11:00'
+              close_time:
+                type: string
+                example: '24:00'
         opening_exceptions:
           type: array
           items:
             type: object
-            required: [date, closed, open_time, close_time, note]
+            required:
+            - date
+            - closed
+            - open_time
+            - close_time
+            - note
             properties:
-              date: {type: string, format: date}
-              closed: {type: boolean}
-              open_time: {type: string, nullable: true}
-              close_time: {type: string, nullable: true}
-              note: {type: string}
+              date:
+                type: string
+                format: date
+              closed:
+                type: boolean
+              open_time:
+                type: string
+                nullable: true
+              close_time:
+                type: string
+                nullable: true
+              note:
+                type: string
         prices:
           type: array
           items:
             type: object
-            required: [kind, amount, currency]
+            required:
+            - kind
+            - amount
+            - currency
             properties:
-              kind: {type: string, enum: [adult, discount, free]}
-              amount: {type: number, minimum: 0}
-              currency: {type: string, enum: [BYN]}
+              kind:
+                type: string
+                enum:
+                - adult
+                - discount
+                - free
+              amount:
+                type: number
+                minimum: 0
+              currency:
+                type: string
+                enum:
+                - BYN
         links:
           type: array
           items:
             type: object
-            required: [kind, url, title]
+            required:
+            - kind
+            - url
+            - title
             properties:
-              kind: {type: string, enum: [official, article, encyclopedia]}
-              url: {type: string, format: uri}
-              title: {type: string}
+              kind:
+                type: string
+                enum:
+                - official
+                - article
+                - encyclopedia
+              url:
+                type: string
+                format: uri
+              title:
+                type: string
+    CategorySlug:
+      type: string
+      enum:
+      - museums
+      - parks
+      - architecture
+      - religious
+      - monuments
+      - streets
+    PlaceID:
+      type: integer
+      format: int64
+      minimum: 1
+    Coordinates:
+      type: object
+      additionalProperties: false
+      required:
+      - lat
+      - lon
+      properties:
+        lat:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+        lon:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+      description: Широта и долгота WGS84. Сервер проверяет принадлежность поддерживаемой области города.
+    GenerateRouteRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - start
+      - start_at
+      - budget_minutes
+      properties:
+        city:
+          type: string
+          default: minsk
+          maxLength: 100
+          pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
+        start:
+          $ref: '#/components/schemas/Coordinates'
+        start_at:
+          type: string
+          format: date-time
+          description: RFC3339 с UTC offset; сервер переводит в IANA timezone города (Europe/Minsk). Обязательно,
+            без подстановки текущего времени.
+        budget_minutes:
+          type: integer
+          minimum: 1
+          maximum: 1440
+          description: Общий лимит ходьбы и осмотра; возврат к старту не входит.
+        pace:
+          type: string
+          enum:
+          - slow
+          - normal
+          - fast
+          default: normal
+        categories:
+          type: array
+          uniqueItems: true
+          maxItems: 6
+          items:
+            $ref: '#/components/schemas/CategorySlug'
+          default: []
+          description: Пустой или отсутствующий список означает все категории.
+        ticket_budget_minor:
+          type: integer
+          format: int64
+          minimum: 0
+          nullable: true
+          description: Целые копейки BYN. Отсутствие/null — без лимита; 0 — нулевой лимит. Ограничивается
+            сумма известных билетов; неизвестные цены отмечаются отдельно.
+        seed:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 9007199254740991
+          default: 42
+          description: Безопасное для JavaScript целое. Один seed воспроизводим на том же каталоге, матрице
+            и настройках; новые ответы Mapbox могут изменить результат.
+        include_geometry:
+          type: boolean
+          default: true
+          description: Управляет выдачей геометрии; проверка времени и расстояния через Directions обязательна
+            в обоих случаях.
+    RouteLeg:
+      type: object
+      additionalProperties: false
+      required:
+      - walk_seconds
+      - distance_m
+      properties:
+        walk_seconds:
+          type: number
+          format: double
+          minimum: 0
+          description: Длительность перехода с учётом темпа; дробная часть не отбрасывается.
+        distance_m:
+          type: number
+          format: double
+          minimum: 0
+          description: Расстояние перехода в метрах.
+    RouteStop:
+      type: object
+      additionalProperties: false
+      required:
+      - place_id
+      - name
+      - location
+      - arrival
+      - departure
+      - visit_seconds
+      - incoming_leg
+      - hours_unconfirmed
+      - price_unconfirmed
+      properties:
+        place_id:
+          $ref: '#/components/schemas/PlaceID'
+        name:
+          type: string
+        location:
+          $ref: '#/components/schemas/Coordinates'
+        arrival:
+          type: string
+          format: date-time
+        departure:
+          type: string
+          format: date-time
+        visit_seconds:
+          type: integer
+          minimum: 1
+        incoming_leg:
+          $ref: '#/components/schemas/RouteLeg'
+        hours_unconfirmed:
+          type: boolean
+        price_unconfirmed:
+          type: boolean
+      description: Остановка в порядке посещения. Первый incoming_leg идёт от старта, остальные — от предыдущей
+        остановки. departure = arrival + visit_seconds. ID внутри маршрута уникальны.
+    RouteTotals:
+      type: object
+      additionalProperties: false
+      required:
+      - walk_seconds
+      - visit_seconds
+      - total_seconds
+      - distance_m
+      - cost_minor
+      - currency
+      - cost_complete
+      - stops_count
+      - unverified_stops_count
+      properties:
+        walk_seconds:
+          type: number
+          format: double
+          minimum: 0
+        visit_seconds:
+          type: integer
+          minimum: 0
+        total_seconds:
+          type: number
+          format: double
+          minimum: 0
+          description: Сумма ходьбы и осмотра, без округления и возврата к старту.
+        distance_m:
+          type: number
+          format: double
+          minimum: 0
+        cost_minor:
+          type: integer
+          format: int64
+          minimum: 0
+        currency:
+          type: string
+          enum:
+          - BYN
+        cost_complete:
+          type: boolean
+          description: true только если цена каждой остановки известна; иначе cost_minor — подтверждённая
+            часть стоимости.
+        stops_count:
+          type: integer
+          minimum: 0
+        unverified_stops_count:
+          type: integer
+          minimum: 0
+          description: Остановка с неизвестными часами и/или ценой учитывается один раз.
+    RouteExplanation:
+      type: object
+      additionalProperties: false
+      required:
+      - text
+      - hours_unconfirmed_count
+      - prices_unconfirmed_count
+      - category_counts
+      properties:
+        text:
+          type: string
+          description: Текст для человека; округление в нём не заменяет точные totals.
+        hours_unconfirmed_count:
+          type: integer
+          minimum: 0
+        prices_unconfirmed_count:
+          type: integer
+          minimum: 0
+        category_counts:
+          type: object
+          additionalProperties:
+            type: integer
+            minimum: 0
+          description: Категории могут пересекаться; сумма не обязана равняться числу остановок.
+    RouteGeometry:
+      type: object
+      additionalProperties: false
+      required: &id004
+      - format
+      - segments
+      properties: &id005
+        format:
+          type: string
+          enum:
+          - polyline6
+        segments:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            minLength: 1
+          description: Упорядоченные части Directions. Соседние части могут иметь общий граничный пункт;
+            возврата к старту нет.
+    RouteVariant:
+      type: object
+      additionalProperties: false
+      required:
+      - variant_id
+      - profile
+      - labels
+      - stops
+      - totals
+      - explanation
+      - geometry
+      properties:
+        variant_id:
+          type: string
+          minLength: 1
+          description: Идентификатор только в рамках данного ответа; маршрут не сохраняется сервером.
+        profile:
+          type: string
+          enum:
+          - best_match
+          - more_places
+          - less_walking
+          - budget
+        labels:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+            - Лучший по интересам
+            - Больше мест
+            - Меньше ходьбы
+            - Самый бюджетный
+          description: Сравнение только окончательных вариантов; преимущество минимум 10%. У единственного
+            варианта меток нет. Бюджетная метка требует известных цен.
+        stops:
+          type: array
+          items:
+            $ref: '#/components/schemas/RouteStop'
+        totals:
+          $ref: '#/components/schemas/RouteTotals'
+        explanation:
+          $ref: '#/components/schemas/RouteExplanation'
+        geometry:
+          type: object
+          additionalProperties: false
+          required: *id004
+          properties: *id005
+          nullable: true
+          description: null при include_geometry=false или пустом маршруте.
+      description: Открытый пешеходный маршрут, заканчивается у последнего места. Полные посещения известных
+        расписаний должны укладываться в интервалы с учётом исключений и timezone. Неизвестные сведения
+        отмечаются явно.
+    GenerateRouteResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - seed
+      - timezone
+      - variants
+      properties:
+        seed:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 9007199254740991
+        timezone:
+          type: string
+          example: Europe/Minsk
+        variants:
+          type: array
+          maxItems: 3
+          items:
+            $ref: '#/components/schemas/GeneratedRouteVariant'
+          description: Непустые различные варианты после проверки Directions. [] — подходящего маршрута
+            нет; это успешный ответ, а не ошибка.
+    RouteChange:
+      oneOf:
+      - type: object
+        additionalProperties: false
+        required:
+        - type
+        - place_id
+        properties:
+          type:
+            type: string
+            enum:
+            - remove
+          place_id:
+            $ref: '#/components/schemas/PlaceID'
+      - type: object
+        additionalProperties: false
+        required:
+        - type
+        - place_id
+        properties:
+          type:
+            type: string
+            enum:
+            - add
+          place_id:
+            $ref: '#/components/schemas/PlaceID'
+      description: Одна операция. pin отложен и не входит в контракт.
+    RecalculateRouteRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - request
+      - base_place_ids
+      - change
+      properties:
+        request:
+          $ref: '#/components/schemas/GenerateRouteRequest'
+        base_place_ids:
+          type: array
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/PlaceID'
+          minItems: 1
+          description: 'Порядок исходного маршрута. Только ID: сервер заново получает места, расписания
+            и переходы; клиентские totals не принимаются.'
+        change:
+          $ref: '#/components/schemas/RouteChange'
+    RouteDiff:
+      type: object
+      additionalProperties: false
+      required:
+      - total_seconds_delta
+      - distance_m_delta
+      - cost_minor_delta
+      - added_place_ids
+      - removed_place_ids
+      - prices_confirmed
+      - text
+      properties:
+        total_seconds_delta:
+          type: number
+          format: double
+        distance_m_delta:
+          type: number
+          format: double
+        cost_minor_delta:
+          type: integer
+          format: int64
+        added_place_ids:
+          type: array
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/PlaceID'
+        removed_place_ids:
+          type: array
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/PlaceID'
+        prices_confirmed:
+          type: boolean
+          description: true только если цены всех остановок до и после известны.
+        text:
+          type: string
+      description: 'Знаковые изменения: результат минус исходный маршрут, пересчитанный на тех же свежих
+        данных. Added — в порядке нового маршрута, removed — в порядке исходного. Только перестановка
+        не означает добавление/удаление.'
+    RecalculateRouteResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - seed
+      - timezone
+      - variant
+      - diff
+      properties:
+        seed:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 9007199254740991
+        timezone:
+          type: string
+        variant:
+          $ref: '#/components/schemas/RouteVariant'
+        diff:
+          $ref: '#/components/schemas/RouteDiff'
+    APIError:
+      type: object
+      additionalProperties: false
+      required:
+      - error
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required:
+          - code
+          - message
+          properties:
+            code:
+              type: string
+              enum:
+              - invalid_request
+              - not_found
+              - internal
+              - constraints_violation
+              - routing_unavailable
+            message:
+              type: string
+            details:
+              type: object
+              additionalProperties: true
+              description: Необязательные пояснения; клиент не должен полагаться на конкретные поля.
+    GeneratedRouteVariant:
+      allOf:
+      - $ref: '#/components/schemas/RouteVariant'
+      - type: object
+        properties:
+          stops:
+            type: array
+            minItems: 1
+            items:
+              $ref: '#/components/schemas/RouteStop'
+      description: Генерация выдаёт только непустые варианты; recalculate может вернуть пустой маршрут.
+tags:
+- name: Catalog
+  description: Реализованный каталог
+- name: Routes
+  description: Контракт для реализации на этапах 27–28 октября

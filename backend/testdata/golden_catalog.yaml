@@ -1,0 +1,2036 @@
+[
+  {
+    "slug": "alexander-nevsky-church",
+    "name": "Церковь Святого Александра Невского",
+    "summary": "Церковь Святого Александра Невского. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.908599,
+    "lon": 27.587492,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 20,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "religious",
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 320; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "alexandrovsky-square",
+    "name": "Александровский сквер",
+    "summary": "Сквер в центре Минска с фонтаном «Мальчик с лебедем». Остановка включает прогулку по аллеям и осмотр скульптуры; работа фонтана зависит от сезона.",
+    "lat": 53.9013695,
+    "lon": 27.5630737,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 15,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-08",
+    "categories": [
+      "parks"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Александровский_сквер_(Минск)",
+        "title": "Александровский сквер"
+      }
+    ]
+  },
+  {
+    "slug": "all-saints-church",
+    "name": "Храм-памятник в честь Всех Святых",
+    "summary": "Внешний осмотр храмового комплекса у пересечения улиц Калиновского и Всехсвятской. Посещение крипты, экскурсии и богослужения не включены. Это отдельная точка на северо-востоке города, подходящая для маршрутов в этом районе.",
+    "lat": 53.9420086,
+    "lon": 27.6544871,
+    "importance": 4,
+    "must_see": false,
+    "visit_minutes": 25,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-09",
+    "categories": [
+      "religious",
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Всехсвятская_церковь_(Минск)",
+        "title": "Источник сведений о месте и посещении"
+      },
+      {
+        "kind": "article",
+        "url": "https://www.openstreetmap.org/node/13128893962",
+        "title": "Пешеходная точка остановки (OSM)"
+      }
+    ]
+  },
+  {
+    "slug": "azgur-museum",
+    "name": "Мемориальный музей-мастерская З. И. Азгура",
+    "summary": "Мастерская скульптора Заира Азгура с его произведениями и мемориальной коллекцией. Остановка рассчитана на самостоятельный осмотр; мастер-классы и экскурсионное сопровождение не включены. На сайте музея касса указана до 17:00.",
+    "lat": 53.8992351,
+    "lon": 27.5783385,
+    "importance": 4,
+    "must_see": false,
+    "visit_minutes": 60,
+    "hours_known": true,
+    "price_known": true,
+    "verified_at": "2026-10-09",
+    "categories": [
+      "museums"
+    ],
+    "opening_hours": {
+      "tuesday": [
+        "10:00-18:00"
+      ],
+      "wednesday": [
+        "10:00-18:00"
+      ],
+      "thursday": [
+        "10:00-18:00"
+      ],
+      "friday": [
+        "10:00-18:00"
+      ],
+      "saturday": [
+        "10:00-18:00"
+      ]
+    },
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "adult",
+        "amount": 7,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "official",
+        "url": "https://azgur.by/en/",
+        "title": "Источник сведений о месте и посещении"
+      },
+      {
+        "kind": "article",
+        "url": "https://www.openstreetmap.org/node/5169132821",
+        "title": "Пешеходная точка остановки (OSM)"
+      },
+      {
+        "kind": "official",
+        "url": "https://azgur.museum.by/",
+        "title": "Музей на портале «Музеи Беларуси»"
+      }
+    ]
+  },
+  {
+    "slug": "basilian-convent-building",
+    "name": "Жилой корпус бывшего базилианского женского монастыря",
+    "summary": "Жилой корпус бывшего базилианского женского монастыря. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.904199,
+    "lon": 27.557798,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 15,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "architecture",
+      "religious"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 310; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "basilian-monastery-building",
+    "name": "Жилой корпус бывшего базилианского монастыря Святого Духа",
+    "summary": "Жилой корпус бывшего базилианского монастыря Святого Духа. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.903664,
+    "lon": 27.557573,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 15,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "architecture",
+      "religious"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 309; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "bolshoi-theatre",
+    "name": "Большой театр — внешний осмотр",
+    "summary": "Театр оперы и балета на площади Парижской Коммуны. Остановка включает внешний осмотр здания и площади; спектакли и экскурсии внутрь не входят.",
+    "lat": 53.9099521,
+    "lon": 27.5616216,
+    "importance": 4,
+    "must_see": false,
+    "visit_minutes": 15,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-08",
+    "categories": [
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Большой_театр_Беларуси",
+        "title": "Большой театр — внешний осмотр"
+      }
+    ]
+  },
+  {
+    "slug": "boulder-museum",
+    "name": "Музей валунов",
+    "summary": "Музей валунов. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.931954,
+    "lon": 27.690937,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 40,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "parks",
+      "museums"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 312; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "calvary-church",
+    "name": "Костёл Воздвижения Святого Креста на Кальварии",
+    "summary": "Костёл Воздвижения Святого Креста на Кальварии. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.908911,
+    "lon": 27.504962,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 20,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "religious",
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 303; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "calvary-gate",
+    "name": "Брама Кальварийского кладбища",
+    "summary": "Брама Кальварийского кладбища. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.908785,
+    "lon": 27.506532,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 15,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 323; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "chelyuskintsev-park",
+    "name": "Парк Челюскинцев",
+    "summary": "Прогулка по части аллей парка рядом с проспектом Независимости. Остановка не означает обход всей территории. Аттракционы, прокат и платные мероприятия в стоимость и время посещения не входят.",
+    "lat": 53.9237818,
+    "lon": 27.6168495,
+    "importance": 4,
+    "must_see": false,
+    "visit_minutes": 45,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-09",
+    "categories": [
+      "parks"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Парк_Челюскинцев_(Минск)",
+        "title": "Источник сведений о месте и посещении"
+      },
+      {
+        "kind": "article",
+        "url": "https://www.openstreetmap.org/node/512738684",
+        "title": "Пешеходная точка остановки (OSM)"
+      }
+    ]
+  },
+  {
+    "slug": "first-congress-museum",
+    "name": "Дом-музей I съезда РСДРП",
+    "summary": "Небольшой музей у Свислочи на проспекте Независимости, 31а. Остановка предназначена для осмотра экспозиции, связанной со съездом и историей Минска. Актуальные часы и взрослый билет не подтверждены: уточните их перед посещением.",
+    "lat": 53.9078406,
+    "lon": 27.5716016,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 35,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-09",
+    "categories": [
+      "museums"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://izi.travel/ru/cfa4-dom-muzey-i-sezda-rsdrp/ru",
+        "title": "Источник сведений о месте и посещении"
+      },
+      {
+        "kind": "article",
+        "url": "https://www.openstreetmap.org/node/6419331125",
+        "title": "Пешеходная точка остановки (OSM)"
+      }
+    ]
+  },
+  {
+    "slug": "freedom-square-manor",
+    "name": "Городская усадьба на площади Свободы, 15",
+    "summary": "Городская усадьба на площади Свободы, 15. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.90386,
+    "lon": 27.553525,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 15,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 319; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "gorky-park",
+    "name": "Парк Горького",
+    "summary": "Парк у Свислочи с аллеями и аттракционами. Остановка рассчитана на короткую прогулку по части парка; аттракционы и другие платные услуги не входят.",
+    "lat": 53.9031216,
+    "lon": 27.573024,
+    "importance": 4,
+    "must_see": false,
+    "visit_minutes": 30,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-08",
+    "categories": [
+      "parks"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Парк_Горького_(Минск)",
+        "title": "Парк Горького"
+      }
+    ]
+  },
+  {
+    "slug": "guest-court",
+    "name": "Гостиный двор",
+    "summary": "Гостиный двор. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.904202,
+    "lon": 27.555646,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 15,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 301; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "holy-spirit-cathedral",
+    "name": "Свято-Духов собор — внешний осмотр",
+    "summary": "Двухбашенный собор в Верхнем городе. Остановка включает внешний осмотр фасада; вход внутрь и посещение богослужений не входят.",
+    "lat": 53.9050681,
+    "lon": 27.5559157,
+    "importance": 5,
+    "must_see": true,
+    "visit_minutes": 15,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-08",
+    "categories": [
+      "religious",
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Свято-Духов_собор_(Минск)",
+        "title": "Свято-Духов собор — внешний осмотр"
+      },
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 306; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "independence-square",
+    "name": "Площадь Независимости",
+    "summary": "Центральная площадь с ансамблем общественных зданий. Остановка включает прогулку по открытой части площади; вход в здания и торговый центр не входит.",
+    "lat": 53.8955745,
+    "lon": 27.5477365,
+    "importance": 4,
+    "must_see": false,
+    "visit_minutes": 20,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-08",
+    "categories": [
+      "streets",
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Площадь_Независимости_(Минск)",
+        "title": "Площадь Независимости"
+      }
+    ]
+  },
+  {
+    "slug": "island-of-tears",
+    "name": "Остров Мужества и Скорби",
+    "summary": "Мемориальный остров на Свислочи возле Троицкого предместья, посвящённый погибшим в Афганистане. Остановка включает прогулку по острову и внешний осмотр мемориальных композиций.",
+    "lat": 53.90969,
+    "lon": 27.5545885,
+    "importance": 4,
+    "must_see": false,
+    "visit_minutes": 15,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-08",
+    "categories": [
+      "monuments"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Остров_Мужества_и_Скорби",
+        "title": "Остров Мужества и Скорби"
+      }
+    ]
+  },
+  {
+    "slug": "kupala-museum",
+    "name": "Государственный литературный музей Янки Купалы",
+    "summary": "Музей на улице Янки Купалы, посвящённый жизни и творчеству поэта. Билет включает основную экспозицию; отдельные выставки и экскурсии не включены. Касса до 18:30. Второй вторник месяца — санитарный день; перед посещением уточните график.",
+    "lat": 53.9060878,
+    "lon": 27.5653432,
+    "importance": 4,
+    "must_see": false,
+    "visit_minutes": 50,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-09",
+    "categories": [
+      "museums"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "adult",
+        "amount": 12,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "official",
+        "url": "https://kupala-museum.by/navedvalniku/kosht-paslug",
+        "title": "Источник сведений о месте и посещении"
+      },
+      {
+        "kind": "article",
+        "url": "https://www.openstreetmap.org/node/378828544",
+        "title": "Пешеходная точка остановки (OSM)"
+      }
+    ]
+  },
+  {
+    "slug": "kupala-park",
+    "name": "Парк имени Янки Купалы",
+    "summary": "Прогулка по аллеям парка у Свислочи с остановкой возле памятника Янке Купале. Осмотр литературного музея не входит: для него есть отдельная карточка. Работа фонтана зависит от сезона и не гарантируется.",
+    "lat": 53.9057283,
+    "lon": 27.5664525,
+    "importance": 4,
+    "must_see": false,
+    "visit_minutes": 30,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-09",
+    "categories": [
+      "parks",
+      "monuments"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Парк_имени_Янки_Купалы_(Минск)",
+        "title": "Источник сведений о месте и посещении"
+      },
+      {
+        "kind": "article",
+        "url": "https://www.openstreetmap.org/node/6472519339",
+        "title": "Пешеходная точка остановки (OSM)"
+      }
+    ]
+  },
+  {
+    "slug": "loshitsa-chapel",
+    "name": "Лошицкая усадьба — руины часовни Прушинских",
+    "summary": "Лошицкая усадьба — руины часовни Прушинских. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.852511,
+    "lon": 27.576169,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 15,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "religious",
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 1527; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "loshitsa-distillery",
+    "name": "Лошицкая усадьба — винокурня",
+    "summary": "Лошицкая усадьба — винокурня. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.849843,
+    "lon": 27.576047,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 15,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 1528; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "loshitsa-gate",
+    "name": "Лошицкая усадьба — брама и сторожка",
+    "summary": "Лошицкая усадьба — брама и сторожка. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.852665,
+    "lon": 27.577014,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 15,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 1534; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "loshitsa-manager-house",
+    "name": "Лошицкая усадьба — дом управляющего",
+    "summary": "Лошицкая усадьба — дом управляющего. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.851088,
+    "lon": 27.577603,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 15,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 1532; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "loshitsa-manor-house",
+    "name": "Лошицкая усадьба — усадебный дом",
+    "summary": "Лошицкая усадьба — усадебный дом. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.850966,
+    "lon": 27.578648,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 20,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 1526; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "loshitsa-mill-ruins",
+    "name": "Лошицкая усадьба — руины водяной мельницы",
+    "summary": "Лошицкая усадьба — руины водяной мельницы. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.853602,
+    "lon": 27.586668,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 15,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 1530; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "loshitsa-park",
+    "name": "Лошицкий парк",
+    "summary": "Прогулка по части усадебно-паркового комплекса «Лошица» с внешним осмотром усадьбы. Музейные интерьеры, экскурсии и платные события не включены. Остановка рассчитана на аллеи возле усадьбы, без обхода всего парка.",
+    "lat": 53.8509124,
+    "lon": 27.5777145,
+    "importance": 4,
+    "must_see": false,
+    "visit_minutes": 60,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-09",
+    "categories": [
+      "parks",
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Лошица_(усадьба)",
+        "title": "Источник сведений о месте и посещении"
+      },
+      {
+        "kind": "article",
+        "url": "https://www.openstreetmap.org/node/292216690",
+        "title": "Пешеходная точка остановки (OSM)"
+      }
+    ]
+  },
+  {
+    "slug": "loshitsa-service-building",
+    "name": "Лошицкая усадьба — служебный корпус",
+    "summary": "Лошицкая усадьба — служебный корпус. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.849316,
+    "lon": 27.575638,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 10,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 1533; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "loshitsa-water-mill",
+    "name": "Лошицкая усадьба — здание водяной мельницы",
+    "summary": "Лошицкая усадьба — здание водяной мельницы. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.849603,
+    "lon": 27.577082,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 15,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 1531; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "loshitsa-workers-house",
+    "name": "Лошицкая усадьба — дом рабочих винокурни",
+    "summary": "Лошицкая усадьба — дом рабочих винокурни. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.849639,
+    "lon": 27.576448,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 10,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 1529; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "main-post-office",
+    "name": "Главпочтамт — внешний осмотр",
+    "summary": "Архитектурная остановка у главного почтамта на проспекте Независимости. Включён осмотр фасада с улицы; операционный зал, почтовые услуги и покупки не входят. Часы работы почтового отделения не задают график внешнего осмотра.",
+    "lat": 53.8965154,
+    "lon": 27.5513458,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 15,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-09",
+    "categories": [
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Здание_главного_почтамта_(Минск)",
+        "title": "Источник сведений о месте и посещении"
+      },
+      {
+        "kind": "article",
+        "url": "https://www.openstreetmap.org/node/3986696960",
+        "title": "Пешеходная точка остановки (OSM)"
+      }
+    ]
+  },
+  {
+    "slug": "mary-cathedral",
+    "name": "Архикафедральный собор Пресвятой Девы Марии",
+    "summary": "Внешний осмотр католического собора на площади Свободы, напротив ратуши. Посещение интерьера, участие в службе и концерты не входят в эту остановку; расписание богослужений не используется как туристические часы работы.",
+    "lat": 53.9029928,
+    "lon": 27.5546861,
+    "importance": 4,
+    "must_see": false,
+    "visit_minutes": 20,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-09",
+    "categories": [
+      "religious",
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "official",
+        "url": "https://katedra.by/",
+        "title": "Источник сведений о месте и посещении"
+      },
+      {
+        "kind": "article",
+        "url": "https://www.openstreetmap.org/node/10939005213",
+        "title": "Пешеходная точка остановки (OSM)"
+      },
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Собор_Пресвятого_Имени_Пресвятой_Девы_Марии_(Минск)",
+        "title": "Сведения об архитектуре собора"
+      },
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 308; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "mary-magdalene-church",
+    "name": "Церковь Святой Марии Магдалины",
+    "summary": "Церковь Святой Марии Магдалины. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.916004,
+    "lon": 27.553782,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 20,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "religious",
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 321; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "masons-house",
+    "name": "Дом масонов — внешний осмотр",
+    "summary": "Дом масонов — внешний осмотр. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.905175,
+    "lon": 27.55948,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 15,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 302; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "mickiewicz-monument",
+    "name": "Памятник Адаму Мицкевичу",
+    "summary": "Короткая остановка возле бронзового памятника поэту в сквере на Городском Валу. Включён осмотр скульптуры и ближайшей части сквера. Отдельные памятники и события вне этой точки не входят.",
+    "lat": 53.9004994,
+    "lon": 27.5497328,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 15,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-09",
+    "categories": [
+      "monuments"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Памятник_Адаму_Мицкевичу_(Минск)",
+        "title": "Источник сведений о месте и посещении"
+      },
+      {
+        "kind": "article",
+        "url": "https://www.openstreetmap.org/node/2608439873",
+        "title": "Пешеходная точка остановки (OSM)"
+      }
+    ]
+  },
+  {
+    "slug": "mikhailovsky-square",
+    "name": "Михайловский сквер",
+    "summary": "Небольшой сквер рядом с вокзалом со скульптурами Владимира Жбанова, включая «Незнакомку» и «Девочку с зонтиком». Остановка включает короткую прогулку по дорожкам и осмотр скульптур.",
+    "lat": 53.8944638,
+    "lon": 27.5518354,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 20,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-09",
+    "categories": [
+      "parks",
+      "monuments"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Михайловский_сквер",
+        "title": "Источник сведений о месте и посещении"
+      },
+      {
+        "kind": "article",
+        "url": "https://www.openstreetmap.org/node/1793471614",
+        "title": "Пешеходная точка остановки (OSM)"
+      }
+    ]
+  },
+  {
+    "slug": "minsk-gates",
+    "name": "Ворота Минска",
+    "summary": "Две башни на Привокзальной площади обрамляют начало улицы Кирова. Остановка включает внешний осмотр ансамбля с тротуара, без входа в здания.",
+    "lat": 53.8917087,
+    "lon": 27.551723,
+    "importance": 4,
+    "must_see": false,
+    "visit_minutes": 10,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-08",
+    "categories": [
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Ворота_Минска",
+        "title": "Ворота Минска"
+      }
+    ]
+  },
+  {
+    "slug": "national-academy",
+    "name": "Главный корпус Национальной академии наук Беларуси",
+    "summary": "Внешний осмотр главного корпуса академии на проспекте Независимости, 66. Остановка на прогулке по проспекту не включает вход на служебную территорию, посещение музея академии или экскурсионные программы.",
+    "lat": 53.9205526,
+    "lon": 27.5981733,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 15,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-09",
+    "categories": [
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "official",
+        "url": "https://nasb.gov.by/rus/about/kontakty/",
+        "title": "Источник сведений о месте и посещении"
+      },
+      {
+        "kind": "article",
+        "url": "https://www.openstreetmap.org/node/6431170852",
+        "title": "Пешеходная точка остановки (OSM)"
+      }
+    ]
+  },
+  {
+    "slug": "national-art-museum",
+    "name": "Национальный художественный музей",
+    "summary": "Музей белорусского и зарубежного искусства на улице Ленина. Билет включает главный корпус; выставочный корпус на Карла Маркса, 24 и экскурсии не входят. Касса до 18:30, по четвергам — до 20:30. На 8 октября 2026 года в залах стран Востока идут ремонтные работы, возможен шум.",
+    "lat": 53.8985899,
+    "lon": 27.5616261,
+    "importance": 5,
+    "must_see": true,
+    "visit_minutes": 75,
+    "hours_known": true,
+    "price_known": true,
+    "verified_at": "2026-10-08",
+    "categories": [
+      "museums"
+    ],
+    "opening_hours": {
+      "monday": [
+        "11:00-19:00"
+      ],
+      "wednesday": [
+        "11:00-19:00"
+      ],
+      "thursday": [
+        "13:00-21:00"
+      ],
+      "friday": [
+        "11:00-19:00"
+      ],
+      "saturday": [
+        "11:00-19:00"
+      ],
+      "sunday": [
+        "11:00-19:00"
+      ]
+    },
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "adult",
+        "amount": 15,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "official",
+        "url": "https://artmuseum.by/",
+        "title": "Часы работы и адрес"
+      },
+      {
+        "kind": "official",
+        "url": "https://artmuseum.by/services",
+        "title": "Билеты: основной корпус"
+      },
+      {
+        "kind": "encyclopedia",
+        "url": "https://fr.wikipedia.org/wiki/Musée_national_des_Beaux-Arts_de_Biélorussie",
+        "title": "Координаты музея"
+      }
+    ]
+  },
+  {
+    "slug": "national-history-museum",
+    "name": "Национальный исторический музей",
+    "summary": "Музей истории Беларуси на Карла Маркса, 12. Билет включает экспозиции и выставки по этому адресу, без музея природы и экологии и экскурсионного обслуживания. Залы работают 10:00–19:00, вход и касса — до 18:30; дни работы и санитарные дни уточните перед посещением.",
+    "lat": 53.8967833,
+    "lon": 27.5552482,
+    "importance": 4,
+    "must_see": false,
+    "visit_minutes": 60,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-08",
+    "categories": [
+      "museums"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "adult",
+        "amount": 15,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Национальный_исторический_музей_Республики_Беларусь",
+        "title": "Национальный исторический музей"
+      },
+      {
+        "kind": "official",
+        "url": "https://histmuseum.by/",
+        "title": "Официальный сайт музея"
+      },
+      {
+        "kind": "official",
+        "url": "https://histmuseum.by/informacziya-dlya-posetitelej/",
+        "title": "Часы работы и билеты без музея природы и экологии"
+      }
+    ]
+  },
+  {
+    "slug": "national-library",
+    "name": "Национальная библиотека — внешний осмотр",
+    "summary": "Библиотека в здании необычной многогранной формы. Остановка включает внешний осмотр с площадки возле памятника Скорине; смотровая площадка и экскурсии внутрь не входят.",
+    "lat": 53.9322587,
+    "lon": 27.646469,
+    "importance": 4,
+    "must_see": false,
+    "visit_minutes": 20,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-08",
+    "categories": [
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Национальная_библиотека_Беларуси",
+        "title": "Национальная библиотека — внешний осмотр"
+      }
+    ]
+  },
+  {
+    "slug": "oktyabrskaya-street",
+    "name": "Октябрьская улица",
+    "summary": "Прогулка по части улицы с промышленной застройкой и уличными рисунками. Время рассчитано на участок возле выбранной точки, без прохождения всей улицы. Посещение кафе, галерей, клубов и событий не включено; рисунки могут меняться.",
+    "lat": 53.8915899,
+    "lon": 27.5707875,
+    "importance": 4,
+    "must_see": false,
+    "visit_minutes": 35,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-09",
+    "categories": [
+      "streets"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Октябрьская_улица_(Минск)",
+        "title": "Источник сведений о месте и посещении"
+      },
+      {
+        "kind": "article",
+        "url": "https://www.openstreetmap.org/node/275066903",
+        "title": "Пешеходная точка остановки (OSM)"
+      }
+    ]
+  },
+  {
+    "slug": "peter-paul-cathedral",
+    "name": "Собор Святых Апостолов Петра и Павла",
+    "summary": "Внешний осмотр исторического храма на Раковской улице возле Немиги. Остановка посвящена архитектуре здания; вход внутрь и богослужения не включены. Для прогулки по Раковскому предместью предусмотрена отдельная карточка.",
+    "lat": 53.9046569,
+    "lon": 27.5514498,
+    "importance": 4,
+    "must_see": false,
+    "visit_minutes": 20,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-09",
+    "categories": [
+      "religious",
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Собор_Святых_Апостолов_Петра_и_Павла_(Минск)",
+        "title": "Источник сведений о месте и посещении"
+      },
+      {
+        "kind": "article",
+        "url": "https://www.openstreetmap.org/node/3400620061",
+        "title": "Пешеходная точка остановки (OSM)"
+      },
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 322; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "pishchalovsky-castle",
+    "name": "Пищаловский замок — внешний осмотр",
+    "summary": "Пищаловский замок — внешний осмотр. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.898809,
+    "lon": 27.548178,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 20,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 313; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "rakov-suburb",
+    "name": "Раковское предместье",
+    "summary": "Короткая прогулка по историческому кварталу вдоль Раковской улицы. Внешний осмотр застройки не включает посещение заведений и интерьеров. Петропавловский собор учитывается отдельной остановкой, чтобы не прибавлять его осмотр дважды.",
+    "lat": 53.9047205,
+    "lon": 27.5495516,
+    "importance": 4,
+    "must_see": false,
+    "visit_minutes": 30,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-09",
+    "categories": [
+      "streets",
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Раковское_предместье",
+        "title": "Источник сведений о месте и посещении"
+      },
+      {
+        "kind": "article",
+        "url": "https://www.openstreetmap.org/node/6071647223",
+        "title": "Пешеходная точка остановки (OSM)"
+      }
+    ]
+  },
+  {
+    "slug": "red-church",
+    "name": "Красный костёл — внешний осмотр",
+    "summary": "Осмотр фасадов костёла Святого Симеона и Святой Елены у площади Независимости. Посещение интерьера не включено; эта карточка не подтверждает, что храм открыт внутри. Время рассчитано на отдельный осмотр здания.",
+    "lat": 53.8963248,
+    "lon": 27.5477421,
+    "importance": 5,
+    "must_see": true,
+    "visit_minutes": 20,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-09",
+    "categories": [
+      "religious",
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Костёл_Святого_Симеона_и_Святой_Елены_(Минск)",
+        "title": "Источник сведений о месте и посещении"
+      },
+      {
+        "kind": "article",
+        "url": "https://www.openstreetmap.org/node/3399323277",
+        "title": "Пешеходная точка остановки (OSM)"
+      },
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 304; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "roch-church",
+    "name": "Костёл Пресвятой Троицы (Святого Роха)",
+    "summary": "Внешний осмотр неоготического костёла на Золотой Горке, в стороне от проспекта Независимости. Вход внутрь, службы и концерты не включены. Доступ к конкретному входу и двору требует проверки на месте.",
+    "lat": 53.9108444,
+    "lon": 27.5801996,
+    "importance": 4,
+    "must_see": false,
+    "visit_minutes": 20,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-09",
+    "categories": [
+      "religious",
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "official",
+        "url": "https://www.roch.by/",
+        "title": "Источник сведений о месте и посещении"
+      },
+      {
+        "kind": "article",
+        "url": "https://www.openstreetmap.org/node/1596637719",
+        "title": "Пешеходная точка остановки (OSM)"
+      },
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Костёл_Пресвятой_Троицы_(Минск)",
+        "title": "Сведения об архитектуре костёла"
+      },
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 305; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "saint-joseph-church",
+    "name": "Бывший костёл Святого Иосифа",
+    "summary": "Бывший костёл Святого Иосифа. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.904689,
+    "lon": 27.557035,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 20,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "religious",
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 307; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "town-hall",
+    "name": "Минская ратуша — внешний осмотр",
+    "summary": "Восстановленная ратуша с башней и колоннами на площади Свободы. Остановка включает внешний осмотр фасадов и площади; вход в музей не входит.",
+    "lat": 53.9032997,
+    "lon": 27.5561469,
+    "importance": 5,
+    "must_see": true,
+    "visit_minutes": 15,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-08",
+    "categories": [
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Минская_ратуша",
+        "title": "Минская ратуша — внешний осмотр"
+      },
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 314; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "trinity-basilian-convent",
+    "name": "Жилой корпус бывшего Троицкого монастыря базилианок",
+    "summary": "Жилой корпус бывшего Троицкого монастыря базилианок. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.907737,
+    "lon": 27.557694,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 15,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "architecture",
+      "religious"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 311; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "trinity-suburb",
+    "name": "Троицкое предместье",
+    "summary": "Исторический квартал у Свислочи с невысокими домами. Остановка включает прогулку по улицам квартала; посещение музеев, заведений и частных дворов не входит.",
+    "lat": 53.9083303,
+    "lon": 27.5557931,
+    "importance": 5,
+    "must_see": true,
+    "visit_minutes": 30,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-08",
+    "categories": [
+      "streets",
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Троицкое_предместье",
+        "title": "Троицкое предместье"
+      },
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 315; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "upper-town",
+    "name": "Верхний город",
+    "summary": "Верхний город. Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.903932,
+    "lon": 27.555755,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 30,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "streets",
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 300; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "vankovich-house",
+    "name": "Музей «Дом Ваньковичей»",
+    "summary": "Дом-музей на Интернациональной улице, посвящённый культуре и искусству первой половины XIX века. Билет включает самостоятельный осмотр залов; экскурсии, квесты и программы не входят. Касса работает до 18:30.",
+    "lat": 53.9049853,
+    "lon": 27.5601863,
+    "importance": 4,
+    "must_see": false,
+    "visit_minutes": 40,
+    "hours_known": true,
+    "price_known": true,
+    "verified_at": "2026-10-08",
+    "categories": [
+      "museums",
+      "architecture"
+    ],
+    "opening_hours": {
+      "tuesday": [
+        "11:00-19:00"
+      ],
+      "wednesday": [
+        "11:00-19:00"
+      ],
+      "thursday": [
+        "11:00-19:00"
+      ],
+      "friday": [
+        "11:00-19:00"
+      ],
+      "saturday": [
+        "11:00-19:00"
+      ],
+      "sunday": [
+        "11:00-19:00"
+      ]
+    },
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "adult",
+        "amount": 10,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "official",
+        "url": "https://artmuseum.by/",
+        "title": "Часы работы филиала"
+      },
+      {
+        "kind": "official",
+        "url": "https://artmuseum.by/services?branchUrl=vankovich.artmuseum.by",
+        "title": "Билеты в Дом Ваньковичей"
+      },
+      {
+        "kind": "encyclopedia",
+        "url": "https://www.wikidata.org/wiki/Q3916003",
+        "title": "Координаты дома"
+      },
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 318; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "vankovich-large-slepyanka",
+    "name": "Усадьба Ваньковичей «Большая Слепянка»",
+    "summary": "Усадьба Ваньковичей «Большая Слепянка». Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.919645,
+    "lon": 27.638781,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 25,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 317; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "victory-park",
+    "name": "Парк Победы",
+    "summary": "Прогулка по части парка у Комсомольского озера. Время рассчитано на ближайшие аллеи и берег, без обхода всей территории. Музей истории войны, водные прогулки, прокат и платные мероприятия не входят.",
+    "lat": 53.9213608,
+    "lon": 27.5306839,
+    "importance": 4,
+    "must_see": false,
+    "visit_minutes": 45,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-09",
+    "categories": [
+      "parks"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Парк_Победы_(Минск)",
+        "title": "Источник сведений о месте и посещении"
+      },
+      {
+        "kind": "article",
+        "url": "https://www.openstreetmap.org/node/1777216564",
+        "title": "Пешеходная точка остановки (OSM)"
+      }
+    ]
+  },
+  {
+    "slug": "victory-square",
+    "name": "Площадь Победы",
+    "summary": "Мемориальная площадь с монументом Победы и Вечным огнём. Остановка включает наружный осмотр мемориального ансамбля; подземный зал памяти не входит.",
+    "lat": 53.9084447,
+    "lon": 27.5757929,
+    "importance": 5,
+    "must_see": true,
+    "visit_minutes": 15,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-08",
+    "categories": [
+      "monuments",
+      "streets"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Площадь_Победы_(Минск)",
+        "title": "Площадь Победы"
+      }
+    ]
+  },
+  {
+    "slug": "war-museum",
+    "name": "Белорусский государственный музей истории Великой Отечественной войны",
+    "summary": "Экспозиция о войне с документами, предметами быта и военной техникой. Включён самостоятельный осмотр постоянных залов; экскурсия и аудиогид оплачиваются отдельно. Касса и вход до 18:30. Перед праздниками часы меняются: уточните график на сайте.",
+    "lat": 53.9161517,
+    "lon": 27.5380077,
+    "importance": 5,
+    "must_see": true,
+    "visit_minutes": 90,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-09",
+    "categories": [
+      "museums"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "adult",
+        "amount": 20,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "official",
+        "url": "https://www.warmuseum.by/posetitelyam/rezhim-raboty-i-stoimost/",
+        "title": "Источник сведений о месте и посещении"
+      },
+      {
+        "kind": "article",
+        "url": "https://www.openstreetmap.org/node/1407534135",
+        "title": "Пешеходная точка остановки (OSM)"
+      }
+    ]
+  },
+  {
+    "slug": "white-dacha",
+    "name": "Усадьба «Белая дача»",
+    "summary": "Усадьба «Белая дача». Объект отмечен в предоставленной выгрузке Globus от 28 декабря 2015 года. Остановка предполагает внешний осмотр с доступного общественного подхода; вход внутрь и на закрытую территорию не включён. Состояние объекта, доступность подхода и условия посещения требуют актуальной проверки.",
+    "lat": 53.851728,
+    "lon": 27.509098,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 25,
+    "hours_known": false,
+    "price_known": false,
+    "verified_at": "2026-10-13",
+    "categories": [
+      "architecture"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [],
+    "links": [
+      {
+        "kind": "article",
+        "url": "https://globus.by/",
+        "title": "Globus: GPX 2015-12-28, точка 316; см. data/sources/globus-minsk.json"
+      }
+    ]
+  },
+  {
+    "slug": "yakub-kolas-square",
+    "name": "Площадь Якуба Коласа",
+    "summary": "Сквер на площади Якуба Коласа с памятником поэту и скульптурами героев его произведений. Остановка включает короткую прогулку и внешний осмотр композиций.",
+    "lat": 53.9158709,
+    "lon": 27.5830039,
+    "importance": 3,
+    "must_see": false,
+    "visit_minutes": 15,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-08",
+    "categories": [
+      "monuments",
+      "streets"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Площадь_Якуба_Коласа",
+        "title": "Площадь Якуба Коласа"
+      },
+      {
+        "kind": "article",
+        "url": "https://www.openstreetmap.org/node/455991953",
+        "title": "Пешеходная точка осмотра — OpenStreetMap"
+      }
+    ]
+  },
+  {
+    "slug": "zero-kilometer",
+    "name": "Нулевой километр и Октябрьская площадь",
+    "summary": "Остановка на Октябрьской площади возле гранитного знака начала дорог Беларуси. Включён осмотр знака и окружающей площади. Посещение Дворца Республики, выставок и концертов не входит.",
+    "lat": 53.9025426,
+    "lon": 27.561313,
+    "importance": 4,
+    "must_see": false,
+    "visit_minutes": 20,
+    "hours_known": false,
+    "price_known": true,
+    "verified_at": "2026-10-09",
+    "categories": [
+      "monuments",
+      "streets"
+    ],
+    "opening_hours": {},
+    "opening_exceptions": [],
+    "prices": [
+      {
+        "kind": "free",
+        "amount": 0,
+        "currency": "BYN"
+      }
+    ],
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Нулевой_километр_Беларуси",
+        "title": "Источник сведений о месте и посещении"
+      },
+      {
+        "kind": "article",
+        "url": "https://www.openstreetmap.org/node/10691689853",
+        "title": "Пешеходная точка остановки (OSM)"
+      }
+    ]
+  }
+]
