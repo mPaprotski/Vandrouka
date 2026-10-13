@@ -31,7 +31,7 @@ jobs:
           cache-dependency-path: backend/go.sum
 
       - name: Test planner, Mapbox adapters and CLI
-        run: go test ./internal/planner ./internal/plannercheck ./internal/routing ./cmd/planner -race -count=1 -timeout 2m -coverprofile=planner-coverage.out -v
+        run: go test ./internal/planner ./internal/plannercheck ./internal/routes ./internal/routing ./cmd/planner -race -count=1 -timeout 2m -coverprofile=planner-coverage.out -v
 
       - name: Run offline acceptance report
         run: go run ./cmd/planner-bench -output "$RUNNER_TEMP/planner-report.json"

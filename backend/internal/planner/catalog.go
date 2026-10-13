@@ -52,6 +52,14 @@ func (b *RouterMatrixBuilder) BuildMatrix(ctx context.Context, start Point, plcs
 	if err != nil {
 		return nil, err
 	}
+	if len(matrix) != len(points) {
+		return nil, fmt.Errorf("routing matrix row count differs from point count")
+	}
+	for _, row := range matrix {
+		if len(row) != len(points) {
+			return nil, fmt.Errorf("routing matrix column count differs from point count")
+		}
+	}
 	return SliceMatrix(matrix), nil
 }
 

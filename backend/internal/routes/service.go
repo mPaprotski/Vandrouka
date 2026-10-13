@@ -13,6 +13,7 @@ import (
 )
 
 var ErrCityNotFound = errors.New("route city not found")
+var ErrRoutingUnavailable = errors.New("route matrix unavailable")
 
 // Catalog returns active places only, in stable repository order. Filtering
 // multiple categories is a union handled by the service, without repeat queries.
@@ -21,9 +22,85 @@ type Catalog interface {
 	ListActivePlaces(context.Context, string) ([]places.Place, error)
 }
 
-type Service struct{ catalog Catalog }
+type VariantPlanner interface {
+	PlanVariants(planner.Request, []planner.Place, planner.DistanceMatrix, bool) ([]planner.Variant, error)
+}
 
-func NewService(catalog Catalog) *Service { return &Service{catalog: catalog} }
+type Service struct {
+	catalog Catalog
+	matrix  planner.MatrixBuilder
+	engine  VariantPlanner
+}
+
+type Option func(*Service)
+
+func WithMatrixBuilder(matrix planner.MatrixBuilder) Option {
+	return func(s *Service) { s.matrix = matrix }
+}
+
+func WithVariantPlanner(engine VariantPlanner) Option {
+	return func(s *Service) { s.engine = engine }
+}
+
+func NewService(catalog Catalog, options ...Option) *Service {
+	s := &Service{catalog: catalog, engine: planner.New()}
+	for _, option := range options {
+		option(s)
+	}
+	return s
+}
+
+// Candidates are preliminary Matrix-based routes. They must not be exposed as
+// final HTTP results until the Directions verification step has run.
+type Candidates struct {
+	Prepared Prepared
+	Matrix   planner.DistanceMatrix
+	Variants []planner.Variant
+}
+
+// GenerateCandidates builds one directed matrix, shared by all six candidates,
+// and enables the existing optimization/deduplication in PlanVariants.
+func (s *Service) GenerateCandidates(ctx context.Context, citySlug string, request planner.Request) (Candidates, error) {
+	prepared, err := s.Prepare(ctx, citySlug, request)
+	if err != nil {
+		return Candidates{}, err
+	}
+	result := Candidates{Prepared: prepared, Variants: []planner.Variant{}}
+	if prepared.Empty() {
+		return result, nil
+	}
+	if s.matrix == nil || s.engine == nil {
+		return Candidates{}, fmt.Errorf("route planning dependencies are not configured")
+	}
+	if err := ctx.Err(); err != nil {
+		return Candidates{}, err
+	}
+	matrix, err := s.matrix.BuildMatrix(ctx, prepared.Request.Start, prepared.Places)
+	if err != nil {
+		if ctx.Err() != nil {
+			return Candidates{}, ctx.Err()
+		}
+		return Candidates{}, fmt.Errorf("%w: %w", ErrRoutingUnavailable, err)
+	}
+	if err := ctx.Err(); err != nil {
+		return Candidates{}, err
+	}
+	if matrix == nil {
+		return Candidates{}, fmt.Errorf("%w: missing matrix", ErrRoutingUnavailable)
+	}
+	variants, err := s.engine.PlanVariants(prepared.Request, prepared.Places, matrix, true)
+	if err != nil {
+		return Candidates{}, fmt.Errorf("plan route variants: %w", err)
+	}
+	if err := ctx.Err(); err != nil {
+		return Candidates{}, err
+	}
+	result.Matrix = matrix
+	if variants != nil {
+		result.Variants = variants
+	}
+	return result, nil
+}
 
 // Prepared preserves correspondence between original cards, Planner places and
 // the future routing matrix: index 0 is start, indices 1..N are Places order.
