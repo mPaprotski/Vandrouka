@@ -12,6 +12,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/yourname/vandrouka/backend/internal/importer"
+	"github.com/yourname/vandrouka/backend/internal/planner"
+	"github.com/yourname/vandrouka/backend/internal/routes"
 	"github.com/yourname/vandrouka/backend/internal/store"
 )
 
@@ -80,6 +82,21 @@ func TestCatalogIntegration(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer pool.Exec(context.Background(), "UPDATE places SET is_active=true WHERE id=$1", id)
+	prepared, err := routes.NewService(store.NewCatalog(pool)).Prepare(ctx, "minsk", planner.Request{BudgetMinutes: 120, Start: planner.Point{Lat: 53.903333, Lon: 27.556111}, StartAt: time.Date(2026, 10, 24, 11, 0, 0, 0, time.UTC), Pace: planner.PaceNormal, Seed: 42})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, exists := prepared.Cards[id]; exists {
+		t.Fatal("inactive place entered route catalog")
+	}
+	if _, exists := prepared.MatrixIndices[id]; exists {
+		t.Fatal("inactive place entered route matrix")
+	}
+	for _, place := range prepared.Places {
+		if place.ID == id {
+			t.Fatal("inactive place entered Planner data")
+		}
+	}
 	if _, err := store.NewCatalog(pool).GetPlace(ctx, id); err != store.ErrNotFound {
 		t.Fatalf("inactive card is accessible: %v", err)
 	}

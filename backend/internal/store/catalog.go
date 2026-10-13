@@ -96,6 +96,11 @@ func scanPlace(row pgx.Row) (places.Place, error) {
 	return p, nil
 }
 
+// ListActivePlaces supplies the complete active city catalog to route services.
+func (s *Catalog) ListActivePlaces(ctx context.Context, city string) ([]places.Place, error) {
+	return s.ListPlaces(ctx, city, "", "")
+}
+
 func (s *Catalog) ListPlaces(ctx context.Context, city, category, query string) ([]places.Place, error) {
 	if err := s.cityExists(ctx, city); err != nil {
 		return nil, err
