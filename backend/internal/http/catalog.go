@@ -41,7 +41,7 @@ func JSON(w http.ResponseWriter, status int, value any) {
 	}
 }
 func Error(w http.ResponseWriter, status int, code, message string) {
-	JSON(w, status, map[string]any{"error": map[string]string{"code": code, "message": message}})
+	JSON(w, status, APIError{Error: ErrorDetail{Code: code, Message: message}})
 }
 
 func failure(w http.ResponseWriter, err error) {
