@@ -67,7 +67,7 @@ def main():
                         check.validate(example)
                         count += 1
     registered = set()
-    for file in ['backend/internal/http/catalog.go', 'backend/internal/http/auth.go', 'backend/internal/http/media.go', 'backend/internal/http/routes.go', 'backend/internal/http/recalculate.go', 'backend/cmd/api/main.go']:
+    for file in ['backend/internal/http/catalog.go', 'backend/internal/http/auth.go', 'backend/internal/http/media.go', 'backend/internal/http/visits.go', 'backend/internal/http/routes.go', 'backend/internal/http/recalculate.go', 'backend/cmd/api/main.go']:
         code = (ROOT / file).read_text()
         registered.update((method.lower(), path) for method, path in re.findall(r'\br\.(Get|Post|Head|Delete)\("([^"]+)"', code))
     if operations != registered:
@@ -83,6 +83,12 @@ def main():
                          dict(credentials, email='invalid'), dict(credentials, access_token='not-accepted')]:
         if not list(auth_check.iter_errors(invalid_auth)):
             raise ValueError('Invalid auth request accepted by contract')
+
+    refresh_check = validator(spec['components']['schemas']['RefreshCredential'])
+    refresh_check.validate({'refresh_token': 'b' * 43})
+    for invalid_refresh in [{'refresh_token': ''}, {'refresh_token': 'b' * 43, 'user_id': 1}, {}]:
+        if not list(refresh_check.iter_errors(invalid_refresh)):
+            raise ValueError('Invalid refresh request accepted by contract')
 
     visit_check = validator(spec['components']['schemas']['ConfirmVisitRequest'])
     visit_request = spec['paths']['/v1/places/{id}/visits']['post']['requestBody']['content']['application/json']['example']

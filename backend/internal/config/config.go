@@ -6,11 +6,17 @@ import (
 )
 
 type Config struct {
+	VisitRadiusM    float64       `env:"VISIT_RADIUS_M" env-default:"50"`
+	VisitAccuracyM  float64       `env:"VISIT_ACCURACY_M" env-default:"30"`
+	VisitMaxAge     time.Duration `env:"VISIT_MAX_AGE" env-default:"120s"`
+	VisitFutureSkew time.Duration `env:"VISIT_FUTURE_SKEW" env-default:"30s"`
+
 	MediaS3Endpoint  string `env:"MEDIA_S3_ENDPOINT"`
 	MediaS3Bucket    string `env:"MEDIA_S3_BUCKET" env-default:"vandrouka-visit-photos"`
 	MediaS3AccessKey string `env:"MEDIA_S3_ACCESS_KEY"`
 	MediaS3SecretKey string `env:"MEDIA_S3_SECRET_KEY"`
 
+	AuthRefreshTTL           time.Duration `env:"AUTH_REFRESH_TTL" env-default:"720h"`
 	AuthAccessTTL            time.Duration `env:"AUTH_ACCESS_TTL" env-default:"24h"`
 	RouteRequestsPerMinute   int           `env:"ROUTE_REQUESTS_PER_MINUTE" env-default:"6"`
 	RouteBurst               int           `env:"ROUTE_BURST" env-default:"2"`

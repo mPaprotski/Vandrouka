@@ -1,16 +1,15 @@
 import { router } from 'expo-router';
+import { useSession } from '../../auth/SessionProvider';
 import { SectionScreen } from '../../components/SectionScreen';
 import { AppButton } from '../../components/ui/AppButton';
-import { EmptyState } from '../../components/ui/ContentState';
+import { EmptyState, LoadingState } from '../../components/ui/ContentState';
 
-export default function VisitsScreen() {
-  return (
-    <SectionScreen title="Ваши открытия" description="Здесь будет история ваших прогулок.">
-      <EmptyState
-        title="Посещений пока нет"
-        description="Сохранение посещений пока недоступно. Здесь появятся открытые места и фотографии прогулок."
-        action={<AppButton title="Исследовать город" variant="secondary" onPress={() => router.navigate('/explore')} />}
-      />
-    </SectionScreen>
-  );
+export default function VisitsScreen(){
+ const {state}=useSession();
+ return <SectionScreen title="Ваши открытия" description="Здесь будет история ваших прогулок.">
+  {state.status==='loading'?<LoadingState/>:state.status==='authenticated'?
+   <EmptyState title="История посещений ещё не подключена" description="Вы вошли в аккаунт. Сохранение подтверждённых посещений появится на следующем этапе." action={<AppButton title="Исследовать город" variant="secondary" onPress={()=>router.navigate('/explore')}/>}/>:
+   <EmptyState title="Нужен вход в аккаунт" description="Войдите, чтобы сохранять свои открытия. Каталог доступен без входа." action={<AppButton title="Открыть профиль" onPress={()=>router.navigate('/profile')}/>}/>
+  }
+ </SectionScreen>;
 }

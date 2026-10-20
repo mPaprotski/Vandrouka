@@ -9,31 +9,43 @@ import (
 	"time"
 )
 
+type memoryFamily struct {
+	user    User
+	expires time.Time
+	revoked bool
+}
+type memoryRefresh struct {
+	access, family string
+	used           bool
+}
 type memoryRepository struct {
 	users  map[string]Credentials
 	tokens map[string]struct {
 		user    User
 		expires time.Time
 	}
-	failSession bool
+	refresh      map[string]*memoryRefresh
+	families     map[string]*memoryFamily
+	accessFamily map[string]string
+	failSession  bool
 }
 
 func newMemory() *memoryRepository {
 	return &memoryRepository{users: map[string]Credentials{}, tokens: map[string]struct {
 		user    User
 		expires time.Time
-	}{}}
+	}{}, refresh: map[string]*memoryRefresh{}, families: map[string]*memoryFamily{}, accessFamily: map[string]string{}}
 }
-func (m *memoryRepository) Register(ctx context.Context, email, hash string, token []byte, now, expires time.Time) (User, error) {
+func (m *memoryRepository) Register(ctx context.Context, email, hash string, input SessionInput) (User, error) {
 	if _, ok := m.users[email]; ok {
 		return User{}, ErrEmailExists
 	}
-	user := User{ID: int64(len(m.users) + 1), Email: email, CreatedAt: now}
+	user := User{ID: int64(len(m.users) + 1), Email: email, CreatedAt: input.CreatedAt}
 	if m.failSession {
 		return User{}, errors.New("session storage failure")
 	}
 	m.users[email] = Credentials{User: user, PasswordHash: hash}
-	m.AddSession(ctx, user.ID, token, now, expires)
+	m.AddSession(ctx, user.ID, input)
 	return user, nil
 }
 func (m *memoryRepository) FindCredentials(_ context.Context, email string) (Credentials, error) {
@@ -43,27 +55,66 @@ func (m *memoryRepository) FindCredentials(_ context.Context, email string) (Cre
 	}
 	return c, nil
 }
-func (m *memoryRepository) AddSession(_ context.Context, id int64, token []byte, now, expires time.Time) error {
+func (m *memoryRepository) AddSession(_ context.Context, id int64, input SessionInput) error {
 	if m.failSession {
 		return errors.New("session storage failure")
 	}
-	for _, c := range m.users {
-		if c.User.ID == id {
-			m.tokens[string(token)] = struct {
-				user    User
-				expires time.Time
-			}{c.User, expires}
+	for _, record := range m.users {
+		if record.User.ID == id {
+			family := string(input.RefreshHash)
+			m.families[family] = &memoryFamily{user: record.User, expires: input.RefreshExpiresAt}
+			m.save(record.User, input, family)
 			return nil
 		}
 	}
 	return errors.New("unknown user")
 }
+func (m *memoryRepository) save(user User, input SessionInput, family string) {
+	access, refresh := string(input.AccessHash), string(input.RefreshHash)
+	m.tokens[access] = struct {
+		user    User
+		expires time.Time
+	}{user, input.AccessExpiresAt}
+	m.accessFamily[access] = family
+	m.refresh[refresh] = &memoryRefresh{access: access, family: family}
+}
 func (m *memoryRepository) SessionUser(_ context.Context, token []byte, now time.Time) (User, error) {
-	s, ok := m.tokens[string(token)]
-	if !ok || !now.Before(s.expires) {
+	session, ok := m.tokens[string(token)]
+	if !ok || !now.Before(session.expires) {
 		return User{}, ErrUnauthorized
 	}
-	return s.user, nil
+	family := m.families[m.accessFamily[string(token)]]
+	if family.revoked || !now.Before(family.expires) {
+		return User{}, ErrUnauthorized
+	}
+	return session.user, nil
+}
+func (m *memoryRepository) Rotate(_ context.Context, token []byte, input SessionInput) (SessionRecord, error) {
+	ref, ok := m.refresh[string(token)]
+	if !ok {
+		return SessionRecord{}, ErrUnauthorized
+	}
+	family := m.families[ref.family]
+	if family.revoked || !input.CreatedAt.Before(family.expires) {
+		return SessionRecord{}, ErrUnauthorized
+	}
+	if ref.used {
+		family.revoked = true
+		return SessionRecord{}, ErrUnauthorized
+	}
+	ref.used = true
+	delete(m.tokens, ref.access)
+	if input.AccessExpiresAt.After(family.expires) {
+		input.AccessExpiresAt = family.expires
+	}
+	m.save(family.user, input, ref.family)
+	return SessionRecord{User: family.user, AccessExpiresAt: input.AccessExpiresAt, RefreshExpiresAt: family.expires}, nil
+}
+func (m *memoryRepository) Revoke(_ context.Context, token []byte, _ time.Time) error {
+	if ref, ok := m.refresh[string(token)]; ok {
+		m.families[ref.family].revoked = true
+	}
+	return nil
 }
 func TestPasswords(t *testing.T) {
 	first, err := hashPassword("пароль с пробелами 123")
@@ -195,5 +246,60 @@ func TestConfiguredLifetime(t *testing.T) {
 	now = now.Add(time.Nanosecond)
 	if _, err = s.Authenticate(context.Background(), registered.AccessToken); !errors.Is(err, ErrUnauthorized) {
 		t.Fatal("expiry boundary", err)
+	}
+}
+
+func TestRefreshAndRevocation(t *testing.T) {
+	s, err := New(newMemory())
+	if err != nil {
+		t.Fatal(err)
+	}
+	now := time.Date(2026, 10, 22, 12, 0, 0, 0, time.UTC)
+	s.now = func() time.Time { return now }
+	original, err := s.Register(context.Background(), "rotate@example.com", "refresh password 123")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !original.RefreshExpiresAt.Equal(now.Add(30 * 24 * time.Hour)) {
+		t.Fatal("refresh lifetime")
+	}
+	now = now.Add(24 * time.Hour)
+	if _, err = s.Authenticate(context.Background(), original.AccessToken); !errors.Is(err, ErrUnauthorized) {
+		t.Fatal("access did not expire")
+	}
+	renewed, err := s.Refresh(context.Background(), original.RefreshToken)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if renewed.AccessToken == original.AccessToken || renewed.RefreshToken == original.RefreshToken || !renewed.RefreshExpiresAt.Equal(original.RefreshExpiresAt) {
+		t.Fatal("rotation contract")
+	}
+	if _, err = s.Authenticate(context.Background(), renewed.AccessToken); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = s.Refresh(context.Background(), original.RefreshToken); !errors.Is(err, ErrUnauthorized) {
+		t.Fatal("refresh replay accepted")
+	}
+	if _, err = s.Authenticate(context.Background(), renewed.AccessToken); !errors.Is(err, ErrUnauthorized) {
+		t.Fatal("replay did not revoke family")
+	}
+	device, err := s.Login(context.Background(), "rotate@example.com", "refresh password 123")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = s.Logout(context.Background(), renewed.RefreshToken); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = s.Authenticate(context.Background(), device.AccessToken); err != nil {
+		t.Fatal("other device revoked")
+	}
+	if err = s.Logout(context.Background(), device.RefreshToken); err != nil {
+		t.Fatal(err)
+	}
+	if err = s.Logout(context.Background(), device.RefreshToken); err != nil {
+		t.Fatal("logout not idempotent")
+	}
+	if _, err = s.Refresh(context.Background(), device.RefreshToken); !errors.Is(err, ErrUnauthorized) {
+		t.Fatal("logout refresh accepted")
 	}
 }

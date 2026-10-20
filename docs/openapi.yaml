@@ -1,14 +1,94 @@
 openapi: 3.0.3
 info:
   title: Вандроўка API
-  version: 0.3.0
-  description: Каталог, маршруты generate/recalculate, серверная авторизация и приватные фото «Вандроўкі».
-    Register/login создают access-сессию; me возвращает её владельца. Refresh/logout
-    и мобильный вход относятся к следующему этапу. Часы и цены неизвестных мест
+  version: 0.5.1
+  description: Каталог, маршруты generate/recalculate, серверная авторизация, приватные фото и подтверждение посещений с XP «Вандроўкі».
+    Register/login выдают access/refresh; refresh выполняет ротацию, logout отзывает цепочку,
+    me возвращает владельца сессии. Часы и цены неизвестных мест
     не считаются подтверждёнными.
 servers:
 - url: http://localhost:8080
 paths:
+  /v1/auth/refresh:
+    post:
+      summary: Rotate the refresh/access pair
+      x-implementation-status: implemented
+      description: 'Single-use refresh. Rotation revokes the old access. Replaying a
+        consumed refresh revokes its entire family, including the newly returned pair;
+        other device families stay active. Concurrent refresh must be serialized by
+        the client. A lost successful refresh response requires sign-in again. Shared
+        refresh/logout limit: 30 requests/minute per peer IP. Tokens accepted only in
+        a JSON body, not URL/cookies.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshCredential'
+            example:
+              refresh_token: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+      responses:
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '415':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '200':
+          description: 'New token pair with the original absolute family deadline. Cache-Control:
+            no-store.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSession'
+              example:
+                user:
+                  id: 1
+                  email: walker@example.com
+                  created_at: '2026-10-21T09:00:00Z'
+                access_token: CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+                refresh_token: ddddddddddddddddddddddddddddddddddddddddddd
+                token_type: Bearer
+                expires_at: '2026-10-23T09:00:00Z'
+                refresh_expires_at: '2026-11-20T09:00:00Z'
+  /v1/auth/logout:
+    post:
+      summary: Revoke this device session family
+      x-implementation-status: implemented
+      description: 'The refresh credential selects a family even when access has expired.
+        Revoke all access/refresh credentials in that family; other devices remain signed
+        in. Repeated logout or an unknown well-formed credential returns 204. Shared
+        refresh/logout limit: 30 requests/minute per peer IP. Tokens accepted only in
+        a JSON body, not URL/cookies.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshCredential'
+            example:
+              refresh_token: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+      responses:
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '415':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '204':
+          description: 'Family revoked, already revoked or unknown. Cache-Control: no-store.'
   /v1/visits/photo-upload:
     post:
       summary: Upload a private visit photo
@@ -122,12 +202,26 @@ paths:
         a tombstone and deletion job before removing the object. 204 means deletion
         completed. If storage fails, return 503, prevent reads immediately and retry
         in the background. Visits, XP and reward uniqueness remain unchanged.
+        Automatic draft cleanup must use unconfirmed_only=true. After acquiring the
+        photo row lock, the server checks confirmed visits in a fresh statement;
+        confirmed media returns 409 photo_confirmed without tombstone or storage IO.
+      parameters:
+      - name: unconfirmed_only
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
       security:
       - BearerAuth: []
       responses:
         '204':
           description: Image removed or already deleted; photo metadata tombstone and
             XP remain.
+        '400':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
         '401':
           $ref: '#/components/responses/Error'
         '404':
@@ -149,12 +243,18 @@ paths:
         minimum: 1
     post:
       summary: Confirm a visit with a ready photo and fresh location
-      x-implementation-status: planned
-      description: Contract only; scheduled for 25 October. Not registered in the current
-        server. Owner comes from the session. Same owner/key and normalized payload
+      x-implementation-status: implemented
+      description: Owner comes from the session. Same owner/key and normalized payload
         replay the stored outcome, including a rejection. Changed payload with the same
         key returns 409. First confirmed place gives 100 XP; later visits give 0. Visit
-        and award commit atomically.
+        and award commit atomically. GPS defaults are distance <= 50 m, accuracy <= 30 m,
+        observed_at in [received_at - 120 s, received_at + 30 s], inclusive and without
+        rounding. Failure precedence is inactive_place, photo_not_ready, poor_accuracy,
+        stale_location, future_location, too_far. Missing/foreign/deleted photo is 404;
+        a photo already used for confirmation is 409 photo_already_used. Resource checks
+        precede business validation. Replay precedes resource checks and never reevaluates
+        GPS. Canonical UUID case, UTC timestamps and parsed numbers form the request hash.
+        Cache-Control is no-store; raw GPS and storage keys are never returned.
       security:
       - BearerAuth: []
       parameters:
@@ -235,6 +335,10 @@ paths:
           $ref: '#/components/responses/Error'
         '409':
           $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '415':
+          $ref: '#/components/responses/Error'
         '429':
           $ref: '#/components/responses/Error'
         '500':
@@ -305,6 +409,8 @@ paths:
                 access_token: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
                 token_type: Bearer
                 expires_at: '2026-10-22T09:00:00Z'
+                refresh_token: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+                refresh_expires_at: '2026-11-20T09:00:00Z'
         '400':
           $ref: '#/components/responses/Error'
         '401':
@@ -1129,6 +1235,8 @@ components:
       - access_token
       - token_type
       - expires_at
+      - refresh_token
+      - refresh_expires_at
       properties:
         user:
           $ref: '#/components/schemas/AuthUser'
@@ -1143,8 +1251,27 @@ components:
         expires_at:
           type: string
           format: date-time
-          description: Access session expires after 24 hours by default (AUTH_ACCESS_TTL). Refresh is implemented
-            in the next stage.
+          description: Access expires after 24 hours by default, capped by the refresh-family
+            deadline. Refresh revokes the previous access token.
+        refresh_token:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{43}$
+          description: Single-use opaque refresh credential. Store only in encrypted storage;
+            never put in URLs/logs.
+        refresh_expires_at:
+          type: string
+          format: date-time
+          description: Absolute family deadline, 30 days by default (AUTH_REFRESH_TTL).
+            Rotation does not extend it.
+    RefreshCredential:
+      type: object
+      additionalProperties: false
+      required:
+      - refresh_token
+      properties:
+        refresh_token:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{43}$
     City:
       type: object
       required:

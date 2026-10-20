@@ -21,6 +21,7 @@ import (
 	"github.com/yourname/vandrouka/backend/internal/routes"
 	"github.com/yourname/vandrouka/backend/internal/routing"
 	"github.com/yourname/vandrouka/backend/internal/store"
+	"github.com/yourname/vandrouka/backend/internal/visits"
 )
 
 func main() {
@@ -99,13 +100,22 @@ func run() error {
 		})
 		apihttp.RegisterCatalog(r, content.Catalog{Base: catalog, Registry: reviewed})
 	})
-	authentication, err := auth.NewWithLifetime(auth.Postgres{Pool: pool}, cfg.AuthAccessTTL)
+	authentication, err := auth.NewWithLifetimes(auth.Postgres{Pool: pool}, cfg.AuthAccessTTL, cfg.AuthRefreshTTL)
 	if err != nil {
 		return fmt.Errorf("configure authentication: %w", err)
 	}
 	r.Group(func(r chi.Router) {
-		r.Use(apihttp.CatalogResponses(10 * time.Second))
+		r.Use(apihttp.AuthResponses(10 * time.Second))
 		apihttp.RegisterAuth(r, authentication)
+	})
+
+	confirmations, err := visits.New(visits.Postgres{Pool: pool}, visits.Policy{RadiusM: cfg.VisitRadiusM, AccuracyM: cfg.VisitAccuracyM, MaxAge: cfg.VisitMaxAge, FutureSkew: cfg.VisitFutureSkew})
+	if err != nil {
+		return fmt.Errorf("invalid visit policy")
+	}
+	r.Group(func(r chi.Router) {
+		r.Use(apihttp.AuthResponses(10 * time.Second))
+		apihttp.RegisterVisits(r, authentication, confirmations)
 	})
 
 	objects, err := media.NewS3(cfg.MediaS3Endpoint, cfg.MediaS3Bucket, cfg.MediaS3AccessKey, cfg.MediaS3SecretKey)

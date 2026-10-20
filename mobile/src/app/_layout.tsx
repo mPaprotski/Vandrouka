@@ -1,3 +1,4 @@
+import { SessionProvider } from '../auth/SessionProvider';
 import { router, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Pressable, Text } from 'react-native';
@@ -20,7 +21,8 @@ function BackButton() {
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <StatusBar style="dark" />
+      <SessionProvider>
+ <StatusBar style="dark" />
       <Stack screenOptions={{
         headerStyle: { backgroundColor: '#F7F4EC' },
         headerTintColor: '#173F34',
@@ -29,7 +31,10 @@ export default function RootLayout() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="places/[id]" options={{ title: 'Место', headerLeft: () => <BackButton /> }} />
+        <Stack.Screen name="capture/[id]" options={{title:"Фото места",headerLeft:()=> <BackButton />}} />
+        <Stack.Screen name="auth" options={{title:'Вход в Вандроўку',headerLeft:()=> <BackButton />}} />
       </Stack>
+      </SessionProvider>
     </SafeAreaProvider>
   );
 }

@@ -24,6 +24,7 @@ var (
 	ErrUnsupported = errors.New("unsupported image format")
 	ErrUnavailable = errors.New("media unavailable")
 	ErrNotFound    = errors.New("photo not found")
+	ErrConfirmed   = errors.New("photo is confirmed")
 )
 
 type Image struct {

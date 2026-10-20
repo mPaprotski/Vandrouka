@@ -22,6 +22,8 @@ type AuthService interface {
 	Register(context.Context, string, string) (auth.LoginResult, error)
 	Login(context.Context, string, string) (auth.LoginResult, error)
 	Authenticate(context.Context, string) (auth.User, error)
+	Refresh(context.Context, string) (auth.LoginResult, error)
+	Logout(context.Context, string) error
 }
 type authWindow struct {
 	count   int
@@ -40,6 +42,8 @@ func RegisterAuth(r chi.Router, service AuthService) {
 	r.Post("/v1/auth/register", h.register)
 	r.Post("/v1/auth/login", h.login)
 	r.Get("/v1/me", h.me)
+	r.Post("/v1/auth/refresh", h.refresh)
+	r.Post("/v1/auth/logout", h.logout)
 }
 
 // Limits are per API process. Only RemoteAddr is trusted, never forwarded headers.
@@ -192,4 +196,78 @@ func (h *authHandler) me(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	JSON(w, 200, map[string]auth.User{"user": user})
+}
+
+func (h *authHandler) refreshCredential(w http.ResponseWriter, r *http.Request) (string, bool) {
+	w.Header().Set("Cache-Control", "no-store")
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		host = r.RemoteAddr
+	}
+	if !h.allow("session-ip:"+host, 30) {
+		limitedAuth(w)
+		return "", false
+	}
+	content, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
+	if err != nil || content != "application/json" {
+		Error(w, 415, "unsupported_media_type", "Требуется application/json")
+		return "", false
+	}
+	r.Body = http.MaxBytesReader(w, r.Body, 4096)
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	var input struct {
+		RefreshToken string `json:"refresh_token"`
+	}
+	err = decoder.Decode(&input)
+	if err == nil {
+		var extra any
+		if decoder.Decode(&extra) != io.EOF {
+			err = auth.ErrInvalidInput
+		}
+	}
+	if err != nil || input.RefreshToken == "" || len(input.RefreshToken) > 128 {
+		var tooLarge *http.MaxBytesError
+		if errors.As(err, &tooLarge) {
+			Error(w, 413, "request_too_large", "Слишком большой запрос")
+		} else {
+			Error(w, 400, "invalid_request", "Некорректные параметры сессии")
+		}
+		return "", false
+	}
+	return input.RefreshToken, true
+}
+func (h *authHandler) refresh(w http.ResponseWriter, r *http.Request) {
+	token, ok := h.refreshCredential(w, r)
+	if !ok {
+		return
+	}
+	result, err := h.service.Refresh(r.Context(), token)
+	if err != nil {
+		authFailure(w, err)
+		return
+	}
+	JSON(w, 200, result)
+}
+func (h *authHandler) logout(w http.ResponseWriter, r *http.Request) {
+	token, ok := h.refreshCredential(w, r)
+	if !ok {
+		return
+	}
+	if err := h.service.Logout(r.Context(), token); err != nil {
+		authFailure(w, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func AuthResponses(timeout time.Duration) func(http.Handler) http.Handler {
+	guard := CatalogResponses(timeout)
+	return func(next http.Handler) http.Handler {
+		wrapped := guard(next)
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Cache-Control", "no-store")
+			wrapped.ServeHTTP(w, r)
+		})
+	}
 }

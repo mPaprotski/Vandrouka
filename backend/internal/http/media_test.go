@@ -34,10 +34,11 @@ func (a mediaAuth) Authenticate(ctx context.Context, token string) (auth.User, e
 }
 
 type fakeMedia struct {
-	body    []byte
-	deleted bool
-	err     error
-	uploads int
+	body      []byte
+	deleted   bool
+	err       error
+	uploads   int
+	discarded bool
 }
 
 func (s *fakeMedia) Upload(_ context.Context, owner, place int64, reader io.Reader, mime string) (visits.Photo, error) {
@@ -77,6 +78,10 @@ func (s *fakeMedia) Delete(_ context.Context, owner int64, id string) error {
 	}
 	s.deleted = true
 	return nil
+}
+func (s *fakeMedia) Discard(ctx context.Context, owner int64, id string) error {
+	s.discarded = true
+	return s.Delete(ctx, owner, id)
 }
 func mediaRouter(service MediaService) http.Handler {
 	r := chi.NewRouter()
@@ -261,6 +266,32 @@ func TestMediaConcurrentMemoryBound(t *testing.T) {
 	for status := range results {
 		if status != 200 {
 			t.Fatal(status)
+		}
+	}
+}
+
+func TestDiscardPhotoHTTP(t *testing.T) {
+	for _, tc := range []struct {
+		query   string
+		err     error
+		want    int
+		discard bool
+	}{
+		{"?unconfirmed_only=true", nil, 204, true}, {"", nil, 204, false}, {"?unconfirmed_only=false", nil, 204, false},
+		{"?unconfirmed_only=wrong", nil, 400, false}, {"?unconfirmed_only=true&unconfirmed_only=false", nil, 400, false},
+		{"?unconfirmed_only=true", media.ErrConfirmed, 409, true},
+	} {
+		service := &fakeMedia{err: tc.err}
+		r := mediaRouter(service)
+		request := httptest.NewRequest("DELETE", "/v1/visits/photos/"+samplePhotoID+tc.query, nil)
+		request.Header.Set("Authorization", "Bearer valid")
+		response := httptest.NewRecorder()
+		r.ServeHTTP(response, request)
+		if response.Code != tc.want || service.discarded != tc.discard {
+			t.Fatalf("query %s status %d discard %v", tc.query, response.Code, service.discarded)
+		}
+		if tc.want == 409 && !strings.Contains(response.Body.String(), "photo_confirmed") {
+			t.Fatal(response.Body)
 		}
 	}
 }

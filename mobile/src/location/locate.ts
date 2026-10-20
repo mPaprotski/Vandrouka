@@ -19,7 +19,7 @@ export function readFix(position: NativePosition, now = Date.now()): PositionFix
 }
 
 /** A single fresh fix. Stop the native watcher on success, timeout, blur or background. */
-export async function locateOnce(provider: LocationProvider, signal: AbortSignal, timeoutMs = 20000): Promise<PositionFix> {
+export async function locateOnce(provider: LocationProvider, signal: AbortSignal, timeoutMs = 20000, accept: (fix: PositionFix) => boolean = () => true): Promise<PositionFix> {
   let subscription: Subscription | undefined;
   const stop = () => { const active = subscription; subscription = undefined; active?.remove(); };
   let finished = false;
@@ -43,7 +43,7 @@ export async function locateOnce(provider: LocationProvider, signal: AbortSignal
         subscription = await provider.watch(position => {
           if (finished) return;
           const fix = readFix(position);
-          if (fix) { finished = true; resolve(fix); }
+          if (fix && accept(fix)) { finished = true; resolve(fix); }
         }, () => fail(new LocationError('unavailable', 'Не удалось определить положение. Попробуйте ещё раз.')));
         if (finished) stop();
       })().catch(error => fail(error instanceof LocationError ? error : new LocationError('unavailable', 'Не удалось определить положение. Попробуйте ещё раз.')));

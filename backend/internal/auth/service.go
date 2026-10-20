@@ -19,6 +19,7 @@ var (
 )
 
 const AccessLifetime = 24 * time.Hour
+const RefreshLifetime = 30 * 24 * time.Hour
 
 type User struct {
 	ID        int64     `json:"id"`
@@ -26,26 +27,39 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 type LoginResult struct {
-	User        User      `json:"user"`
-	AccessToken string    `json:"access_token"`
-	TokenType   string    `json:"token_type"`
-	ExpiresAt   time.Time `json:"expires_at"`
+	User             User      `json:"user"`
+	AccessToken      string    `json:"access_token"`
+	TokenType        string    `json:"token_type"`
+	ExpiresAt        time.Time `json:"expires_at"`
+	RefreshToken     string    `json:"refresh_token"`
+	RefreshExpiresAt time.Time `json:"refresh_expires_at"`
 }
 type Credentials struct {
 	User         User
 	PasswordHash string
 }
+type SessionInput struct {
+	AccessHash, RefreshHash                      []byte
+	CreatedAt, AccessExpiresAt, RefreshExpiresAt time.Time
+}
+type SessionRecord struct {
+	User                              User
+	AccessExpiresAt, RefreshExpiresAt time.Time
+}
 type Repository interface {
-	Register(context.Context, string, string, []byte, time.Time, time.Time) (User, error)
+	Register(context.Context, string, string, SessionInput) (User, error)
 	FindCredentials(context.Context, string) (Credentials, error)
-	AddSession(context.Context, int64, []byte, time.Time, time.Time) error
+	AddSession(context.Context, int64, SessionInput) error
 	SessionUser(context.Context, []byte, time.Time) (User, error)
+	Rotate(context.Context, []byte, SessionInput) (SessionRecord, error)
+	Revoke(context.Context, []byte, time.Time) error
 }
 type Service struct {
-	repository Repository
-	dummyHash  string
-	lifetime   time.Duration
-	now        func() time.Time
+	repository      Repository
+	dummyHash       string
+	lifetime        time.Duration
+	refreshLifetime time.Duration
+	now             func() time.Time
 }
 
 func New(repository Repository) (*Service, error) {
@@ -53,7 +67,11 @@ func New(repository Repository) (*Service, error) {
 }
 
 func NewWithLifetime(repository Repository, lifetime time.Duration) (*Service, error) {
-	if lifetime <= 0 {
+	return NewWithLifetimes(repository, lifetime, RefreshLifetime)
+}
+
+func NewWithLifetimes(repository Repository, lifetime, refreshLifetime time.Duration) (*Service, error) {
+	if lifetime <= 0 || refreshLifetime <= 0 {
 		return nil, errors.New("session lifetime must be positive")
 	}
 
@@ -61,7 +79,7 @@ func NewWithLifetime(repository Repository, lifetime time.Duration) (*Service, e
 	if err != nil {
 		return nil, err
 	}
-	return &Service{repository: repository, dummyHash: dummy, now: time.Now, lifetime: lifetime}, nil
+	return &Service{repository: repository, dummyHash: dummy, now: time.Now, lifetime: lifetime, refreshLifetime: refreshLifetime}, nil
 }
 
 // Email matching is case-insensitive. No provider-specific dot/plus rewriting.
@@ -93,18 +111,16 @@ func (s *Service) Register(ctx context.Context, email, password string) (LoginRe
 	if err != nil {
 		return LoginResult{}, err
 	}
-	token, err := newAccessToken()
+	result, input, err := s.issue()
 	if err != nil {
 		return LoginResult{}, err
 	}
-	now := s.now().UTC()
-	expires := now.Add(s.lifetime)
-	sum := sha256.Sum256([]byte(token))
-	user, err := s.repository.Register(ctx, email, hash, sum[:], now, expires)
+	user, err := s.repository.Register(ctx, email, hash, input)
 	if err != nil {
 		return LoginResult{}, err
 	}
-	return LoginResult{User: user, AccessToken: token, TokenType: "Bearer", ExpiresAt: expires}, nil
+	result.User = user
+	return result, nil
 }
 func (s *Service) Login(ctx context.Context, email, password string) (LoginResult, error) {
 	email, err := normalize(email, password)
@@ -126,17 +142,15 @@ func (s *Service) Login(ctx context.Context, email, password string) (LoginResul
 	if !valid || err != nil {
 		return LoginResult{}, ErrCredentials
 	}
-	token, err := newAccessToken()
+	result, input, err := s.issue()
 	if err != nil {
 		return LoginResult{}, err
 	}
-	now := s.now().UTC()
-	expires := now.Add(s.lifetime)
-	sum := sha256.Sum256([]byte(token))
-	if err = s.repository.AddSession(ctx, record.User.ID, sum[:], now, expires); err != nil {
+	if err = s.repository.AddSession(ctx, record.User.ID, input); err != nil {
 		return LoginResult{}, err
 	}
-	return LoginResult{User: record.User, AccessToken: token, TokenType: "Bearer", ExpiresAt: expires}, nil
+	result.User = record.User
+	return result, nil
 }
 func (s *Service) Authenticate(ctx context.Context, token string) (User, error) {
 	raw, err := base64.RawURLEncoding.DecodeString(token)
@@ -145,4 +159,57 @@ func (s *Service) Authenticate(ctx context.Context, token string) (User, error) 
 	}
 	sum := sha256.Sum256([]byte(token))
 	return s.repository.SessionUser(ctx, sum[:], s.now().UTC())
+}
+
+func (s *Service) issue() (LoginResult, SessionInput, error) {
+	access, err := newAccessToken()
+	if err != nil {
+		return LoginResult{}, SessionInput{}, err
+	}
+	refresh, err := newAccessToken()
+	if err != nil {
+		return LoginResult{}, SessionInput{}, err
+	}
+	now := s.now().UTC().Truncate(time.Microsecond)
+	refreshExpires := now.Add(s.refreshLifetime)
+	accessExpires := now.Add(s.lifetime)
+	if accessExpires.After(refreshExpires) {
+		accessExpires = refreshExpires
+	}
+	accessHash := sha256.Sum256([]byte(access))
+	refreshHash := sha256.Sum256([]byte(refresh))
+	return LoginResult{AccessToken: access, RefreshToken: refresh, TokenType: "Bearer", ExpiresAt: accessExpires, RefreshExpiresAt: refreshExpires}, SessionInput{AccessHash: accessHash[:], RefreshHash: refreshHash[:], CreatedAt: now, AccessExpiresAt: accessExpires, RefreshExpiresAt: refreshExpires}, nil
+}
+func tokenHash(token string) ([]byte, bool) {
+	raw, err := base64.RawURLEncoding.DecodeString(token)
+	if err != nil || len(raw) != 32 || base64.RawURLEncoding.EncodeToString(raw) != token {
+		return nil, false
+	}
+	sum := sha256.Sum256([]byte(token))
+	return sum[:], true
+}
+func (s *Service) Refresh(ctx context.Context, token string) (LoginResult, error) {
+	hash, ok := tokenHash(token)
+	if !ok {
+		return LoginResult{}, ErrUnauthorized
+	}
+	result, input, err := s.issue()
+	if err != nil {
+		return LoginResult{}, err
+	}
+	record, err := s.repository.Rotate(ctx, hash, input)
+	if err != nil {
+		return LoginResult{}, err
+	}
+	result.User = record.User
+	result.ExpiresAt = record.AccessExpiresAt
+	result.RefreshExpiresAt = record.RefreshExpiresAt
+	return result, nil
+}
+func (s *Service) Logout(ctx context.Context, token string) error {
+	hash, ok := tokenHash(token)
+	if !ok {
+		return ErrInvalidInput
+	}
+	return s.repository.Revoke(ctx, hash, s.now().UTC())
 }

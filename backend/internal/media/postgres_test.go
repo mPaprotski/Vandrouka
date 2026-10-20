@@ -83,6 +83,23 @@ func TestPrivatePhotosPostgresIntegration(t *testing.T) {
 		}
 		defer pool.Exec(context.Background(), "DELETE FROM users WHERE id=$1", *target)
 	}
+	// Remove only our own deletion jobs after cascading test-user cleanup.
+	defer func() {
+		clean, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		var keys []string
+		if err := pool.QueryRow(clean, "SELECT COALESCE(array_agg(object_key),ARRAY[]::text[]) FROM visit_photos WHERE user_id=ANY($1)", []int64{owner, other}).Scan(&keys); err != nil {
+			t.Error(err)
+			return
+		}
+		if _, err := pool.Exec(clean, "DELETE FROM users WHERE id=ANY($1)", []int64{owner, other}); err != nil {
+			t.Error(err)
+			return
+		}
+		if _, err := pool.Exec(clean, "DELETE FROM media_deletions WHERE object_key=ANY($1)", keys); err != nil {
+			t.Error(err)
+		}
+	}()
 	objects := &memoryObjects{items: map[string][]byte{}}
 	repo := Postgres{pool}
 	service := New(repo, objects)
@@ -130,6 +147,91 @@ func TestPrivatePhotosPostgresIntegration(t *testing.T) {
 	}
 	if _, err = pool.Exec(ctx, "INSERT INTO xp_transactions(user_id,place_id,visit_id,amount) VALUES($1,$2,$3,100)", owner, place, visitID); err != nil {
 		t.Fatal(err)
+	}
+
+	// Automatic draft cleanup must not remove a confirmed photo; explicit deletion below still can.
+	if err = service.Discard(ctx, owner, first.ID); !errors.Is(err, ErrConfirmed) {
+		t.Fatal("confirmed draft cleanup", err)
+	}
+	if _, _, err = service.Read(ctx, owner, first.ID); err != nil {
+		t.Fatal("discard hid confirmed photo", err)
+	}
+	if err = service.Discard(ctx, other, first.ID); !errors.Is(err, ErrNotFound) {
+		t.Fatal("foreign discard", err)
+	}
+	abandoned := upload()
+	if err = service.Discard(ctx, owner, abandoned.ID); err != nil {
+		t.Fatal(err)
+	}
+	if objects.has(abandoned.ObjectKey) {
+		t.Fatal("draft was not removed")
+	}
+	if err = service.Discard(ctx, owner, abandoned.ID); err != nil {
+		t.Fatal("discard is not idempotent", err)
+	}
+	// Start discard while a confirmation transaction holds the photo lock. Once
+	// confirmation commits, discard must see it in a fresh statement snapshot.
+	racing := upload()
+	confirmation, err := pool.Begin(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer confirmation.Rollback(context.Background())
+	var backendPID int
+	if err = confirmation.QueryRow(ctx, "SELECT pg_backend_pid()").Scan(&backendPID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = confirmation.Exec(ctx, "SELECT 1 FROM visit_photos WHERE id=$1 FOR UPDATE", racing.ID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = confirmation.Exec(ctx, `INSERT INTO visits(user_id,place_id,photo_id,idempotency_key,request_hash,status,confirmed_at,location_observed_at,distance_m,accuracy_m)
+ VALUES($1,$2,$3,$3,decode(repeat('02',32),'hex'),'confirmed',NOW(),NOW(),10,5)`, owner, place, racing.ID); err != nil {
+		t.Fatal(err)
+	}
+	discardDone := make(chan error, 1)
+	go func() { discardDone <- service.Discard(ctx, owner, racing.ID) }()
+	wait, cancelWait := context.WithTimeout(ctx, 5*time.Second)
+	ticker := time.NewTicker(10 * time.Millisecond)
+	blocked := false
+	for !blocked {
+		if err = pool.QueryRow(wait, "SELECT EXISTS(SELECT 1 FROM pg_stat_activity a WHERE $1=ANY(pg_blocking_pids(a.pid)) AND a.query LIKE 'SELECT object_key FROM visit_photos%')", backendPID).Scan(&blocked); err != nil {
+			break
+		}
+		if !blocked {
+			select {
+			case <-wait.Done():
+				err = wait.Err()
+			case <-ticker.C:
+			}
+		}
+		if err != nil {
+			break
+		}
+	}
+	ticker.Stop()
+	cancelWait()
+	if !blocked {
+		confirmation.Rollback(context.Background())
+		<-discardDone
+		t.Fatal("discard did not wait for photo lock", err)
+	}
+	if err = confirmation.Commit(ctx); err != nil {
+		t.Fatal(err)
+	}
+	if err = <-discardDone; !errors.Is(err, ErrConfirmed) {
+		t.Fatal("late discard removed confirmation", err)
+	}
+	if _, _, err = service.Read(ctx, owner, racing.ID); err != nil {
+		t.Fatal("racing photo unreadable", err)
+	}
+	if _, err = pool.Exec(ctx, "UPDATE visit_photos SET created_at=NOW()-INTERVAL '25 hours' WHERE id=$1", racing.ID); err != nil {
+		t.Fatal(err)
+	}
+	if err = service.Cleanup(ctx); err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err = service.Read(ctx, owner, racing.ID); err != nil {
+		t.Fatal("TTL removed confirmed photo", err)
 	}
 	objects.failDelete = true
 	if err = service.Delete(ctx, owner, first.ID); !errors.Is(err, ErrUnavailable) {

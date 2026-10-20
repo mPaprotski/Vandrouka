@@ -30,9 +30,13 @@ func (f fakeAuth) Authenticate(_ context.Context, token string) (auth.User, erro
 	}
 	return auth.User{ID: 1, Email: "user@example.com"}, f.err
 }
+func (f fakeAuth) Refresh(ctx context.Context, _ string) (auth.LoginResult, error) {
+	return f.Register(ctx, "", "")
+}
+func (f fakeAuth) Logout(context.Context, string) error { return f.err }
 func authRouter(service AuthService) http.Handler {
 	r := chi.NewRouter()
-	r.Use(RequestLogging, CatalogResponses(time.Second))
+	r.Use(RequestLogging, AuthResponses(time.Second))
 	RegisterAuth(r, service)
 	return r
 }
@@ -181,5 +185,35 @@ func TestAuthConcurrencyLimit(t *testing.T) {
 	wg.Wait()
 	if rec.Code != 503 || !strings.Contains(rec.Body.String(), "auth_busy") {
 		t.Fatal(rec.Code, rec.Body.String())
+	}
+}
+
+func TestRefreshLogoutHTTP(t *testing.T) {
+	for _, path := range []string{"/v1/auth/refresh", "/v1/auth/logout"} {
+		rec := authRequest(authRouter(fakeAuth{}), "POST", path, `{"refresh_token":"`+strings.Repeat("A", 43)+`"}`, "")
+		expected := 200
+		if strings.HasSuffix(path, "logout") {
+			expected = 204
+		}
+		if rec.Code != expected || rec.Header().Get("Cache-Control") != "no-store" {
+			t.Fatal(path, rec.Code)
+		}
+		for _, body := range []string{`{}`, `null`, `{"refresh_token":true}`, `{"refresh_token":"a","user_id":1}`, `{"refresh_token":"a"} {}`} {
+			rec = authRequest(authRouter(fakeAuth{}), "POST", path, body, "")
+			if rec.Code != 400 {
+				t.Fatal(path, body, rec.Code)
+			}
+		}
+	}
+	rec := authRequest(authRouter(fakeAuth{err: auth.ErrUnauthorized}), "POST", "/v1/auth/refresh", `{"refresh_token":"`+strings.Repeat("A", 43)+`"}`, "")
+	if rec.Code != 401 || !strings.Contains(rec.Body.String(), "unauthorized") {
+		t.Fatal(rec.Code, rec.Body.String())
+	}
+	router := authRouter(fakeAuth{})
+	for i := 0; i < 31; i++ {
+		rec = authRequest(router, "POST", "/v1/auth/refresh", `{"refresh_token":"`+strings.Repeat("A", 43)+`"}`, "")
+	}
+	if rec.Code != 429 {
+		t.Fatal("refresh request limit missing", rec.Code)
 	}
 }

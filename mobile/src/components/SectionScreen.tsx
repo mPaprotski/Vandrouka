@@ -9,7 +9,7 @@ export function SectionScreen({ title, description, children }: {
 }) {
   return (
     <SafeAreaView edges={['left', 'right']} style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
         <Text style={styles.city}>МИНСК</Text>
         <Text accessibilityRole="header" style={styles.title}>{title}</Text>
         <Text style={styles.description}>{description}</Text>

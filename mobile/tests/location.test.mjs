@@ -78,3 +78,13 @@ test('immediate first position cleans subscription exactly once', async () => {
   await locateOnce(mock.provider, new AbortController().signal);
   await tick(); assert.equal(removed, 1);
 });
+
+test('photo GPS filter waits for known accurate coordinates and removes its watcher', async()=>{
+ const mock=setup();const abort=new AbortController();
+ const pending=locateOnce(mock.provider,abort.signal,1000,fix=>fix.accuracy!==null&&fix.accuracy<=30);
+ await tick();mock.emit({...position(),coords:{latitude:53,longitude:27,accuracy:null}});
+ mock.emit({...position(),coords:{latitude:53,longitude:27,accuracy:60}});
+ await tick();assert.equal(mock.removed,0);
+ const precise={...position(),coords:{latitude:53,longitude:27,accuracy:30}};mock.emit(precise);
+ assert.equal((await pending).accuracy,30);assert.equal(mock.removed,1);
+});

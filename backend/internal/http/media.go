@@ -21,6 +21,7 @@ type MediaService interface {
 	Upload(context.Context, int64, int64, io.Reader, string) (visits.Photo, error)
 	Read(context.Context, int64, string) (visits.Photo, []byte, error)
 	Delete(context.Context, int64, string) error
+	Discard(context.Context, int64, string) error
 }
 type mediaHandler struct {
 	service        MediaService
@@ -56,6 +57,8 @@ func mediaFailure(w http.ResponseWriter, err error) {
 		Error(w, 413, "request_too_large", "Фотография превышает лимит 10 МБ, 20 мегапикселей или 8192 пикселя по стороне")
 	case errors.Is(err, media.ErrUnsupported):
 		Error(w, 415, "unsupported_media_type", "Требуется фотография JPEG или PNG с соответствующим MIME")
+	case errors.Is(err, media.ErrConfirmed):
+		Error(w, 409, "photo_confirmed", "Фотография уже связана с подтверждённым посещением")
 	case errors.Is(err, media.ErrNotFound):
 		Error(w, 404, "not_found", "Объект не найден")
 	case errors.Is(err, media.ErrUnavailable):
@@ -216,7 +219,18 @@ func (h *mediaHandler) remove(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer func() { <-h.slots }()
-	if err := h.service.Delete(r.Context(), user.ID, chi.URLParam(r, "photo_id")); err != nil {
+	values, exists := r.URL.Query()["unconfirmed_only"]
+	if exists && (len(values) != 1 || (values[0] != "true" && values[0] != "false")) {
+		Error(w, 400, "invalid_request", "Некорректный режим удаления")
+		return
+	}
+	var err error
+	if exists && values[0] == "true" {
+		err = h.service.Discard(r.Context(), user.ID, chi.URLParam(r, "photo_id"))
+	} else {
+		err = h.service.Delete(r.Context(), user.ID, chi.URLParam(r, "photo_id"))
+	}
+	if err != nil {
 		mediaFailure(w, err)
 		return
 	}

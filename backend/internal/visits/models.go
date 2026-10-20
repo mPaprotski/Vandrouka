@@ -1,5 +1,4 @@
-// Package visits defines persistence contracts for the private exploration loop.
-// Upload and confirmation services are implemented in the following stages.
+// Package visits confirms private exploration visits and awards first-place XP atomically.
 package visits
 
 import "time"

@@ -15,6 +15,27 @@ export type PlaceDetails = Place & {
   opening_hours: OpeningHours[]; opening_exceptions: OpeningException[];
   prices: TicketPrice[]; links: SourceLink[];
 };
+export type AuthUser = {id: number; email: string; created_at: string};
+export type AuthSession = {user: AuthUser; access_token: string; refresh_token: string; token_type: 'Bearer'; expires_at: string; refresh_expires_at: string};
+export type Credentials = {email: string; password: string};
+export type UploadedPhoto = {id:string; place_id:number; status:'ready'; mime_type:'image/jpeg'|'image/png'; size_bytes:number; width:number; height:number; created_at:string; ready_at:string};
+export type LocalPhoto = {uri:string; width:number; height:number; size:number};
+export type VisitRejection='too_far'|'poor_accuracy'|'stale_location'|'future_location'|'inactive_place'|'photo_not_ready';
+export type VisitInput={photo_id:string;location:{lat:number;lon:number;accuracy_m:number;observed_at:string}};
+export type VisitOutcome={visit:{id:number;place_id:number;photo_id:string;status:'confirmed'|'rejected';created_at:string;confirmed_at?:string;rejection_code?:VisitRejection};xp_awarded:0|100;error?:{code:VisitRejection;message:string}};
+const visitReasons:VisitRejection[]=['too_far','poor_accuracy','stale_location','future_location','inactive_place','photo_not_ready'];
+export function decodeVisitOutcome(value:unknown):VisitOutcome{
+ const r=object(value),v=object(r.visit),xp=integer(r.xp_awarded,0),photo=named(v.photo_id);
+ if(!/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(photo)||(xp!==0&&xp!==100))return invalid();
+ const base={id:integer(v.id),place_id:integer(v.place_id),photo_id:photo,created_at:timestamp(v.created_at)};
+ if(v.status==='confirmed'&&v.rejection_code===undefined&&r.error===undefined)return {visit:{...base,status:'confirmed',confirmed_at:timestamp(v.confirmed_at)},xp_awarded:xp};
+ if(v.status==='rejected'&&v.confirmed_at===undefined&&xp===0){
+  const error=object(r.error),code=named(v.rejection_code) as VisitRejection;
+  if(!visitReasons.includes(code)||error.code!==code)return invalid();
+  return {visit:{...base,status:'rejected',rejection_code:code},xp_awarded:0,error:{code,message:named(error.message)}};
+ }
+ return invalid();
+}
 export type RequestOptions = { signal?: AbortSignal; timeoutMs?: number };
 export type ErrorKind = 'http' | 'network' | 'timeout' | 'cancelled' | 'invalid_response' | 'invalid_request';
 
@@ -93,8 +114,32 @@ function slug(value: string): string {
   return value;
 }
 
+function timestamp(value: unknown): string {
+ const result = named(value);return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(result) && Number.isFinite(Date.parse(result)) ? result : invalid();
+}
+export function decodeAuthUser(value: unknown): AuthUser {
+ const user=object(value);return {id:integer(user.id),email:named(user.email),created_at:timestamp(user.created_at)};
+}
+export function decodeAuthSession(value: unknown): AuthSession {
+ const session=object(value);
+ const token=(value:unknown)=>{const result=named(value);return /^[A-Za-z0-9_-]{43}$/.test(result)?result:invalid();};
+ if(session.token_type!=='Bearer')return invalid();
+ const expires=timestamp(session.expires_at),refreshExpires=timestamp(session.refresh_expires_at);
+ if(Date.parse(expires)>Date.parse(refreshExpires))return invalid();
+ return {user:decodeAuthUser(session.user),access_token:token(session.access_token),refresh_token:token(session.refresh_token),token_type:'Bearer',expires_at:expires,refresh_expires_at:refreshExpires};
+}
+export function decodeUploadedPhoto(value:unknown):UploadedPhoto {
+ const p=object(value),id=named(p.id),width=integer(p.width),height=integer(p.height),size=integer(p.size_bytes);
+ if(!/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(id)||p.status!=='ready'||(p.mime_type!=='image/jpeg'&&p.mime_type!=='image/png')||size>10*1024*1024||width>8192||height>8192||width*height>20000000)return invalid();
+ return {id,place_id:integer(p.place_id),status:'ready',mime_type:p.mime_type,size_bytes:size,width,height,created_at:timestamp(p.created_at),ready_at:timestamp(p.ready_at)};
+}
+function credentials(input: Credentials): Credentials {
+ const email=input.email.trim();const length=[...input.password].length;
+ if(!email||email.length>254||length<12||length>128)throw new ApiError('invalid_request','Введите email и пароль длиной 12–128 символов.');
+ return {email,password:input.password};
+}
 export function createApiClient(options: { baseUrl?: string; fetcher?: typeof fetch; timeoutMs?: number } = {}) {
-  async function request<T>(path: string, decode: (value: unknown) => T, requestOptions: RequestOptions = {}): Promise<T> {
+  async function request<T>(path: string, decode: (value: unknown, status:number) => T, requestOptions: RequestOptions = {}, transport: {method?: 'POST'|'DELETE'; body?: unknown; form?:FormData; accessToken?: string; idempotencyKey?:string; acceptStatus?:number} = {}): Promise<T> {
     const base = options.baseUrl === undefined ? getApiBaseUrl() : parseApiBaseUrl(options.baseUrl);
     const timeoutMs = requestOptions.timeoutMs ?? options.timeoutMs ?? 10000;
     if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) throw new ApiError('invalid_request', 'Некорректное время ожидания запроса.');
@@ -114,14 +159,18 @@ export function createApiClient(options: { baseUrl?: string; fetcher?: typeof fe
       if (requestOptions.signal?.aborted) {
         throw new ApiError('cancelled', 'Запрос отменён.');
       }
-      const response = await (options.fetcher ?? fetch)(base + path, { signal: controller.signal, headers: { Accept: 'application/json' } });
+      const headers: Record<string,string> = {Accept:'application/json'};
+      if(transport.body!==undefined)headers['Content-Type']='application/json';
+      if(transport.accessToken){if(!/^[A-Za-z0-9_-]{43}$/.test(transport.accessToken))throw new ApiError('invalid_request','Некорректная сессия.');headers.Authorization=`Bearer ${transport.accessToken}`;}
+      if(transport.idempotencyKey)headers['Idempotency-Key']=transport.idempotencyKey;
+      const response = await (options.fetcher ?? fetch)(base + path, {signal:controller.signal,headers,method:transport.method,body:transport.form??(transport.body===undefined?undefined:JSON.stringify(transport.body))});
       requestId = response.headers.get('X-Request-ID') ?? undefined;
       status = response.status;
       let data: unknown;
-      try { data = await response.json(); } catch {
+      try { data = response.status===204?undefined:await response.json(); } catch {
         if (response.ok) return invalid();
       }
-      if (!response.ok) {
+      if (!response.ok && response.status!==transport.acceptStatus) {
         let code: string | undefined;
         let message = response.status === 404 ? 'Место или город не найдены.' : 'Не удалось получить данные с сервера. Попробуйте ещё раз.';
         if (data && typeof data === 'object' && 'error' in data) {
@@ -133,7 +182,7 @@ export function createApiClient(options: { baseUrl?: string; fetcher?: typeof fe
         }
         throw new ApiError('http', message, { status, code, requestId });
       }
-      return decode(data);
+      return decode(data,response.status);
     };
     try {
       return await Promise.race([work(), interrupted]);
@@ -149,6 +198,33 @@ export function createApiClient(options: { baseUrl?: string; fetcher?: typeof fe
     }
   }
   return {
+    confirmVisit:(placeId:number,key:string,input:VisitInput,accessToken:string,o?:RequestOptions)=>{
+      const uuid=/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i;
+      const l=input.location;
+      if(!Number.isSafeInteger(placeId)||placeId<1||!uuid.test(key)||!uuid.test(input.photo_id)||!Number.isFinite(l.lat)||Math.abs(l.lat)>90||!Number.isFinite(l.lon)||Math.abs(l.lon)>180||!Number.isFinite(l.accuracy_m)||l.accuracy_m<0||!Number.isFinite(Date.parse(l.observed_at)))throw new ApiError('invalid_request','Некорректные параметры посещения.');
+      const body={photo_id:input.photo_id,location:{lat:l.lat,lon:l.lon,accuracy_m:l.accuracy_m,observed_at:l.observed_at}};
+      return request(`/v1/places/${placeId}/visits`,(value,status)=>{const result=decodeVisitOutcome(value);if(![200,201,422].includes(status)||(status===422)!==(result.visit.status==='rejected'))return invalid();if(result.visit.place_id!==placeId||result.visit.photo_id.toLowerCase()!==input.photo_id.toLowerCase())return invalid();return result;},o,{method:'POST',body,accessToken,idempotencyKey:key,acceptStatus:422});
+    },
+    uploadPhoto:(placeId:number,photo:LocalPhoto,accessToken:string,o:RequestOptions={})=>{
+      if(!Number.isSafeInteger(placeId)||placeId<1||!photo.uri.startsWith('file://')||!Number.isSafeInteger(photo.size)||photo.size<1||photo.size>10*1024*1024||!Number.isSafeInteger(photo.width)||!Number.isSafeInteger(photo.height)||photo.width<1||photo.height<1||photo.width>8192||photo.height>8192||photo.width*photo.height>20000000)throw new ApiError('invalid_request','Снимок недоступен или превышает допустимый размер. Сделайте другой.');
+      const form=new FormData();form.append('place_id',String(placeId));
+      // React Native's FormData reads the local file URI; it does not load base64 into JS.
+      form.append('file',{uri:photo.uri,type:'image/jpeg',name:'visit.jpg'} as unknown as Blob);
+      return request('/v1/visits/photo-upload',value=>{const result=decodeUploadedPhoto(value);if(result.place_id!==placeId)return invalid();return result;},{...o,timeoutMs:o.timeoutMs??60000},{method:'POST',form,accessToken});
+    },
+    discardPhoto:(photoId:string,accessToken:string,o?:RequestOptions)=>{
+      if(!/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(photoId))throw new ApiError('invalid_request','Некорректная фотография.');
+      return request(`/v1/visits/photos/${photoId}?unconfirmed_only=true`,()=>undefined,o,{method:'DELETE',accessToken});
+    },
+    deletePhoto:(photoId:string,accessToken:string,o?:RequestOptions)=>{
+      if(!/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(photoId))throw new ApiError('invalid_request','Некорректная фотография.');
+      return request(`/v1/visits/photos/${photoId}`,()=>undefined,o,{method:'DELETE',accessToken});
+    },
+    register: (input:Credentials,o?:RequestOptions)=>request('/v1/auth/register',decodeAuthSession,o,{method:'POST',body:credentials(input)}),
+    login: (input:Credentials,o?:RequestOptions)=>request('/v1/auth/login',decodeAuthSession,o,{method:'POST',body:credentials(input)}),
+    refresh: (refreshToken:string,o?:RequestOptions)=>request('/v1/auth/refresh',decodeAuthSession,o,{method:'POST',body:{refresh_token:refreshToken}}),
+    logout: (refreshToken:string,o?:RequestOptions)=>request('/v1/auth/logout',()=>undefined,o,{method:'POST',body:{refresh_token:refreshToken}}),
+    me: (accessToken:string,o?:RequestOptions)=>request('/v1/me',value=>decodeAuthUser(object(value).user),o,{accessToken}),
     health: (o?: RequestOptions) => request('/health', value => {
       if (object(value).status !== 'ok') return invalid();
       return { status: 'ok' as const };

@@ -95,7 +95,7 @@ func TestPostgresSessionsIntegration(t *testing.T) {
 	}
 	// A session insertion failure must roll back the newly inserted user.
 	rollbackEmail := "rollback-" + email
-	_, err = repository.Register(ctx, rollbackEmail, storedPassword, storedToken, time.Now(), time.Now().Add(time.Minute))
+	_, err = repository.Register(ctx, rollbackEmail, storedPassword, SessionInput{AccessHash: storedToken, RefreshHash: make([]byte, 32), CreatedAt: time.Now(), AccessExpiresAt: time.Now().Add(time.Minute), RefreshExpiresAt: time.Now().Add(time.Hour)})
 	if err == nil {
 		t.Fatal("duplicate token did not fail")
 	}

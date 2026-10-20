@@ -30,6 +30,7 @@ export default function PlaceDetailsScreen() {
           : <EmptyState title="Категории не указаны" description="Категории этого места пока не добавлены." />
       )}
       {state.status === 'success' && <PlaceInformation key={state.data.place.id} place={state.data.place} city={state.data.city} />}
+      {state.status==='success' && <AppButton title="Сделать фото места" onPress={()=>router.push({pathname:'/capture/[id]',params:{id:state.data.place.id}})} />}
       <AppButton title="К исследованию города" variant="secondary" onPress={() => router.replace('/explore')} />
     </SectionScreen>
   );

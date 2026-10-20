@@ -21,7 +21,7 @@ type Repository interface {
 	Complete(context.Context, int64, string, Image, func(context.Context, string) error) (visits.Photo, error)
 	Abort(context.Context, int64, string) error
 	Read(context.Context, int64, string) (visits.Photo, error)
-	Tombstone(context.Context, int64, string) (string, error)
+	Tombstone(context.Context, int64, string, bool) (string, error)
 	Purge(context.Context, string, func(context.Context, string) error) error
 	Cleanup(context.Context, time.Time, time.Time, func(context.Context, string) error) error
 }
@@ -80,10 +80,18 @@ func (s *Service) Read(ctx context.Context, owner int64, id string) (visits.Phot
 	return photo, body, nil
 }
 func (s *Service) Delete(ctx context.Context, owner int64, id string) error {
+	return s.remove(ctx, owner, id, false)
+}
+
+// Discard cleans a draft without deleting media that has concurrently been confirmed.
+func (s *Service) Discard(ctx context.Context, owner int64, id string) error {
+	return s.remove(ctx, owner, id, true)
+}
+func (s *Service) remove(ctx context.Context, owner int64, id string, unconfirmedOnly bool) error {
 	if !validID(id) {
 		return ErrNotFound
 	}
-	key, err := s.Repository.Tombstone(ctx, owner, id)
+	key, err := s.Repository.Tombstone(ctx, owner, id, unconfirmedOnly)
 	if err != nil {
 		return err
 	}

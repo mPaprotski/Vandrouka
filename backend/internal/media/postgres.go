@@ -84,13 +84,35 @@ func (p Postgres) Abort(ctx context.Context, owner int64, id string) error {
 func (p Postgres) Read(ctx context.Context, owner int64, id string) (visits.Photo, error) {
 	return scanPhoto(p.Pool.QueryRow(ctx, "SELECT "+photoColumns+" FROM visit_photos WHERE id=$1 AND user_id=$2 AND status='ready' AND deleted_at IS NULL", id, owner))
 }
-func (p Postgres) Tombstone(ctx context.Context, owner int64, id string) (string, error) {
+func (p Postgres) Tombstone(ctx context.Context, owner int64, id string, unconfirmedOnly bool) (string, error) {
+	tx, err := p.Pool.Begin(ctx)
+	if err != nil {
+		return "", ErrUnavailable
+	}
+	defer tx.Rollback(ctx)
 	var key string
-	err := p.Pool.QueryRow(ctx, "UPDATE visit_photos SET deleted_at=COALESCE(deleted_at,NOW()) WHERE id=$1 AND user_id=$2 RETURNING object_key", id, owner).Scan(&key)
+	err = tx.QueryRow(ctx, "SELECT object_key FROM visit_photos WHERE id=$1 AND user_id=$2 FOR UPDATE", id, owner).Scan(&key)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return "", ErrNotFound
 	}
 	if err != nil {
+		return "", ErrUnavailable
+	}
+	if unconfirmedOnly {
+		// A new statement after acquiring the photo lock sees a confirmation that
+		// committed while this transaction was waiting for the lock.
+		var confirmed bool
+		if err = tx.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM visits WHERE photo_id=$1 AND status='confirmed')", id).Scan(&confirmed); err != nil {
+			return "", ErrUnavailable
+		}
+		if confirmed {
+			return "", ErrConfirmed
+		}
+	}
+	if _, err = tx.Exec(ctx, "UPDATE visit_photos SET deleted_at=COALESCE(deleted_at,NOW()) WHERE id=$1", id); err != nil {
+		return "", ErrUnavailable
+	}
+	if err = tx.Commit(ctx); err != nil {
 		return "", ErrUnavailable
 	}
 	return key, nil
@@ -105,14 +127,45 @@ func (p Postgres) Purge(ctx context.Context, key string, remove func(context.Con
 	return nil
 }
 func (p Postgres) Cleanup(ctx context.Context, now, unusedBefore time.Time, remove func(context.Context, string) error) error {
-	_, err := p.Pool.Exec(ctx, `WITH expired AS (
- SELECT p.id FROM visit_photos p WHERE p.deleted_at IS NULL AND
+
+	// Lock candidates first, then use a fresh statement snapshot for the confirmed
+	// visit check. A single CTE snapshot can miss a concurrently committed visit
+	// even if its row lock is acquired after that commit.
+	selection, err := p.Pool.Begin(ctx)
+	if err != nil {
+		return ErrUnavailable
+	}
+	defer selection.Rollback(ctx)
+	rows, err := selection.Query(ctx, `SELECT p.id::text FROM visit_photos p WHERE p.deleted_at IS NULL AND
  ((p.status='uploading' AND p.upload_expires_at<=$1) OR p.status='failed' OR
  (p.status='ready' AND p.created_at<$2 AND NOT EXISTS(SELECT 1 FROM visits v WHERE v.photo_id=p.id AND v.status='confirmed')))
- ORDER BY p.created_at,p.id LIMIT 25 FOR UPDATE OF p SKIP LOCKED)
- UPDATE visit_photos p SET deleted_at=$1,status=CASE WHEN p.status='uploading' THEN 'failed' ELSE p.status END
- FROM expired e WHERE p.id=e.id`, now, unusedBefore)
+ ORDER BY p.created_at,p.id LIMIT 25 FOR UPDATE OF p SKIP LOCKED`, now, unusedBefore)
 	if err != nil {
+		return ErrUnavailable
+	}
+	var ids []string
+	for rows.Next() {
+		var id string
+		if err = rows.Scan(&id); err != nil {
+			rows.Close()
+			return ErrUnavailable
+		}
+		ids = append(ids, id)
+	}
+	rows.Close()
+	if rows.Err() != nil {
+		return ErrUnavailable
+	}
+	if len(ids) > 0 {
+		_, err = selection.Exec(ctx, `UPDATE visit_photos p SET deleted_at=$1,status=CASE WHEN p.status='uploading' THEN 'failed' ELSE p.status END
+   WHERE p.id=ANY($3::uuid[]) AND p.deleted_at IS NULL
+   AND ((p.status='uploading' AND p.upload_expires_at<=$1) OR p.status='failed' OR (p.status='ready' AND p.created_at<$2))
+   AND NOT EXISTS(SELECT 1 FROM visits v WHERE v.photo_id=p.id AND v.status='confirmed')`, now, unusedBefore, ids)
+		if err != nil {
+			return ErrUnavailable
+		}
+	}
+	if err = selection.Commit(ctx); err != nil {
 		return ErrUnavailable
 	}
 	failed := false
