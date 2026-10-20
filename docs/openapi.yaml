@@ -8,11 +8,53 @@ info:
 servers:
 - url: http://localhost:8080
 paths:
+  /catalog-media/{filename}:
+    parameters:
+    - name: filename
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^[a-z0-9-]+\.(jpg|png)$'
+    get:
+      summary: Licensed public catalog cover
+      description: Only files validated by the external demo manifest are available. No user photos or arbitrary DATA_DIR files are served.
+      x-implementation-status: implemented
+      responses:
+        '200':
+          description: Image with attribution supplied in Place.content.cover
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+        '304':
+          description: Cached cover is current
+        '404':
+          description: Unknown cover
+    head:
+      summary: Licensed public catalog cover headers
+      description: Only files validated by the external demo manifest are available. No user photos or arbitrary DATA_DIR files are served.
+      x-implementation-status: implemented
+      responses:
+        '200':
+          description: Image headers (no body)
+        '304':
+          description: Cached cover is current
+        '404':
+          description: Unknown cover
   /health:
     get:
       operationId: health
       responses:
         '200':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
           description: API и PostgreSQL доступны
           content:
             application/json:
@@ -26,6 +68,9 @@ paths:
                     enum:
                     - ok
         '503':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
           description: PostgreSQL недоступен
           content:
             application/json:
@@ -49,6 +94,9 @@ paths:
       operationId: listCities
       responses:
         '200':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
           description: Города
           content:
             application/json:
@@ -73,6 +121,9 @@ paths:
       operationId: listCategories
       responses:
         '200':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
           description: Категории и число активных мест в городе
           content:
             application/json:
@@ -125,6 +176,9 @@ paths:
           maxLength: 200
       responses:
         '200':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
           description: Активные места с полными карточками, по важности и slug
           content:
             application/json:
@@ -159,6 +213,9 @@ paths:
           minimum: 1
       responses:
         '200':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
           description: Полная карточка активного места
           content:
             application/json:
@@ -183,7 +240,7 @@ paths:
         невыполнимые отбрасываются. Неизвестная цена не равна бесплатному билету. Тело — один JSON-объект
         UTF-8, не более 64 КиБ, Content-Type application/json. Повторные ключи и неизвестные поля отклоняются
         с 400.
-      x-implementation-status: planned
+      x-implementation-status: implemented
       requestBody:
         required: true
         content:
@@ -206,6 +263,9 @@ paths:
                   include_geometry: false
       responses:
         '200':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
           description: Результат расчёта
           content:
             application/json:
@@ -260,6 +320,8 @@ paths:
           $ref: '#/components/responses/Error'
         '422':
           $ref: '#/components/responses/ConstraintsViolation'
+        '429':
+          $ref: '#/components/responses/RateLimited'
         '500':
           $ref: '#/components/responses/Error'
         '503':
@@ -275,7 +337,7 @@ paths:
         войти в результат. Если обязательное добавление не укладывается в ограничения — 422; скрытого
         увеличения бюджета нет. Неактивные/неизвестные ID — 404. Сначала исходный порядок проверяется
         на свежих данных; невыполнимый исходный порядок — 422.'
-      x-implementation-status: planned
+      x-implementation-status: implemented
       requestBody:
         required: true
         content:
@@ -293,6 +355,9 @@ paths:
                     place_id: 1
       responses:
         '200':
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
           description: Результат расчёта
           content:
             application/json:
@@ -339,11 +404,19 @@ paths:
           $ref: '#/components/responses/Error'
         '422':
           $ref: '#/components/responses/ConstraintsViolation'
+        '429':
+          $ref: '#/components/responses/RateLimited'
         '500':
           $ref: '#/components/responses/Error'
         '503':
           $ref: '#/components/responses/RoutingUnavailable'
 components:
+  headers:
+    RequestID:
+      description: Идентификатор, назначенный сервером для поиска запроса в журнале.
+      schema:
+        type: string
+        pattern: '^[0-9a-f]{32}$'
   parameters:
     CitySlug:
       name: slug
@@ -354,13 +427,37 @@ components:
         maxLength: 100
         pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
   responses:
+    RateLimited:
+      description: Превышена частота запросов или число одновременно выполняемых расчётов.
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
+        Retry-After:
+          description: Число секунд до следующей попытки; не гарантирует наличие свободного слота.
+          schema:
+            type: integer
+            minimum: 1
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+          example:
+            error:
+              code: rate_limited
+              message: Слишком много запросов маршрутизации; повторите позже
     Error:
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
       description: Ошибка запроса
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/APIError'
     ConstraintsViolation:
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
       description: Обязательное добавление или исходный порядок несовместимы с временем, расписанием,
         достижимостью или бюджетом.
       content:
@@ -373,6 +470,9 @@ components:
               message: Обязательное добавление или исходный порядок несовместимы с временем, расписанием,
                 достижимостью или бюджетом.
     RoutingUnavailable:
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/RequestID'
       description: Mapbox недоступен, превышена квота, отсутствует/отклонён серверный токен или истёк
         срок запроса. Токен и внутренние URL не возвращаются клиенту.
       content:
@@ -410,6 +510,51 @@ components:
           format: double
         timezone:
           type: string
+    CatalogCover:
+      type: object
+      required: [url, author, license, license_url, source_url, changes]
+      properties:
+        url:
+          type: string
+          description: Relative URL on the API origin, including a checksum version query.
+        author:
+          type: string
+        license:
+          type: string
+        license_url:
+          type: string
+          format: uri
+        source_url:
+          type: string
+          format: uri
+        changes:
+          type: string
+    CuratedContent:
+      type: object
+      required: [order, story, approach, sources, reviewed_on, field_verified, cover]
+      properties:
+        order:
+          type: integer
+          minimum: 1
+          maximum: 10
+        story:
+          type: string
+        approach:
+          type: string
+        sources:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            format: uri
+        reviewed_on:
+          type: string
+          format: date
+        field_verified:
+          type: boolean
+          description: False until an on-site review has been completed.
+        cover:
+          $ref: '#/components/schemas/CatalogCover'
     Place:
       type: object
       required:
@@ -433,6 +578,8 @@ components:
       - links
       - updated_at
       properties:
+        content:
+          $ref: '#/components/schemas/CuratedContent'
         id:
           type: integer
           format: int64
@@ -979,6 +1126,11 @@ components:
         diff:
           $ref: '#/components/schemas/RouteDiff'
     APIError:
+      description: 'Единый формат ошибки. Сообщение безопасно для клиента; внутренние SQL,
+        ошибки провайдера и токены не раскрываются. Отсутствующие объекты — not_found;
+        невыполнимый пересчёт — constraints_violation. Сбой маршрутизации и отмена/таймаут
+        route-запроса — routing_unavailable. Для каталога внутренние сбои — internal.
+        Отсутствие подходящих вариантов генерации возвращает 200 с variants: [].'
       type: object
       additionalProperties: false
       required:
@@ -999,6 +1151,7 @@ components:
               - internal
               - constraints_violation
               - routing_unavailable
+              - rate_limited
             message:
               type: string
             details:

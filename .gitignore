@@ -11,3 +11,6 @@ infra/osm/
 __pycache__/
 *.pyc
 *-coverage.out
+
+# Working reference data lives outside the repository in ../data
+/data/

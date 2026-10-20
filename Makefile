@@ -31,6 +31,7 @@ migrate-reset:
 migrate-status:
 	$(GOOSE) status
 
-# Data import
+# Data import (host path, relative to repository root)
+DATA_DIR ?= ../data
 import:
-	cd backend && POSTGRES_DSN='$(DSN)' go run ./cmd/import ../data/places/minsk
+	cd backend && POSTGRES_DSN='$(DSN)' go run ./cmd/import "$(abspath $(DATA_DIR))/places/minsk"

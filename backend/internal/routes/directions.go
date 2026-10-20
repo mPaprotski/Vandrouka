@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/yourname/vandrouka/backend/internal/requestlog"
 	"math"
 	"sort"
 
@@ -65,6 +66,7 @@ func (s *Service) Generate(ctx context.Context, citySlug string, request planner
 			points = append(points, routing.Point{Lat: place.Location.Lat, Lon: place.Location.Lon})
 			order = append(order, stop.PlaceID)
 		}
+		requestlog.SetStage(ctx, "directions")
 		path, err := s.directions.Route(ctx, points)
 		if ctx.Err() != nil {
 			return Result{}, ctx.Err()
@@ -91,6 +93,7 @@ func (s *Service) Generate(ctx context.Context, citySlug string, request planner
 		}
 		req := candidates.Prepared.Request
 		req.Profile = candidate.Profile
+		requestlog.SetStage(ctx, "planner")
 		checked, err := s.evaluator.EvaluateOrder(req, candidates.Prepared.Places, confirmed, order)
 		if errors.Is(err, planner.ErrInfeasible) {
 			continue

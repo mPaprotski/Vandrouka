@@ -3,7 +3,6 @@ package apihttp
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"log/slog"
 	"net/http"
 	"regexp"
@@ -13,7 +12,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/yourname/vandrouka/backend/internal/places"
-	"github.com/yourname/vandrouka/backend/internal/store"
 )
 
 type Catalog interface {
@@ -42,15 +40,6 @@ func JSON(w http.ResponseWriter, status int, value any) {
 }
 func Error(w http.ResponseWriter, status int, code, message string) {
 	JSON(w, status, APIError{Error: ErrorDetail{Code: code, Message: message}})
-}
-
-func failure(w http.ResponseWriter, err error) {
-	if errors.Is(err, store.ErrNotFound) {
-		Error(w, 404, "not_found", "Объект не найден")
-		return
-	}
-	slog.Error("catalog request failed", "error", err)
-	Error(w, 500, "internal", "Не удалось выполнить запрос")
 }
 
 var validSlug = regexp.MustCompile(`^[a-z0-9]+(?:-[a-z0-9]+)*$`)

@@ -118,20 +118,26 @@ jobs:
           python3 -m venv "$RUNNER_TEMP/route-contract-venv"
           "$RUNNER_TEMP/route-contract-venv/bin/pip" install -r ../scripts/requirements-openapi.txt
           "$RUNNER_TEMP/route-contract-venv/bin/python" ../scripts/check_openapi.py --route-response "$RUNNER_TEMP/route-response.json"
+          "$RUNNER_TEMP/route-contract-venv/bin/python" ../scripts/check_openapi.py --route-response "$RUNNER_TEMP/route-http-response.json"
+          "$RUNNER_TEMP/route-contract-venv/bin/python" ../scripts/check_openapi.py --recalculate-response "$RUNNER_TEMP/recalculate-response.json"
+          "$RUNNER_TEMP/route-contract-venv/bin/python" ../scripts/check_openapi.py --recalculate-response "$RUNNER_TEMP/recalculate-http-response.json"
+
+      - name: Export fixed test catalog
+        run: python3 ../scripts/export_test_catalog.py "$RUNNER_TEMP/test-data"
 
       - name: Check importer CLI and repeated import
         run: |
-          go run ./cmd/import -check-links=false ../data/places/minsk
+          go run ./cmd/import -check-links=false "$RUNNER_TEMP/test-data/places/minsk"
           psql "$POSTGRES_DSN" -Atc 'SELECT slug,id FROM places ORDER BY slug' > "$RUNNER_TEMP/places-before.txt"
-          go run ./cmd/import -check-links=false ../data/places/minsk
+          go run ./cmd/import -check-links=false "$RUNNER_TEMP/test-data/places/minsk"
           psql "$POSTGRES_DSN" -Atc 'SELECT slug,id FROM places ORDER BY slug' > "$RUNNER_TEMP/places-after.txt"
           diff -u "$RUNNER_TEMP/places-before.txt" "$RUNNER_TEMP/places-after.txt"
-          expected=$(find ../data/places/minsk -name '*.yaml' | wc -l)
+          expected=$(find "$RUNNER_TEMP/test-data/places/minsk" -name '*.yaml' | wc -l)
           actual=$(psql "$POSTGRES_DSN" -Atc 'SELECT count(*) FROM places WHERE is_active')
           test "$actual" -eq "$expected"
 
   catalog:
-    name: Catalog source integrity
+    name: Test catalog and API contract
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -141,8 +147,8 @@ jobs:
       - name: Check Python syntax
         run: python3 -m py_compile scripts/*.py
 
-      - name: Check GPX provenance and catalog mappings
-        run: python3 scripts/check_catalog_sources.py
+      - name: Check fixed test catalog export
+        run: python3 scripts/export_test_catalog.py "$RUNNER_TEMP/test-data"
 
       - name: Install OpenAPI validators
         run: |

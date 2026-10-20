@@ -15,6 +15,7 @@ import (
 	"github.com/yourname/vandrouka/backend/internal/planner"
 	"github.com/yourname/vandrouka/backend/internal/routes"
 	"github.com/yourname/vandrouka/backend/internal/store"
+	"gopkg.in/yaml.v3"
 )
 
 func TestCatalogIntegration(t *testing.T) {
@@ -29,7 +30,12 @@ func TestCatalogIntegration(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer pool.Close()
-	data, err := importer.ReadDir("../../../data/places/minsk")
+	fixture, err := os.ReadFile("../../testdata/golden_catalog.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var data []importer.Place
+	err = yaml.Unmarshal(fixture, &data)
 	if err != nil {
 		t.Fatal(err)
 	}

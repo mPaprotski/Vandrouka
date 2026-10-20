@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/yourname/vandrouka/backend/internal/requestlog"
 	"time"
 	_ "time/tzdata"
 
@@ -97,6 +98,7 @@ func (s *Service) generateCandidates(ctx context.Context, prepared Prepared) (Ca
 	if err := ctx.Err(); err != nil {
 		return Candidates{}, err
 	}
+	requestlog.SetStage(ctx, "matrix")
 	matrix, err := s.matrix.BuildMatrix(ctx, prepared.Request.Start, prepared.Places)
 	if err != nil {
 		if ctx.Err() != nil {
@@ -110,6 +112,7 @@ func (s *Service) generateCandidates(ctx context.Context, prepared Prepared) (Ca
 	if matrix == nil {
 		return Candidates{}, fmt.Errorf("%w: missing matrix", ErrRoutingUnavailable)
 	}
+	requestlog.SetStage(ctx, "planner")
 	variants, err := s.engine.PlanVariants(prepared.Request, prepared.Places, matrix, true)
 	if err != nil {
 		return Candidates{}, fmt.Errorf("plan route variants: %w", err)
@@ -147,6 +150,7 @@ func (s *Service) Prepare(ctx context.Context, citySlug string, request planner.
 	if s == nil || s.catalog == nil {
 		return Prepared{}, fmt.Errorf("route catalog is not configured")
 	}
+	requestlog.SetStage(ctx, "catalog")
 	cities, err := s.catalog.ListCities(ctx)
 	if err != nil {
 		return Prepared{}, fmt.Errorf("load route cities: %w", err)

@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--route-response', type=Path, help='Validate JSON serialized by Go HTTP models')
+    parser.add_argument('--recalculate-response', type=Path, help='Validate serialized recalculation result')
     args = parser.parse_args()
     spec = yaml.safe_load((ROOT / 'docs/openapi.yaml').read_text())
     validate_spec(spec)
@@ -48,7 +49,7 @@ def main():
     count = 0
     for path, item in spec['paths'].items():
         for method, operation in item.items():
-            if method not in {'get', 'post'}:
+            if method not in {'get', 'post', 'head'}:
                 continue
             if operation['x-implementation-status'] == 'implemented':
                 operations.add((method, path))
@@ -66,9 +67,9 @@ def main():
                         check.validate(example)
                         count += 1
     registered = set()
-    for file in ['backend/internal/http/catalog.go', 'backend/cmd/api/main.go']:
+    for file in ['backend/internal/http/catalog.go', 'backend/internal/http/routes.go', 'backend/internal/http/recalculate.go', 'backend/cmd/api/main.go']:
         code = (ROOT / file).read_text()
-        registered.update((method.lower(), path) for method, path in re.findall(r'\br\.(Get|Post)\("([^"]+)"', code))
+        registered.update((method.lower(), path) for method, path in re.findall(r'\br\.(Get|Post|Head)\("([^"]+)"', code))
     if operations != registered:
         raise ValueError(f'Implemented contract and Go routes differ: {operations ^ registered}')
     for name in ['RouteVariant', 'RouteStop', 'RouteTotals', 'RouteExplanation', 'RouteDiff']:
@@ -108,6 +109,9 @@ def main():
     if args.route_response is not None:
         response_check.validate(json.loads(args.route_response.read_text()))
         print('Actual Go route response matches OpenAPI')
+    if args.recalculate_response is not None:
+        validator(spec['components']['schemas']['RecalculateRouteResponse']).validate(json.loads(args.recalculate_response.read_text()))
+        print('Actual Go recalculation response matches OpenAPI')
     print(f'OpenAPI valid; {count} examples and request boundaries checked; {len(registered)} implemented endpoints match Go')
 
 

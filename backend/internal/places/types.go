@@ -17,26 +17,45 @@ type Category struct {
 	PlacesCount int    `json:"places_count"`
 }
 
+type Cover struct {
+	URL        string `json:"url"`
+	Author     string `json:"author"`
+	License    string `json:"license"`
+	LicenseURL string `json:"license_url"`
+	SourceURL  string `json:"source_url"`
+	Changes    string `json:"changes"`
+}
+type CuratedContent struct {
+	Order         int      `json:"order"`
+	Story         string   `json:"story"`
+	Approach      string   `json:"approach"`
+	Sources       []string `json:"sources"`
+	ReviewedOn    string   `json:"reviewed_on"`
+	FieldVerified bool     `json:"field_verified"`
+	Cover         Cover    `json:"cover"`
+}
+
 type Place struct {
-	ID                int64       `json:"id"`
-	Slug              string      `json:"slug"`
-	City              string      `json:"city"`
-	Name              string      `json:"name"`
-	Summary           string      `json:"summary"`
-	Lat               float64     `json:"lat"`
-	Lon               float64     `json:"lon"`
-	Importance        int         `json:"importance"`
-	MustSee           bool        `json:"must_see"`
-	VisitMinutes      int         `json:"visit_minutes"`
-	HoursKnown        bool        `json:"hours_known"`
-	PriceKnown        bool        `json:"price_known"`
-	VerifiedAt        string      `json:"verified_at"`
-	Categories        []string    `json:"categories"`
-	OpeningHours      []Hours     `json:"opening_hours"`
-	OpeningExceptions []Exception `json:"opening_exceptions"`
-	Prices            []Price     `json:"prices"`
-	Links             []Link      `json:"links"`
-	UpdatedAt         time.Time   `json:"updated_at"`
+	Content           *CuratedContent `json:"content,omitempty"`
+	ID                int64           `json:"id"`
+	Slug              string          `json:"slug"`
+	City              string          `json:"city"`
+	Name              string          `json:"name"`
+	Summary           string          `json:"summary"`
+	Lat               float64         `json:"lat"`
+	Lon               float64         `json:"lon"`
+	Importance        int             `json:"importance"`
+	MustSee           bool            `json:"must_see"`
+	VisitMinutes      int             `json:"visit_minutes"`
+	HoursKnown        bool            `json:"hours_known"`
+	PriceKnown        bool            `json:"price_known"`
+	VerifiedAt        string          `json:"verified_at"`
+	Categories        []string        `json:"categories"`
+	OpeningHours      []Hours         `json:"opening_hours"`
+	OpeningExceptions []Exception     `json:"opening_exceptions"`
+	Prices            []Price         `json:"prices"`
+	Links             []Link          `json:"links"`
+	UpdatedAt         time.Time       `json:"updated_at"`
 }
 
 type Hours struct {

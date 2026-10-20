@@ -5,6 +5,7 @@ No network or database access. Indices are zero-based waypoint positions, not
 GPX IDs. Explicit matching avoids merging unrelated objects by name/proximity.
 """
 import argparse
+import os
 import hashlib
 import json
 from pathlib import Path
@@ -74,6 +75,7 @@ def main():
     parser.add_argument('--date', default='2026-10-13', help='Date of source-file review, not field verification')
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
+    data_root = Path(os.environ.get('DATA_DIR', str(root.parent / 'data')))
     raw = args.gpx.read_bytes()
     if hashlib.sha256(raw).hexdigest() != SOURCE_SHA256:
         raise SystemExit('GPX checksum differs; review the selection before importing another file')
@@ -104,7 +106,7 @@ def main():
         else:
             subset.append(w)
             slug = EXISTING.get(i) or NEW[i][0]
-            path = root / 'data/places/minsk' / (slug+'.yaml')
+            path = data_root / 'places/minsk' / (slug+'.yaml')
             title = f'Globus: GPX 2015-12-28, точка {i}; см. data/sources/globus-minsk.json'
             link = dict(kind='article', url=SOURCE_URL, title=title)
             if i in EXISTING:
@@ -134,10 +136,10 @@ def main():
                     path.write_text(yaml_record(place))
                 rec.update(action='added', slug=slug)
         report['waypoints'].append(rec)
-    (root/'data/sources/globus-minsk.json').write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n')
+    (data_root/'sources/globus-minsk.json').write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n')
     ET.register_namespace('', NS['g'])
     ET.indent(subset)
-    ET.ElementTree(subset).write(root/'data/sources/globus-minsk.gpx', encoding='utf-8', xml_declaration=True)
+    ET.ElementTree(subset).write(data_root/'sources/globus-minsk.gpx', encoding='utf-8', xml_declaration=True)
     print(f'{len(selected)} Minsk objects: {len(NEW)} new, {len(EXISTING)} matched; {len(EXCLUDED)} nearby objects excluded')
 
 

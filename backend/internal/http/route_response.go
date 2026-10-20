@@ -14,6 +14,11 @@ import (
 // Exact timestamps and confirmed legs drive totals; metrics are checked rather
 // than silently emitting inconsistent transport data. No routing calls are made.
 func BuildGenerateRouteResponse(result routes.Result) (GenerateRouteResponse, error) {
+	return buildRouteResponse(result, false)
+}
+
+// allowEmpty applies only to recalculation; generation still excludes empty variants.
+func buildRouteResponse(result routes.Result, allowEmpty bool) (GenerateRouteResponse, error) {
 	prepared := result.Prepared
 	response := GenerateRouteResponse{Seed: prepared.Request.Seed, Timezone: prepared.City.Timezone, Variants: []RouteVariant{}}
 	if response.Seed < 0 || response.Seed > MaxRouteSeed || response.Timezone == "" || response.Timezone == "Local" || len(result.Variants) > 3 {
@@ -25,8 +30,11 @@ func BuildGenerateRouteResponse(result routes.Result) (GenerateRouteResponse, er
 	}
 	for i, verified := range result.Variants {
 		route := verified.Variant.Route
-		if route.Seed != response.Seed || len(route.Stops) == 0 || verified.Matrix == nil {
+		if route.Seed != response.Seed || (!allowEmpty && len(route.Stops) == 0) || verified.Matrix == nil {
 			return response, fmt.Errorf("invalid final route")
+		}
+		if len(route.Stops) == 0 && len(verified.Shapes) != 0 {
+			return response, fmt.Errorf("empty route has geometry")
 		}
 		switch verified.Variant.Profile {
 		case planner.ProfileBestMatch, planner.ProfileMorePlaces, planner.ProfileLessWalking, planner.ProfileBudget:

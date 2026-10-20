@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Check the committed GPX subset against its provenance manifest, offline."""
+import os
 import json
 from pathlib import Path
 import xml.etree.ElementTree as ET
@@ -7,9 +8,10 @@ import xml.etree.ElementTree as ET
 
 def main():
     root = Path(__file__).resolve().parents[1]
-    manifest = json.loads((root / 'data/sources/globus-minsk.json').read_text())
+    data_root = Path(os.environ.get('DATA_DIR', str(root.parent / 'data')))
+    manifest = json.loads((data_root / 'sources/globus-minsk.json').read_text())
     ns = {'g': 'http://www.topografix.com/GPX/1/1'}
-    gpx = ET.parse(root / 'data/sources/globus-minsk.gpx').getroot()
+    gpx = ET.parse(data_root / 'sources/globus-minsk.gpx').getroot()
     selected = [p for p in manifest['waypoints'] if p['action'] != 'excluded']
     points = gpx.findall('g:wpt', ns)
     if len(points) != len(selected) or len(points) != manifest['selected_count']:
@@ -30,7 +32,7 @@ def main():
         for xml_field, json_field in [('name', 'original_name'), ('desc', 'description'), ('time', 'waypoint_time')]:
             if point.findtext('g:' + xml_field, namespaces=ns) != source[json_field]:
                 raise ValueError(f"Source {xml_field} differs for {source['slug']}")
-        if not (root / 'data/places/minsk' / (source['slug'] + '.yaml')).is_file():
+        if not (data_root / 'places/minsk' / (source['slug'] + '.yaml')).is_file():
             raise ValueError(f"Missing catalog record: {source['slug']}")
     print(f'Checked {len(points)} GPX objects and their catalog mappings')
 

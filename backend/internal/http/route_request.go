@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/yourname/vandrouka/backend/internal/requestlog"
 	"io"
 	"math"
 	"mime"
@@ -39,6 +40,7 @@ type ValidatedGenerateRouteRequest struct {
 // ReadGenerateRouteRequest is the HTTP boundary for the future route handler.
 // A failed read writes the existing API error envelope and stops processing.
 func ReadGenerateRouteRequest(w http.ResponseWriter, r *http.Request) (ValidatedGenerateRouteRequest, bool) {
+	requestlog.SetStage(r.Context(), "validation")
 	mediaType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
 	if err != nil || mediaType != "application/json" {
 		Error(w, http.StatusBadRequest, "invalid_request", "Ожидается Content-Type application/json")
