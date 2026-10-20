@@ -39,10 +39,13 @@ func RequestLogging(next http.Handler) http.Handler {
 
 func endpointTemplate(path string) string {
 	switch path {
-	case "/health", "/v1/cities", "/v1/routes/generate", "/v1/routes/recalculate":
+	case "/v1/visits/photo-upload", "/v1/auth/register", "/v1/auth/login", "/v1/me", "/health", "/v1/cities", "/v1/routes/generate", "/v1/routes/recalculate":
 		return path
 	}
 	parts := strings.Split(path, "/")
+	if len(parts) == 5 && parts[1] == "v1" && parts[2] == "visits" && parts[3] == "photos" {
+		return "/v1/visits/photos/{photo_id}"
+	}
 	if len(parts) == 4 && parts[1] == "v1" && parts[2] == "places" {
 		return "/v1/places/{id}"
 	}

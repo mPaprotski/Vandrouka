@@ -1,13 +1,405 @@
 openapi: 3.0.3
 info:
   title: Вандроўка API
-  version: 0.2.0
-  description: Каталог и контракт маршрутов «Вандроўкі». GET каталога реализованы. POST маршрутов описаны
-    для этапов 27–28 октября и пока не зарегистрированы в сервере. Часы и цены неизвестных мест не считаются
-    подтверждёнными.
+  version: 0.3.0
+  description: Каталог, маршруты generate/recalculate, серверная авторизация и приватные фото «Вандроўкі».
+    Register/login создают access-сессию; me возвращает её владельца. Refresh/logout
+    и мобильный вход относятся к следующему этапу. Часы и цены неизвестных мест
+    не считаются подтверждёнными.
 servers:
 - url: http://localhost:8080
 paths:
+  /v1/visits/photo-upload:
+    post:
+      summary: Upload a private visit photo
+      x-implementation-status: implemented
+      description: 'Authenticated multipart upload: exactly one place_id and file; no
+        user_id. File up to 10 MiB, 20 million pixels and 8192 pixels per side. Actual
+        JPEG/PNG must match declared MIME. Server applies EXIF orientation, re-encodes
+        to remove metadata and returns only after a private object and ready metadata
+        are saved. Two concurrent media operations per process, six upload attempts
+        per minute per owner. Storage failures return 503 with durable cleanup of abandoned
+        objects.'
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - place_id
+              - file
+              properties:
+                place_id:
+                  type: integer
+                  format: int64
+                  minimum: 1
+                file:
+                  type: string
+                  format: binary
+                  description: One JPEG or PNG. Server validates actual format, removes
+                    unnecessary metadata and stores a private object.
+      responses:
+        '201':
+          description: Validated photo ready for confirmation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VisitPhoto'
+              example:
+                id: 00000000-0000-4000-8000-000000000001
+                place_id: 7
+                status: ready
+                mime_type: image/jpeg
+                size_bytes: 1024
+                width: 800
+                height: 600
+                created_at: '2026-10-25T09:00:00Z'
+                ready_at: '2026-10-25T09:00:02Z'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '415':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+  /v1/visits/photos/{photo_id}:
+    parameters:
+    - name: photo_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    get:
+      summary: Read your private visit photo
+      x-implementation-status: implemented
+      description: 'Only the session owner can read a ready, undeleted photo. Foreign,
+        missing, malformed and deleted IDs return the same 404. Object length and SHA-256
+        are checked before returning any bytes. No public URL; Cache-Control: no-store
+        and X-Content-Type-Options: nosniff.'
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          description: 'Private image; Cache-Control: no-store. No permanent public
+            URL.'
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+    delete:
+      summary: Delete your photo without removing XP
+      x-implementation-status: implemented
+      description: Only the owner can delete; repeat deletion is idempotent. Commit
+        a tombstone and deletion job before removing the object. 204 means deletion
+        completed. If storage fails, return 503, prevent reads immediately and retry
+        in the background. Visits, XP and reward uniqueness remain unchanged.
+      security:
+      - BearerAuth: []
+      responses:
+        '204':
+          description: Image removed or already deleted; photo metadata tombstone and
+            XP remain.
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+  /v1/places/{id}/visits:
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+    post:
+      summary: Confirm a visit with a ready photo and fresh location
+      x-implementation-status: planned
+      description: Contract only; scheduled for 25 October. Not registered in the current
+        server. Owner comes from the session. Same owner/key and normalized payload
+        replay the stored outcome, including a rejection. Changed payload with the same
+        key returns 409. First confirmed place gives 100 XP; later visits give 0. Visit
+        and award commit atomically.
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmVisitRequest'
+            example:
+              photo_id: 00000000-0000-4000-8000-000000000001
+              location:
+                lat: 53.9032997
+                lon: 27.5561469
+                accuracy_m: 10
+                observed_at: '2026-10-25T09:00:55Z'
+      responses:
+        '201':
+          description: New confirmed visit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VisitResult'
+              example:
+                visit:
+                  id: 1
+                  place_id: 7
+                  photo_id: 00000000-0000-4000-8000-000000000001
+                  status: confirmed
+                  created_at: '2026-10-25T09:01:00Z'
+                  confirmed_at: '2026-10-25T09:01:00Z'
+                xp_awarded: 100
+        '200':
+          description: Replay of a confirmed outcome
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VisitResult'
+              example:
+                visit:
+                  id: 1
+                  place_id: 7
+                  photo_id: 00000000-0000-4000-8000-000000000001
+                  status: confirmed
+                  created_at: '2026-10-25T09:01:00Z'
+                  confirmed_at: '2026-10-25T09:01:00Z'
+                xp_awarded: 100
+        '422':
+          description: Stored rejection; no XP. Retry with a new key and a fresh fix
+            after correcting the issue.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RejectedVisitResult'
+              example:
+                visit:
+                  id: 1
+                  place_id: 7
+                  photo_id: 00000000-0000-4000-8000-000000000001
+                  status: rejected
+                  created_at: '2026-10-25T09:01:00Z'
+                  rejection_code: too_far
+                xp_awarded: 0
+                error:
+                  code: too_far
+                  message: Подойдите ближе к месту
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+  /v1/users/me/visits/{visit_id}:
+    parameters:
+    - name: visit_id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+    delete:
+      summary: Hide your visit from history and delete its photo, retaining XP
+      x-implementation-status: planned
+      description: Contract only; scheduled for privacy stage before MVP release. Not
+        registered in the current server.
+      security:
+      - BearerAuth: []
+      responses:
+        '204':
+          description: Hidden, or already hidden. Reward and idempotency tombstones
+            remain; a later visit cannot earn the first-place reward again.
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+  /v1/auth/register:
+    post:
+      summary: Register and create a session
+      x-implementation-status: implemented
+      description: Requests are limited per peer IP (10/minute) and normalized email
+        (5/minute), shared between register/login. Two concurrent credential operations
+        per process. Forwarded IP headers are ignored. Email is not verified in this
+        MVP stage.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthCredentials'
+            example:
+              email: walker@example.com
+              password: example password 123
+      responses:
+        '201':
+          description: Account and access session
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSession'
+              example: &authid001
+                user: &authid002
+                  id: 1
+                  email: walker@example.com
+                  created_at: '2026-10-21T09:00:00Z'
+                access_token: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                token_type: Bearer
+                expires_at: '2026-10-22T09:00:00Z'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '415':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /v1/auth/login:
+    post:
+      summary: Sign in and create a session
+      x-implementation-status: implemented
+      description: Requests are limited per peer IP (10/minute) and normalized email
+        (5/minute), shared between register/login. Two concurrent credential operations
+        per process. Forwarded IP headers are ignored. Email is not verified in this
+        MVP stage.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthCredentials'
+            example:
+              email: walker@example.com
+              password: example password 123
+      responses:
+        '200':
+          description: Access session
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSession'
+              example: *authid001
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '415':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+  /v1/me:
+    get:
+      summary: Read the authenticated user
+      x-implementation-status: implemented
+      security:
+      - BearerAuth: []
+      description: Rejects missing, malformed, unknown, expired or revoked sessions.
+        Returns only the session owner. Does not accept tokens in query parameters or
+        cookies.
+      responses:
+        '200':
+          description: Current user
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - user
+                properties:
+                  user:
+                    $ref: '#/components/schemas/AuthUser'
+              example:
+                user: *authid002
+        '401':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
   /catalog-media/{filename}:
     parameters:
     - name: filename
@@ -411,6 +803,11 @@ paths:
         '503':
           $ref: '#/components/responses/RoutingUnavailable'
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: Opaque access token issued by register/login, valid for 24 hours by default (AUTH_ACCESS_TTL).
   headers:
     RequestID:
       description: Идентификатор, назначенный сервером для поиска запроса в журнале.
@@ -485,6 +882,269 @@ components:
               message: Mapbox недоступен, превышена квота, отсутствует/отклонён серверный токен или истёк
                 срок запроса. Токен и внутренние URL не возвращаются клиенту.
   schemas:
+    Visit:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - place_id
+      - photo_id
+      - status
+      - created_at
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        place_id:
+          type: integer
+          format: int64
+          minimum: 1
+        photo_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - confirmed
+          - rejected
+        created_at:
+          type: string
+          format: date-time
+        confirmed_at:
+          type: string
+          format: date-time
+        rejection_code:
+          type: string
+          enum:
+          - too_far
+          - poor_accuracy
+          - stale_location
+          - future_location
+          - inactive_place
+          - photo_not_ready
+      oneOf:
+      - required:
+        - confirmed_at
+        properties:
+          status:
+            enum:
+            - confirmed
+        not:
+          required:
+          - rejection_code
+      - required:
+        - rejection_code
+        properties:
+          status:
+            enum:
+            - rejected
+        not:
+          required:
+          - confirmed_at
+    VisitPhoto:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - place_id
+      - status
+      - mime_type
+      - size_bytes
+      - width
+      - height
+      - created_at
+      - ready_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        place_id:
+          type: integer
+          format: int64
+          minimum: 1
+        status:
+          type: string
+          enum:
+          - ready
+        mime_type:
+          type: string
+          enum:
+          - image/jpeg
+          - image/png
+        size_bytes:
+          type: integer
+          format: int64
+          minimum: 1
+        width:
+          type: integer
+          format: int64
+          minimum: 1
+        height:
+          type: integer
+          format: int64
+          minimum: 1
+        created_at:
+          type: string
+          format: date-time
+        ready_at:
+          type: string
+          format: date-time
+    VisitLocation:
+      type: object
+      additionalProperties: false
+      required:
+      - lat
+      - lon
+      - accuracy_m
+      - observed_at
+      properties:
+        lat:
+          type: number
+          minimum: -90
+          maximum: 90
+        lon:
+          type: number
+          minimum: -180
+          maximum: 180
+        accuracy_m:
+          type: number
+          minimum: 0
+        observed_at:
+          type: string
+          format: date-time
+    ConfirmVisitRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - photo_id
+      - location
+      properties:
+        photo_id:
+          type: string
+          format: uuid
+        location:
+          $ref: '#/components/schemas/VisitLocation'
+    VisitResult:
+      type: object
+      additionalProperties: false
+      required:
+      - visit
+      - xp_awarded
+      properties:
+        visit:
+          allOf:
+          - $ref: '#/components/schemas/Visit'
+          - properties:
+              status:
+                enum:
+                - confirmed
+        xp_awarded:
+          type: integer
+          enum:
+          - 0
+          - 100
+    RejectedVisitResult:
+      type: object
+      additionalProperties: false
+      required:
+      - visit
+      - xp_awarded
+      - error
+      properties:
+        visit:
+          allOf:
+          - $ref: '#/components/schemas/Visit'
+          - properties:
+              status:
+                enum:
+                - rejected
+        xp_awarded:
+          type: integer
+          enum:
+          - 0
+        error:
+          type: object
+          additionalProperties: false
+          required:
+          - code
+          - message
+          properties:
+            code:
+              type: string
+              enum:
+              - too_far
+              - poor_accuracy
+              - stale_location
+              - future_location
+              - inactive_place
+              - photo_not_ready
+            message:
+              type: string
+    AuthUser:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - email
+      - created_at
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        created_at:
+          type: string
+          format: date-time
+    AuthCredentials:
+      type: object
+      additionalProperties: false
+      required:
+      - email
+      - password
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+          description: ASCII email; trimmed and case-insensitive. No provider-specific
+            rewriting.
+        password:
+          type: string
+          format: password
+          writeOnly: true
+          minLength: 12
+          maxLength: 128
+          description: Unicode characters; preserved exactly, without trimming. At most
+            512 UTF-8 bytes.
+    AuthSession:
+      type: object
+      additionalProperties: false
+      required:
+      - user
+      - access_token
+      - token_type
+      - expires_at
+      properties:
+        user:
+          $ref: '#/components/schemas/AuthUser'
+        access_token:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{43}$
+          description: Opaque bearer token. Store securely; never place in URLs or logs.
+        token_type:
+          type: string
+          enum:
+          - Bearer
+        expires_at:
+          type: string
+          format: date-time
+          description: Access session expires after 24 hours by default (AUTH_ACCESS_TTL). Refresh is implemented
+            in the next stage.
     City:
       type: object
       required:
@@ -1146,6 +1806,21 @@ components:
             code:
               type: string
               enum:
+              - too_far
+              - poor_accuracy
+              - stale_location
+              - future_location
+              - inactive_place
+              - photo_not_ready
+              - idempotency_conflict
+              - photo_already_used
+              - media_unavailable
+              - email_exists
+              - invalid_credentials
+              - unauthorized
+              - unsupported_media_type
+              - request_too_large
+              - auth_busy
               - invalid_request
               - not_found
               - internal

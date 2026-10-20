@@ -13,6 +13,7 @@ import (
 type errorScope string
 
 const (
+	mediaErrors       errorScope = "media"
 	catalogErrors     errorScope = "catalog"
 	generateErrors    errorScope = "generate"
 	recalculateErrors errorScope = "recalculate"
@@ -23,7 +24,9 @@ const (
 func writeFailure(w http.ResponseWriter, err error, scope errorScope) {
 	status, code, message := http.StatusInternalServerError, "internal", "Не удалось выполнить запрос"
 	switch {
-	case scope != catalogErrors && (errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) || errors.Is(err, routes.ErrRoutingUnavailable)):
+	case scope == mediaErrors && (errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded)):
+		status, code, message = 503, "media_unavailable", "Фотохранилище временно недоступно"
+	case (scope == generateErrors || scope == recalculateErrors) && (errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) || errors.Is(err, routes.ErrRoutingUnavailable)):
 		status, code, message = 503, "routing_unavailable", "Сервис маршрутизации временно недоступен"
 	case errors.Is(err, ErrInvalidRouteRequest):
 		status, code, message = 400, "invalid_request", "Некорректные параметры запроса"

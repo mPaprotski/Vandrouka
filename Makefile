@@ -1,11 +1,13 @@
 .PHONY: up down test lint migrate-up migrate-down migrate-reset migrate-status import
 
 # Docker
+COMPOSE_ENV_FILE ?= backend/.env
+COMPOSE := docker compose --env-file "$(COMPOSE_ENV_FILE)"
 up:
-	docker compose up --build
+	$(COMPOSE) up --build
 
 down:
-	docker compose down
+	$(COMPOSE) down
 
 # Backend
 test:

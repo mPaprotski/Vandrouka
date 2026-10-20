@@ -32,14 +32,17 @@ Matrix/Directions; для реального запуска нужен `MAPBOX_A
 Все команды Makefile запускаются из корня репозитория.
 
 ```bash
-docker compose up -d --build postgres api
+cp -n backend/.env.example backend/.env
+# Замените MEDIA_S3_SECRET_KEY в backend/.env случайным секретом.
+docker compose --env-file backend/.env up -d postgres minio
 make migrate-up
 make import
+docker compose --env-file backend/.env up -d --build api
 curl http://localhost:8080/health
 curl http://localhost:8080/v1/cities/minsk/places
 ```
 
-API — `localhost:8080`, PostgreSQL — `localhost:25432`.
+API — `localhost:8080`, PostgreSQL — `localhost:25432`, приватный MinIO — `127.0.0.1:29000` (консоль `29001`).
 `/health` проверяет также доступность PostgreSQL.
 Для каталога Mapbox-токен не нужен. Для планировщика задайте
 `MAPBOX_ACCESS_TOKEN` в окружении. Valhalla удалена из активного Compose после успешной проверки Mapbox.
@@ -51,11 +54,11 @@ API — `localhost:8080`, PostgreSQL — `localhost:25432`.
 не загружается. Можно использовать предоставленный пример:
 
 ```bash
-docker compose up -d postgres
+docker compose --env-file backend/.env up -d postgres minio
 make migrate-up
 cd backend
 set -a
-. ./.env.example
+. ./.env
 set +a
 go run ./cmd/api
 ```
@@ -66,7 +69,7 @@ go run ./cmd/api
 ## Команды
 
 ```bash
-make up             # сборка и запуск PostgreSQL + API
+make up             # сборка и запуск PostgreSQL + MinIO + API
 make down           # остановка с сохранением тома БД
 make test           # Go-тесты; интеграционные требуют TEST_DATABASE_DSN
 make lint           # go vet и проверка форматирования
@@ -151,7 +154,7 @@ HTTP-эндпоинты генерации и пересчёта маршрут�
 Для PostgreSQL-интеграции используйте отдельную тестовую БД:
 
 ```bash
-docker compose exec -T postgres createdb -U postgres vandrouka_test
+docker compose --env-file backend/.env exec -T postgres createdb -U postgres vandrouka_test
 make migrate-up DSN='postgres://postgres:postgres@localhost:25432/vandrouka_test?sslmode=disable'
 cd backend
 TEST_DATABASE_DSN='postgres://postgres:postgres@localhost:25432/vandrouka_test?sslmode=disable' \
@@ -216,7 +219,7 @@ OpenStreetMap: © OpenStreetMap contributors (ODbL). Описания мест �
 
 Папка `../data` относительно репозитория монтируется read-only в `/app/data`.
 В Compose `DATA_DIR=/app/data` — путь внутри контейнера. Другой путь на хосте
-задаётся через `DATA_HOST_DIR=/opt/vandrouka/data docker compose up -d --build`.
+задаётся через `DATA_HOST_DIR=/opt/vandrouka/data docker compose --env-file backend/.env up -d --build`.
 Папка должна существовать; Compose не создаёт пустую папку автоматически.
 Для `go run` из `backend/` задавайте `DATA_DIR=../../data` (значение по умолчанию
 `./data` отсчитывается от текущей рабочей директории). `.env` Go автоматически
@@ -272,7 +275,7 @@ curl --fail-with-body --max-time 190 -H 'Content-Type: application/json' \
 проверенным исходным порядком. Вызовы реального Mapbox расходуют квоту.
 
 Каждый HTTP-запрос получает серверный `X-Request-ID`. Например, `curl -i` покажет
-этот заголовок; по нему можно найти JSON-логи API (`docker compose logs api`).
+этот заголовок; по нему можно найти JSON-логи API (`docker compose --env-file backend/.env logs api`).
 Запись `HTTP request` содержит request_id, method, шаблон path, status,
 duration_ms и stage (validation/catalog/matrix/directions/planner/serialization).
 Ошибки используют тот же ID. Клиентский X-Request-ID заменяется серверным.
@@ -313,3 +316,29 @@ API приведены в mobile/README.md. Карта и игровой API п�
 подходы и лицензированные обложки с атрибуцией. Полный каталог остаётся доступен.
 Данные находятся во внешнем `DATA_DIR`; полевой обход ещё не подтверждён.
 Настройка и проверки: [отчёт дня 20](docs/day-20-demo-content.md).
+
+## Авторизация — этап 21 октября
+
+Реализованы `POST /v1/auth/register`, `POST /v1/auth/login`, `GET /v1/me`.
+Access-сессия действует 24 часа; пароли Argon2id, в БД хранится SHA-256 токена.
+Перед запуском обновлённого API примените миграции: из `backend/` выполните
+`go run ./cmd/migrate up` с настроенным `POSTGRES_DSN`.
+Мобильный вход, refresh и logout — следующий этап.
+Контракт и проверки: [отчёт дня 21](docs/day-21-auth.md), [OpenAPI](docs/openapi.yaml).
+
+## Модель посещений — этап 23 октября
+
+Добавлены `visits`, `visit_photos`, `xp_transactions`, Go-модели и тесты
+ограничений: владелец фото, ключ идемпотентности, одна награда +100 XP за место.
+Удаление фото/истории сохраняет XP и защиту от повторного начисления.
+Контракты upload/confirm зафиксированы на этом этапе; upload реализован днём 24,
+подтверждение посещения остаётся задачей дня 25.
+Подробности: [отчёт дня 23](docs/day-23-visits-model.md).
+
+## Приватные фото — этап 24 октября
+
+Работают upload/read/delete фотографий владельца, проверка JPEG/PNG и лимитов,
+удаление метаданных, отдельный MinIO и очередь повторов физического удаления.
+Удаление фото сохраняет XP. Доступы хранятся только в `backend/.env`;
+Docker Compose запускайте с `--env-file backend/.env`.
+Настройка, ограничения и проверки: [отчёт дня 24](docs/day-24-private-media.md).

@@ -15,6 +15,18 @@ services:
       timeout: 5s
       retries: 5
 
+  minio:
+    image: ${MINIO_IMAGE:-minio/minio:RELEASE.2025-09-07T16-13-09Z}
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MEDIA_S3_ACCESS_KEY:?Set MEDIA_S3_ACCESS_KEY in backend/.env}
+      MINIO_ROOT_PASSWORD: ${MEDIA_S3_SECRET_KEY:?Set MEDIA_S3_SECRET_KEY in backend/.env}
+    ports:
+      - "127.0.0.1:29000:9000"
+      - "127.0.0.1:29001:9001"
+    volumes:
+      - media_data:/data
+
   api:
     build:
       context: ./backend
@@ -26,6 +38,11 @@ services:
       PLANNER_WALK_PENALTY: ${PLANNER_WALK_PENALTY:-0.5}
       PLANNER_COST_PENALTY: ${PLANNER_COST_PENALTY:-0.1}
       PLANNER_UNVERIFIED_PENALTY: ${PLANNER_UNVERIFIED_PENALTY:-0.5}
+      MEDIA_S3_ENDPOINT: http://minio:9000
+      MEDIA_S3_BUCKET: ${MEDIA_S3_BUCKET:-vandrouka-visit-photos}
+      MEDIA_S3_ACCESS_KEY: ${MEDIA_S3_ACCESS_KEY:?Set MEDIA_S3_ACCESS_KEY in backend/.env}
+      MEDIA_S3_SECRET_KEY: ${MEDIA_S3_SECRET_KEY:?Set MEDIA_S3_SECRET_KEY in backend/.env}
+      AUTH_ACCESS_TTL: ${AUTH_ACCESS_TTL:-24h}
       DATA_DIR: /app/data
       ROUTE_REQUESTS_PER_MINUTE: ${ROUTE_REQUESTS_PER_MINUTE:-6}
       ROUTE_BURST: ${ROUTE_BURST:-2}
@@ -42,8 +59,11 @@ services:
         bind:
           create_host_path: false
     depends_on:
+      minio:
+        condition: service_started
       postgres:
         condition: service_healthy
 
 volumes:
   pgdata:
+  media_data:

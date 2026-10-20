@@ -49,7 +49,7 @@ def main():
     count = 0
     for path, item in spec['paths'].items():
         for method, operation in item.items():
-            if method not in {'get', 'post', 'head'}:
+            if method not in {'get', 'post', 'head', 'delete'}:
                 continue
             if operation['x-implementation-status'] == 'implemented':
                 operations.add((method, path))
@@ -67,14 +67,32 @@ def main():
                         check.validate(example)
                         count += 1
     registered = set()
-    for file in ['backend/internal/http/catalog.go', 'backend/internal/http/routes.go', 'backend/internal/http/recalculate.go', 'backend/cmd/api/main.go']:
+    for file in ['backend/internal/http/catalog.go', 'backend/internal/http/auth.go', 'backend/internal/http/media.go', 'backend/internal/http/routes.go', 'backend/internal/http/recalculate.go', 'backend/cmd/api/main.go']:
         code = (ROOT / file).read_text()
-        registered.update((method.lower(), path) for method, path in re.findall(r'\br\.(Get|Post|Head)\("([^"]+)"', code))
+        registered.update((method.lower(), path) for method, path in re.findall(r'\br\.(Get|Post|Head|Delete)\("([^"]+)"', code))
     if operations != registered:
         raise ValueError(f'Implemented contract and Go routes differ: {operations ^ registered}')
     for name in ['RouteVariant', 'RouteStop', 'RouteTotals', 'RouteExplanation', 'RouteDiff']:
         if name not in spec['components']['schemas']:
             raise ValueError(f'Missing route schema {name}')
+
+    auth_check = validator(spec['components']['schemas']['AuthCredentials'])
+    credentials = {'email': 'walker@example.com', 'password': 'valid password 123'}
+    auth_check.validate(credentials)
+    for invalid_auth in [dict(credentials, password='short'), dict(credentials, password='a' * 129),
+                         dict(credentials, email='invalid'), dict(credentials, access_token='not-accepted')]:
+        if not list(auth_check.iter_errors(invalid_auth)):
+            raise ValueError('Invalid auth request accepted by contract')
+
+    visit_check = validator(spec['components']['schemas']['ConfirmVisitRequest'])
+    visit_request = spec['paths']['/v1/places/{id}/visits']['post']['requestBody']['content']['application/json']['example']
+    visit_check.validate(visit_request)
+    for invalid_visit in [dict(visit_request, user_id=1), dict(visit_request, xp_awarded=100),
+                          dict(visit_request, photo_id='not-a-uuid'),
+                          dict(visit_request, location=dict(visit_request['location'], accuracy_m=-1)),
+                          dict(visit_request, location=dict(visit_request['location'], lat=91))]:
+        if not list(visit_check.iter_errors(invalid_visit)):
+            raise ValueError('Invalid visit request accepted by contract')
 
     # Boundary examples must retain the distinction between null and zero.
     generate = spec['components']['schemas']['GenerateRouteRequest']

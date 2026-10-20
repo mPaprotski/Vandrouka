@@ -11,10 +11,12 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/yourname/vandrouka/backend/internal/auth"
 	"github.com/yourname/vandrouka/backend/internal/config"
 	"github.com/yourname/vandrouka/backend/internal/content"
 	"github.com/yourname/vandrouka/backend/internal/data"
 	apihttp "github.com/yourname/vandrouka/backend/internal/http"
+	"github.com/yourname/vandrouka/backend/internal/media"
 	"github.com/yourname/vandrouka/backend/internal/planner"
 	"github.com/yourname/vandrouka/backend/internal/routes"
 	"github.com/yourname/vandrouka/backend/internal/routing"
@@ -97,6 +99,53 @@ func run() error {
 		})
 		apihttp.RegisterCatalog(r, content.Catalog{Base: catalog, Registry: reviewed})
 	})
+	authentication, err := auth.NewWithLifetime(auth.Postgres{Pool: pool}, cfg.AuthAccessTTL)
+	if err != nil {
+		return fmt.Errorf("configure authentication: %w", err)
+	}
+	r.Group(func(r chi.Router) {
+		r.Use(apihttp.CatalogResponses(10 * time.Second))
+		apihttp.RegisterAuth(r, authentication)
+	})
+
+	objects, err := media.NewS3(cfg.MediaS3Endpoint, cfg.MediaS3Bucket, cfg.MediaS3AccessKey, cfg.MediaS3SecretKey)
+	if err != nil {
+		return fmt.Errorf("invalid media configuration")
+	}
+	if cfg.MediaS3Endpoint != "" {
+		initialize, cancel := context.WithTimeout(ctx, 5*time.Second)
+		if err := objects.Init(initialize); err != nil {
+			slog.Warn("media storage unavailable", "code", "media_unavailable")
+		}
+		cancel()
+	}
+	photos := media.New(media.Postgres{Pool: pool}, objects)
+	r.Group(func(r chi.Router) {
+		r.Use(apihttp.MediaResponses(45 * time.Second))
+		apihttp.RegisterMedia(r, authentication, photos)
+	})
+	if cfg.MediaS3Endpoint != "" {
+		workerCtx, workerCancel := context.WithCancel(ctx)
+		workerDone := make(chan struct{})
+		go func() {
+			defer close(workerDone)
+			ticker := time.NewTicker(time.Minute)
+			defer ticker.Stop()
+			for {
+				cycle, cancel := context.WithTimeout(workerCtx, 30*time.Second)
+				if err := photos.Cleanup(cycle); err != nil && workerCtx.Err() == nil {
+					slog.Warn("media cleanup pending", "code", "media_unavailable")
+				}
+				cancel()
+				select {
+				case <-workerCtx.Done():
+					return
+				case <-ticker.C:
+				}
+			}
+		}()
+		defer func() { workerCancel(); <-workerDone }()
+	}
 	limiter, err := apihttp.NewRouteLimiter(apihttp.RouteLimitOptions{
 		RequestsPerMinute: cfg.RouteRequestsPerMinute, Burst: cfg.RouteBurst,
 		MaxConcurrent: cfg.RouteMaxConcurrent, MaxClients: cfg.RouteMaxClients,
