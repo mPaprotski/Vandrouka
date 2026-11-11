@@ -29,9 +29,10 @@ func TestPolicyBoundaries(t *testing.T) {
 		observed           time.Time
 		want               RejectionCode
 	}{
-		{"exact radius accuracy age", true, true, 50, 30, now.Add(-120 * time.Second), ""},
-		{"exact future", true, true, 50, 30, now.Add(30 * time.Second), ""},
-		{"distance fraction", true, true, 50.000001, 30, now, TooFar},
+		{"expanded radius", true, true, 60, 30, now, ""},
+		{"exact radius accuracy age", true, true, 70, 30, now.Add(-120 * time.Second), ""},
+		{"exact future", true, true, 70, 30, now.Add(30 * time.Second), ""},
+		{"distance fraction", true, true, 70.000001, 30, now, TooFar},
 		{"accuracy fraction", true, true, 0, 30.000001, now, PoorAccuracy},
 		{"stale nanosecond", true, true, 0, 1, now.Add(-120*time.Second - time.Nanosecond), StaleLocation},
 		{"future nanosecond", true, true, 0, 1, now.Add(30*time.Second + time.Nanosecond), FutureLocation},

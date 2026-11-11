@@ -1,3 +1,6 @@
+import {ExplorationPanel} from '../../components/ExplorationPanel';
+import {AccountDeletion} from '../../components/AccountDeletion';
+import { ProgressPanel } from '../../components/ProgressPanel';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -15,8 +18,10 @@ export default function ProfileScreen(){
   {state.status==='authenticated'&&<View style={styles.panel}>
    <Text accessibilityRole="header" style={styles.title}>Вы вошли в Вандроўку</Text>
    <Text selectable style={styles.text}>{state.user.email}</Text>
-   <Text style={styles.text}>Опыт и уровни появятся после подключения подтверждённых посещений.</Text>
+   <ProgressPanel key={state.user.id} owner={state.user.id} session={controller} />
    <AppButton title="Исследовать город" onPress={()=>router.navigate('/explore')}/>
+   <ExplorationPanel key={`exploration-${state.user.id}`} owner={state.user.id} session={controller}/>
+   <AccountDeletion key={state.user.id} owner={state.user.id} session={controller}/>
    <AppButton title="Выйти из аккаунта" variant="secondary" loading={exiting} onPress={()=>{void logout();}}/>
   </View>}
   {state.status==='guest'&&<>

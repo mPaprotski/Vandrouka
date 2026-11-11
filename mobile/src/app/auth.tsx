@@ -5,6 +5,7 @@ import { ApiError } from '../api/client';
 import { useSession } from '../auth/SessionProvider';
 import { SectionScreen } from '../components/SectionScreen';
 import { AppButton } from '../components/ui/AppButton';
+import { PasswordInput } from '../components/ui/PasswordInput';
 import { colors } from '../components/ui/theme';
 
 export default function AuthScreen(){
@@ -30,11 +31,11 @@ export default function AuthScreen(){
     <Text style={styles.label}>Электронная почта</Text>
     <TextInput accessibilityLabel="Электронная почта" value={email} onChangeText={setEmail} editable={!busy} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} autoComplete="email" textContentType="emailAddress" maxLength={254} placeholder="name@example.com" placeholderTextColor={colors.secondary} style={styles.input}/>
     <Text style={styles.label}>Пароль</Text>
-    <TextInput accessibilityLabel="Пароль" value={password} onChangeText={setPassword} editable={!busy} secureTextEntry autoCapitalize="none" autoCorrect={false} autoComplete={mode==='register'?'new-password':'current-password'} textContentType={mode==='register'?'newPassword':'password'} style={styles.input}/>
+    <PasswordInput key={mode} label="Пароль" value={password} onChangeText={setPassword} editable={!busy} newPassword={mode==='register'}/>
     <Text style={styles.note}>От 12 до 128 символов. Пробелы в пароле учитываются.</Text>
     {mode==='register'&&<>
      <Text style={styles.label}>Повторите пароль</Text>
-     <TextInput accessibilityLabel="Повторите пароль" value={confirmation} onChangeText={setConfirmation} editable={!busy} secureTextEntry autoCapitalize="none" autoCorrect={false} autoComplete="new-password" textContentType="newPassword" style={styles.input}/>
+     <PasswordInput label="Повторите пароль" value={confirmation} onChangeText={setConfirmation} editable={!busy} newPassword/>
     </>}
     {error&&<Text accessibilityRole="alert" style={styles.error}>{error}</Text>}
     {requestId&&<Text selectable style={styles.note}>Код обращения: {requestId}</Text>}

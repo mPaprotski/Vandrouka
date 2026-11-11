@@ -123,3 +123,30 @@ func TestVisitHTTP(t *testing.T) {
 		t.Fatal("unsafe log template")
 	}
 }
+
+func TestVisitHTTPRateLimitBeforeBodyAndService(t *testing.T) {
+	f := &fakeVisits{}
+	r := chi.NewRouter()
+	r.Use(AuthResponses(time.Second))
+	RegisterVisits(r, fakeAuth{}, f)
+	for i := 0; i < 31; i++ {
+		req := httptest.NewRequest("POST", "/v1/places/7/visits", strings.NewReader(`{"private":"not parsed"}`))
+		req.Header.Set("Authorization", "Bearer valid")
+		req.Header.Set("X-Forwarded-For", "203.0.113.1")
+		w := httptest.NewRecorder()
+		r.ServeHTTP(w, req)
+		want := 400
+		if i == 30 {
+			want = 429
+		}
+		if w.Code != want || w.Header().Get("Cache-Control") != "no-store" {
+			t.Fatal(i, w.Code, w.Header())
+		}
+		if i == 30 && w.Header().Get("Retry-After") != "60" {
+			t.Fatal("retry missing")
+		}
+	}
+	if f.calls != 0 {
+		t.Fatal("invalid/rate-limited body reached service")
+	}
+}

@@ -1,3 +1,7 @@
+import {useSession} from '../../auth/SessionProvider';
+import type {SessionController} from '../../auth/session';
+import {useVisitedPlaces} from '../../hooks/useVisitedPlaces';
+import {filterVisited,type VisitFilter} from '../../exploration/visited';
 import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { FlatList, Linking, StyleSheet, Text, View } from 'react-native';
@@ -13,7 +17,14 @@ import { useApiResource } from '../../hooks/useApiResource';
 import { demoPlaces } from '../../places/presentation';
 import { getMapboxToken } from '../../map/document';
 
-export default function ExploreScreen() {
+export default function ExploreScreen(){
+ const {state,controller}=useSession();const owner=state.status==='authenticated'?state.user.id:null;
+ return <ExploreContent key={owner??'public'} owner={owner} session={controller}/>;
+}
+function ExploreContent({owner,session}:{owner:number|null;session:SessionController}) {
+  const visits=useVisitedPlaces(owner,session);
+  const [visitFilter,setVisitFilter]=useState<VisitFilter>('all');
+  const visitedIds=visits.state.status==='ready'?visits.state.ids:null;
   const [onlyDemo, setOnlyDemo] = useState(true);
   const [mode, setMode] = useState<'map' | 'list'>('map');
   const load = useCallback(async (signal: AbortSignal) => {
@@ -25,7 +36,8 @@ export default function ExploreScreen() {
   const { state, retry, data: catalog } = useApiResource(load);
   const select = useCallback((id: number) => router.push({ pathname: '/places/[id]', params: { id: String(id) } }), []);
   const curated = demoPlaces(catalog?.places ?? []);
-  const visiblePlaces = onlyDemo && curated.length > 0 ? curated : catalog?.places ?? [];
+  const basePlaces = onlyDemo && curated.length > 0 ? curated : catalog?.places ?? [];
+  const visiblePlaces = filterVisited(basePlaces,visitedIds,visitedIds===null?'all':visitFilter).map(place=>({...place,...(visitedIds===null?{}:{visited:visitedIds.has(place.id)})}));
   const token = getMapboxToken();
   const location = useForegroundLocation();
   const [settingsError, setSettingsError] = useState<string>();
@@ -39,6 +51,11 @@ export default function ExploreScreen() {
           <View style={styles.mode}><AppButton title="Список" variant={mode === 'list' ? 'primary' : 'secondary'} onPress={() => setMode('list')} /></View>
         </View>
         {curated.length > 0 && <AppButton title={onlyDemo ? `Первая прогулка · ${curated.length} мест · Показать все` : `Все места · ${catalog?.places.length ?? 0} · Открыть подборку`} variant="secondary" onPress={() => setOnlyDemo(value => !value)} />}
+        {owner!==null?<>
+          <Text style={styles.locationMessage}>{visits.state.status==='ready'?`Посещено ${catalog?.places.filter(place=>visits.state.status==='ready'&&visits.state.ids.has(place.id)).length??0} из ${catalog?.places.length??0} мест каталога. ✓ Посещено · ○ Ещё не посещено` : visits.state.status==='error'?visits.state.message:'Статус посещений пока неизвестен. Загружаем историю…'}</Text>
+          {visits.state.status==='ready'&&<View style={styles.modes}>{([['all','Все'],['visited','Мои места'],['unvisited','Новые']] as const).map(([value,label])=><View key={value} style={styles.mode}><AppButton title={label} variant={visitFilter===value?'primary':'secondary'} onPress={()=>{setVisitFilter(value);if(value!=='all')setOnlyDemo(false);}}/></View>)}</View>}
+          <AppButton title="Обновить посещения" variant="secondary" loading={visits.state.status==='loading'} onPress={visits.retry}/>
+        </>:<AppButton title="Войти для личной карты" variant="secondary" onPress={()=>router.navigate('/profile')}/>}
         {mode === 'map' && <AppButton title="Моё местоположение" variant="secondary" disabled={!token || !catalog} loading={location.state.status === 'loading'} onPress={() => { setSettingsError(undefined); void location.locate(); }} />}
         {location.state.status === 'error' && <Text accessibilityRole="alert" style={styles.locationMessage}>{location.state.message}</Text>}
         {location.state.status === 'error' && location.state.blocked && <AppButton title="Открыть настройки" variant="secondary" onPress={() => { void Linking.openSettings().catch(() => setSettingsError('Не удалось открыть настройки. Разрешите геолокацию в настройках телефона.')); }} />}
@@ -50,6 +67,7 @@ export default function ExploreScreen() {
       {catalog && catalog.places.length === 0 && <View style={styles.notice}><EmptyState title="Мест пока нет" description="В этом городе пока нет доступных мест для прогулки." /></View>}
       {catalog && catalog.places.length > 0 && <>
         {state.status !== 'success' && <Text style={styles.hint}>Показаны ранее загруженные места.</Text>}
+        {visiblePlaces.length===0&&<View style={styles.notice}><EmptyState title="По фильтру мест нет" description="Выберите другой фильтр или покажите все места вместо подборки."/></View>}
         <View style={[styles.map, mode !== 'map' && styles.hidden]}>
           <PlacesMap position={location.state.status === 'success' ? location.state.fix : null} token={token} places={visiblePlaces} onSelect={select} onShowList={() => setMode('list')} />
         </View>
@@ -57,7 +75,7 @@ export default function ExploreScreen() {
           data={visiblePlaces}
           keyExtractor={place => String(place.id)}
           contentContainerStyle={styles.list}
-          renderItem={({ item: place }) => <PlaceCard title={place.name} description={place.summary} cover={place.content?.cover}
+          renderItem={({ item: place }) => <PlaceCard title={place.name} description={place.summary} cover={place.content?.cover} visited={place.visited}
             categories={place.categories.map(slug => catalog.categories.find(category => category.slug === slug)?.name ?? slug)}
             onPress={() => select(place.id)} />}
         />}

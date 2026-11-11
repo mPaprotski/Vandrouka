@@ -87,3 +87,18 @@ func TestS3PrivateIntegration(t *testing.T) {
 		t.Fatal("deletion not idempotent", err)
 	}
 }
+
+func TestR2Configuration(t *testing.T) {
+	for _, endpoint := range []string{"http://account.r2.cloudflarestorage.com", "https://example.com", "https://account.r2.cloudflarestorage.com/bucket"} {
+		if _, err := NewObjectStorage("r2", endpoint, "photos", "key", "secret"); err == nil {
+			t.Fatalf("accepted %s", endpoint)
+		}
+	}
+	s, err := NewObjectStorage("r2", "https://account.r2.cloudflarestorage.com", "photos", "key", "secret")
+	if err != nil || s.provider != "r2" {
+		t.Fatal(err)
+	}
+	if _, err := NewObjectStorage("unknown", "", "", "", ""); err == nil {
+		t.Fatal("unknown provider")
+	}
+}

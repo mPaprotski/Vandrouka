@@ -8,7 +8,7 @@ export function isMapDocumentNavigation(url: string): boolean {
 
 export const MAP_STYLE_URL = 'mapbox://styles/mpaprotski911/cmvfoqaqv00fl01s60qij53my';
 
-export type MapPlace = { id: number; name: string; lat: number; lon: number };
+export type MapPlace = { id: number; name: string; lat: number; lon: number; visited?: boolean };
 export type MapStage = 'document' | 'library' | 'style' | 'sources';
 export type MapMessage = { type: 'progress'; stage: MapStage } | { type: 'ready' } | { type: 'tiles' } | { type: 'tile-status'; rendered: boolean; sourceRequested: boolean; sourceLoaded: boolean } | { type: 'error'; code: 'webgl' | 'load' | 'auth' } | { type: 'select'; id: number };
 
@@ -37,7 +37,7 @@ function scriptJSON(value: unknown): string {
 }
 
 export function placesScript(places: readonly MapPlace[]): string {
-  return `window.setPlaces && window.setPlaces(${scriptJSON(places.map(({ id, name, lat, lon }) => ({ id, name, lat, lon })))}); true;`;
+  return `window.setPlaces && window.setPlaces(${scriptJSON(places.map(({ id, name, lat, lon, visited }) => ({ id, name, lat, lon, ...(typeof visited==='boolean'?{visited}:{}) })))}); true;`;
 }
 
 export function userLocationScript(position: PositionFix | null): string {
@@ -67,7 +67,10 @@ export function mapDocument(token: string): string {
     markers.forEach(function(marker){marker.remove();}); markers=[];
     places.forEach(function(place){
       var button=document.createElement('button'); button.className='pin'; button.type='button';
-      button.textContent='●'; button.setAttribute('aria-label',place.name); button.title=place.name;
+      var label=place.name+(place.visited===true?' — посещено':place.visited===false?' — ещё не посещено':'');
+      button.textContent=place.visited===true?'✓':place.visited===false?'○':'●';
+      if(place.visited===false)button.style.background='#8A633F';
+      button.setAttribute('aria-label',label); button.title=label;
       button.addEventListener('click',function(event){event.stopPropagation();send({type:'select',id:place.id});});
       markers.push(new mapboxgl.Marker({element:button}).setLngLat([place.lon,place.lat]).addTo(map));
     });

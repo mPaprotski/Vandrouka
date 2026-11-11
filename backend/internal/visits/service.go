@@ -41,7 +41,7 @@ type Policy struct {
 	FutureSkew time.Duration
 }
 
-func DefaultPolicy() Policy { return Policy{50, 30, 120 * time.Second, 30 * time.Second} }
+func DefaultPolicy() Policy { return Policy{70, 30, 120 * time.Second, 30 * time.Second} }
 func finite(v float64) bool { return !math.IsNaN(v) && !math.IsInf(v, 0) }
 func validCoordinates(lat, lon float64) bool {
 	return finite(lat) && finite(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180

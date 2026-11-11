@@ -1,9 +1,11 @@
 import { Tabs } from 'expo-router';
 import { Text } from 'react-native';
 
+export const unstable_settings = { anchor: 'explore' };
+
 export default function MainTabs() {
   return (
-    <Tabs initialRouteName="explore" backBehavior="initialRoute" screenOptions={{
+    <Tabs backBehavior="initialRoute" screenOptions={{
       headerStyle: { backgroundColor: '#F7F4EC' },
       headerTintColor: '#173F34',
       tabBarActiveTintColor: '#173F34',

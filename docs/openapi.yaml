@@ -1,24 +1,67 @@
 openapi: 3.0.3
 info:
   title: Вандроўка API
-  version: 0.5.1
-  description: Каталог, маршруты generate/recalculate, серверная авторизация, приватные фото и подтверждение посещений с XP «Вандроўкі».
-    Register/login выдают access/refresh; refresh выполняет ротацию, logout отзывает цепочку,
-    me возвращает владельца сессии. Часы и цены неизвестных мест
-    не считаются подтверждёнными.
+  version: 0.8.0
+  description: Каталог, маршруты generate/recalculate, серверная авторизация, приватные
+    фото и подтверждение посещений с XP «Вандроўкі». Register/login выдают access/refresh;
+    refresh выполняет ротацию, logout отзывает цепочку, me возвращает владельца сессии.
+    Часы и цены неизвестных мест не считаются подтверждёнными.
 servers:
 - url: http://localhost:8080
 paths:
+  /v1/me/progress:
+    get:
+      summary: Read your lifetime XP and level
+      x-implementation-status: implemented
+      description: 'One reward-ledger snapshot scoped to the session owner; hiding
+        visits or deleting photos does not revoke XP. Fixed level thresholds: 0/100/300/600/1000/1500/2100/2800/3600/4500.
+        Level 10 keeps accumulating XP and has null next_level_xp/xp_to_next_level.
+        Cache-Control: no-store. No owner parameter is accepted as a selector.'
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          description: Current server progress
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Progress'
+              examples:
+                new:
+                  value:
+                    total_xp: 0
+                    level: 1
+                    level_start_xp: 0
+                    next_level_xp: 100
+                    xp_to_next_level: 100
+                level2:
+                  value:
+                    total_xp: 100
+                    level: 2
+                    level_start_xp: 100
+                    next_level_xp: 300
+                    xp_to_next_level: 200
+                max:
+                  value:
+                    total_xp: 5000
+                    level: 10
+                    level_start_xp: 4500
+                    next_level_xp: null
+                    xp_to_next_level: null
+        '401':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
   /v1/auth/refresh:
     post:
       summary: Rotate the refresh/access pair
       x-implementation-status: implemented
-      description: 'Single-use refresh. Rotation revokes the old access. Replaying a
-        consumed refresh revokes its entire family, including the newly returned pair;
-        other device families stay active. Concurrent refresh must be serialized by
-        the client. A lost successful refresh response requires sign-in again. Shared
-        refresh/logout limit: 30 requests/minute per peer IP. Tokens accepted only in
-        a JSON body, not URL/cookies.'
+      description: 'Single-use refresh. Rotation revokes the old access. Replaying
+        a consumed refresh revokes its entire family, including the newly returned
+        pair; other device families stay active. Concurrent refresh must be serialized
+        by the client. A lost successful refresh response requires sign-in again.
+        Shared refresh/logout limit: 30 requests/minute per peer IP. Tokens accepted
+        only in a JSON body, not URL/cookies.'
       requestBody:
         required: true
         content:
@@ -41,8 +84,8 @@ paths:
         '500':
           $ref: '#/components/responses/Error'
         '200':
-          description: 'New token pair with the original absolute family deadline. Cache-Control:
-            no-store.'
+          description: 'New token pair with the original absolute family deadline.
+            Cache-Control: no-store.'
           content:
             application/json:
               schema:
@@ -62,10 +105,10 @@ paths:
       summary: Revoke this device session family
       x-implementation-status: implemented
       description: 'The refresh credential selects a family even when access has expired.
-        Revoke all access/refresh credentials in that family; other devices remain signed
-        in. Repeated logout or an unknown well-formed credential returns 204. Shared
-        refresh/logout limit: 30 requests/minute per peer IP. Tokens accepted only in
-        a JSON body, not URL/cookies.'
+        Revoke all access/refresh credentials in that family; other devices remain
+        signed in. Repeated logout or an unknown well-formed credential returns 204.
+        Shared refresh/logout limit: 30 requests/minute per peer IP. Tokens accepted
+        only in a JSON body, not URL/cookies.'
       requestBody:
         required: true
         content:
@@ -88,18 +131,19 @@ paths:
         '500':
           $ref: '#/components/responses/Error'
         '204':
-          description: 'Family revoked, already revoked or unknown. Cache-Control: no-store.'
+          description: 'Family revoked, already revoked or unknown. Cache-Control:
+            no-store.'
   /v1/visits/photo-upload:
     post:
       summary: Upload a private visit photo
       x-implementation-status: implemented
-      description: 'Authenticated multipart upload: exactly one place_id and file; no
-        user_id. File up to 10 MiB, 20 million pixels and 8192 pixels per side. Actual
-        JPEG/PNG must match declared MIME. Server applies EXIF orientation, re-encodes
-        to remove metadata and returns only after a private object and ready metadata
-        are saved. Two concurrent media operations per process, six upload attempts
-        per minute per owner. Storage failures return 503 with durable cleanup of abandoned
-        objects.'
+      description: 'Authenticated multipart upload: exactly one place_id and file;
+        no user_id. File up to 10 MiB, 20 million pixels and 8192 pixels per side.
+        Actual JPEG/PNG must match declared MIME. Server applies EXIF orientation,
+        re-encodes to remove metadata and returns only after a private object and
+        ready metadata are saved. Two concurrent media operations per process, six
+        upload attempts per minute per owner. Storage failures return 503 with durable
+        cleanup of abandoned objects.'
       security:
       - BearerAuth: []
       requestBody:
@@ -167,9 +211,9 @@ paths:
       summary: Read your private visit photo
       x-implementation-status: implemented
       description: 'Only the session owner can read a ready, undeleted photo. Foreign,
-        missing, malformed and deleted IDs return the same 404. Object length and SHA-256
-        are checked before returning any bytes. No public URL; Cache-Control: no-store
-        and X-Content-Type-Options: nosniff.'
+        missing, malformed and deleted IDs return the same 404. Object length and
+        SHA-256 are checked before returning any bytes. No public URL; Cache-Control:
+        no-store and X-Content-Type-Options: nosniff.'
       security:
       - BearerAuth: []
       responses:
@@ -201,10 +245,10 @@ paths:
       description: Only the owner can delete; repeat deletion is idempotent. Commit
         a tombstone and deletion job before removing the object. 204 means deletion
         completed. If storage fails, return 503, prevent reads immediately and retry
-        in the background. Visits, XP and reward uniqueness remain unchanged.
-        Automatic draft cleanup must use unconfirmed_only=true. After acquiring the
-        photo row lock, the server checks confirmed visits in a fresh statement;
-        confirmed media returns 409 photo_confirmed without tombstone or storage IO.
+        in the background. Visits, XP and reward uniqueness remain unchanged. Automatic
+        draft cleanup must use unconfirmed_only=true. After acquiring the photo row
+        lock, the server checks confirmed visits in a fresh statement; confirmed media
+        returns 409 photo_confirmed without tombstone or storage IO.
       parameters:
       - name: unconfirmed_only
         in: query
@@ -216,8 +260,8 @@ paths:
       - BearerAuth: []
       responses:
         '204':
-          description: Image removed or already deleted; photo metadata tombstone and
-            XP remain.
+          description: Image removed or already deleted; photo metadata tombstone
+            and XP remain.
         '400':
           $ref: '#/components/responses/Error'
         '409':
@@ -244,17 +288,20 @@ paths:
     post:
       summary: Confirm a visit with a ready photo and fresh location
       x-implementation-status: implemented
-      description: Owner comes from the session. Same owner/key and normalized payload
-        replay the stored outcome, including a rejection. Changed payload with the same
-        key returns 409. First confirmed place gives 100 XP; later visits give 0. Visit
-        and award commit atomically. GPS defaults are distance <= 50 m, accuracy <= 30 m,
-        observed_at in [received_at - 120 s, received_at + 30 s], inclusive and without
-        rounding. Failure precedence is inactive_place, photo_not_ready, poor_accuracy,
-        stale_location, future_location, too_far. Missing/foreign/deleted photo is 404;
-        a photo already used for confirmation is 409 photo_already_used. Resource checks
-        precede business validation. Replay precedes resource checks and never reevaluates
-        GPS. Canonical UUID case, UTC timestamps and parsed numbers form the request hash.
-        Cache-Control is no-store; raw GPS and storage keys are never returned.
+      description: 'Owner comes from the session. Same owner/key and normalized payload
+        replay the stored outcome, including a rejection. Changed payload with the
+        same key returns 409. First confirmed place gives 100 XP; later visits give
+        0. Visit and award commit atomically. GPS defaults are distance <= 50 m, accuracy
+        <= 30 m, observed_at in [received_at - 120 s, received_at + 30 s], inclusive
+        and without rounding. Failure precedence is inactive_place, photo_not_ready,
+        poor_accuracy, stale_location, future_location, too_far. Missing/foreign/deleted
+        photo is 404; a photo already used for confirmation is 409 photo_already_used.
+        Resource checks precede business validation. Replay precedes resource checks
+        and never reevaluates GPS. Canonical UUID case, UTC timestamps and parsed
+        numbers form the request hash. Cache-Control is no-store; raw GPS and storage
+        keys are never returned. Per-process limits: 30 authenticated attempts/minute/owner;
+        4 concurrent confirmations globally; 429 with Retry-After. Retries keep the
+        same Idempotency-Key.'
       security:
       - BearerAuth: []
       parameters:
@@ -345,32 +392,6 @@ paths:
           $ref: '#/components/responses/Error'
         '503':
           $ref: '#/components/responses/Error'
-  /v1/users/me/visits/{visit_id}:
-    parameters:
-    - name: visit_id
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int64
-        minimum: 1
-    delete:
-      summary: Hide your visit from history and delete its photo, retaining XP
-      x-implementation-status: planned
-      description: Contract only; scheduled for privacy stage before MVP release. Not
-        registered in the current server.
-      security:
-      - BearerAuth: []
-      responses:
-        '204':
-          description: Hidden, or already hidden. Reward and idempotency tombstones
-            remain; a later visit cannot earn the first-place reward again.
-        '401':
-          $ref: '#/components/responses/Error'
-        '404':
-          $ref: '#/components/responses/Error'
-        '500':
-          $ref: '#/components/responses/Error'
   /v1/auth/register:
     post:
       summary: Register and create a session
@@ -401,8 +422,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthSession'
-              example: &authid001
-                user: &authid002
+              example: &id001
+                user: &id002
                   id: 1
                   email: walker@example.com
                   created_at: '2026-10-21T09:00:00Z'
@@ -457,7 +478,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthSession'
-              example: *authid001
+              example: *id001
         '400':
           $ref: '#/components/responses/Error'
         '401':
@@ -479,8 +500,8 @@ paths:
       security:
       - BearerAuth: []
       description: Rejects missing, malformed, unknown, expired or revoked sessions.
-        Returns only the session owner. Does not accept tokens in query parameters or
-        cookies.
+        Returns only the session owner. Does not accept tokens in query parameters
+        or cookies.
       responses:
         '200':
           description: Current user
@@ -501,8 +522,42 @@ paths:
                   user:
                     $ref: '#/components/schemas/AuthUser'
               example:
-                user: *authid002
+                user: *id002
         '401':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+    delete:
+      summary: Permanently delete your account with current password
+      x-implementation-status: implemented
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - password
+              properties:
+                password:
+                  type: string
+                  minLength: 12
+                  maxLength: 128
+      responses:
+        '204':
+          description: Account and sessions deleted; private objects queued for deletion
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '415':
+          $ref: '#/components/responses/Error'
+        '429':
           $ref: '#/components/responses/Error'
         '500':
           $ref: '#/components/responses/Error'
@@ -513,10 +568,11 @@ paths:
       required: true
       schema:
         type: string
-        pattern: '^[a-z0-9-]+\.(jpg|png)$'
+        pattern: ^[a-z0-9-]+\.(jpg|png)$
     get:
       summary: Licensed public catalog cover
-      description: Only files validated by the external demo manifest are available. No user photos or arbitrary DATA_DIR files are served.
+      description: Only files validated by the external demo manifest are available.
+        No user photos or arbitrary DATA_DIR files are served.
       x-implementation-status: implemented
       responses:
         '200':
@@ -536,7 +592,8 @@ paths:
           description: Unknown cover
     head:
       summary: Licensed public catalog cover headers
-      description: Only files validated by the external demo manifest are available. No user photos or arbitrary DATA_DIR files are served.
+      description: Only files validated by the external demo manifest are available.
+        No user photos or arbitrary DATA_DIR files are served.
       x-implementation-status: implemented
       responses:
         '200':
@@ -734,9 +791,10 @@ paths:
       - Routes
       operationId: generateRoutes
       summary: Генерация маршрутов
-      description: Получить до трёх различных маршрутов. Все окончательные варианты пересчитаны по Directions;
-        невыполнимые отбрасываются. Неизвестная цена не равна бесплатному билету. Тело — один JSON-объект
-        UTF-8, не более 64 КиБ, Content-Type application/json. Повторные ключи и неизвестные поля отклоняются
+      description: Получить до трёх различных маршрутов. Все окончательные варианты
+        пересчитаны по Directions; невыполнимые отбрасываются. Неизвестная цена не
+        равна бесплатному билету. Тело — один JSON-объект UTF-8, не более 64 КиБ,
+        Content-Type application/json. Повторные ключи и неизвестные поля отклоняются
         с 400.
       x-implementation-status: implemented
       requestBody:
@@ -747,9 +805,9 @@ paths:
               $ref: '#/components/schemas/GenerateRouteRequest'
             examples:
               normal:
-                value: &id002
+                value: &id004
                   city: minsk
-                  start: &id001
+                  start: &id003
                     lat: 53.903333
                     lon: 27.556111
                   start_at: '2026-10-24T11:00:00+03:00'
@@ -777,11 +835,11 @@ paths:
                     variants:
                     - variant_id: variant-1
                       profile: best_match
-                      labels: &id003 []
+                      labels: &id005 []
                       stops:
                       - place_id: 1
                         name: Ратуша (условный ID для примера)
-                        location: *id001
+                        location: *id003
                         arrival: '2026-10-24T11:01:00+03:00'
                         departure: '2026-10-24T11:11:00+03:00'
                         visit_seconds: 600
@@ -830,11 +888,12 @@ paths:
       - Routes
       operationId: recalculateRoute
       summary: Пересчёт маршрута
-      description: 'remove: место обязано присутствовать в base_place_ids, исключается из кандидатов,
-        освободившееся время может заполняться. add: место должно отсутствовать в base_place_ids и обязательно
-        войти в результат. Если обязательное добавление не укладывается в ограничения — 422; скрытого
-        увеличения бюджета нет. Неактивные/неизвестные ID — 404. Сначала исходный порядок проверяется
-        на свежих данных; невыполнимый исходный порядок — 422.'
+      description: 'remove: место обязано присутствовать в base_place_ids, исключается
+        из кандидатов, освободившееся время может заполняться. add: место должно отсутствовать
+        в base_place_ids и обязательно войти в результат. Если обязательное добавление
+        не укладывается в ограничения — 422; скрытого увеличения бюджета нет. Неактивные/неизвестные
+        ID — 404. Сначала исходный порядок проверяется на свежих данных; невыполнимый
+        исходный порядок — 422.'
       x-implementation-status: implemented
       requestBody:
         required: true
@@ -845,7 +904,7 @@ paths:
             examples:
               normal:
                 value:
-                  request: *id002
+                  request: *id004
                   base_place_ids:
                   - 1
                   change:
@@ -869,7 +928,7 @@ paths:
                     variant:
                       variant_id: variant-1
                       profile: best_match
-                      labels: *id003
+                      labels: *id005
                       stops: []
                       totals:
                         walk_seconds: 0
@@ -908,18 +967,106 @@ paths:
           $ref: '#/components/responses/Error'
         '503':
           $ref: '#/components/responses/RoutingUnavailable'
+  /v1/users/me/visits:
+    get:
+      summary: Your confirmed visits, newest first
+      x-implementation-status: implemented
+      security:
+      - BearerAuth: []
+      description: Private no-store history. Sort by created_at DESC, id DESC; opaque
+        keyset cursor. Hidden and rejected visits excluded; deleted photos yield null.
+        XP remains in ledger. Cursor is not an owner selector.
+      parameters:
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 20
+      - name: cursor
+        in: query
+        schema:
+          type: string
+          maxLength: 256
+      responses:
+        '200':
+          description: Page of confirmed visits
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoryPage'
+              example:
+                visits: []
+                next_cursor: null
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+  /v1/users/me/visits/{id}:
+    delete:
+      summary: Hide your confirmed visit and delete its photo, retaining XP and replay
+        protection
+      x-implementation-status: implemented
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        '204':
+          description: Hidden, including repeated requests
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+  /v1/me/exploration:
+    get:
+      summary: Private lifetime discoveries, achievements and fixed thematic collection
+      x-implementation-status: implemented
+      security:
+      - BearerAuth: []
+      description: 'One repeatable-read snapshot, scoped to the session owner. Awards
+        at 1/5/10 unique first discoveries are persisted once, including backfill.
+        Hidden visits/deleted photos do not revoke progress. No extra XP. Unavailable
+        collection places stay in its fixed total. Cache-Control: no-store.'
+      responses:
+        '200':
+          description: Lifetime exploration state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exploration'
+        '401':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
 components:
   securitySchemes:
     BearerAuth:
       type: http
       scheme: bearer
-      description: Opaque access token issued by register/login, valid for 24 hours by default (AUTH_ACCESS_TTL).
+      description: Opaque access token issued by register/login, valid for 24 hours
+        by default (AUTH_ACCESS_TTL).
   headers:
     RequestID:
       description: Идентификатор, назначенный сервером для поиска запроса в журнале.
       schema:
         type: string
-        pattern: '^[0-9a-f]{32}$'
+        pattern: ^[0-9a-f]{32}$
   parameters:
     CitySlug:
       name: slug
@@ -936,7 +1083,8 @@ components:
         X-Request-ID:
           $ref: '#/components/headers/RequestID'
         Retry-After:
-          description: Число секунд до следующей попытки; не гарантирует наличие свободного слота.
+          description: Число секунд до следующей попытки; не гарантирует наличие свободного
+            слота.
           schema:
             type: integer
             minimum: 1
@@ -961,8 +1109,8 @@ components:
       headers:
         X-Request-ID:
           $ref: '#/components/headers/RequestID'
-      description: Обязательное добавление или исходный порядок несовместимы с временем, расписанием,
-        достижимостью или бюджетом.
+      description: Обязательное добавление или исходный порядок несовместимы с временем,
+        расписанием, достижимостью или бюджетом.
       content:
         application/json:
           schema:
@@ -970,14 +1118,14 @@ components:
           example:
             error:
               code: constraints_violation
-              message: Обязательное добавление или исходный порядок несовместимы с временем, расписанием,
-                достижимостью или бюджетом.
+              message: Обязательное добавление или исходный порядок несовместимы с
+                временем, расписанием, достижимостью или бюджетом.
     RoutingUnavailable:
       headers:
         X-Request-ID:
           $ref: '#/components/headers/RequestID'
-      description: Mapbox недоступен, превышена квота, отсутствует/отклонён серверный токен или истёк
-        срок запроса. Токен и внутренние URL не возвращаются клиенту.
+      description: Mapbox недоступен, превышена квота, отсутствует/отклонён серверный
+        токен или истёк срок запроса. Токен и внутренние URL не возвращаются клиенту.
       content:
         application/json:
           schema:
@@ -985,9 +1133,42 @@ components:
           example:
             error:
               code: routing_unavailable
-              message: Mapbox недоступен, превышена квота, отсутствует/отклонён серверный токен или истёк
-                срок запроса. Токен и внутренние URL не возвращаются клиенту.
+              message: Mapbox недоступен, превышена квота, отсутствует/отклонён серверный
+                токен или истёк срок запроса. Токен и внутренние URL не возвращаются
+                клиенту.
   schemas:
+    Progress:
+      type: object
+      additionalProperties: false
+      required:
+      - total_xp
+      - level
+      - level_start_xp
+      - next_level_xp
+      - xp_to_next_level
+      properties:
+        total_xp:
+          type: integer
+          format: int64
+          minimum: 0
+        level:
+          type: integer
+          minimum: 1
+          maximum: 10
+        level_start_xp:
+          type: integer
+          format: int64
+          minimum: 0
+        next_level_xp:
+          type: integer
+          format: int64
+          minimum: 1
+          nullable: true
+        xp_to_next_level:
+          type: integer
+          format: int64
+          minimum: 1
+          nullable: true
     Visit:
       type: object
       additionalProperties: false
@@ -1225,8 +1406,8 @@ components:
           writeOnly: true
           minLength: 12
           maxLength: 128
-          description: Unicode characters; preserved exactly, without trimming. At most
-            512 UTF-8 bytes.
+          description: Unicode characters; preserved exactly, without trimming. At
+            most 512 UTF-8 bytes.
     AuthSession:
       type: object
       additionalProperties: false
@@ -1243,7 +1424,8 @@ components:
         access_token:
           type: string
           pattern: ^[A-Za-z0-9_-]{43}$
-          description: Opaque bearer token. Store securely; never place in URLs or logs.
+          description: Opaque bearer token. Store securely; never place in URLs or
+            logs.
         token_type:
           type: string
           enum:
@@ -1256,8 +1438,8 @@ components:
         refresh_token:
           type: string
           pattern: ^[A-Za-z0-9_-]{43}$
-          description: Single-use opaque refresh credential. Store only in encrypted storage;
-            never put in URLs/logs.
+          description: Single-use opaque refresh credential. Store only in encrypted
+            storage; never put in URLs/logs.
         refresh_expires_at:
           type: string
           format: date-time
@@ -1299,11 +1481,18 @@ components:
           type: string
     CatalogCover:
       type: object
-      required: [url, author, license, license_url, source_url, changes]
+      required:
+      - url
+      - author
+      - license
+      - license_url
+      - source_url
+      - changes
       properties:
         url:
           type: string
-          description: Relative URL on the API origin, including a checksum version query.
+          description: Relative URL on the API origin, including a checksum version
+            query.
         author:
           type: string
         license:
@@ -1318,7 +1507,14 @@ components:
           type: string
     CuratedContent:
       type: object
-      required: [order, story, approach, sources, reviewed_on, field_verified, cover]
+      required:
+      - order
+      - story
+      - approach
+      - sources
+      - reviewed_on
+      - field_verified
+      - cover
       properties:
         order:
           type: integer
@@ -1523,7 +1719,8 @@ components:
           format: double
           minimum: -180
           maximum: 180
-      description: Широта и долгота WGS84. Сервер проверяет принадлежность поддерживаемой области города.
+      description: Широта и долгота WGS84. Сервер проверяет принадлежность поддерживаемой
+        области города.
     GenerateRouteRequest:
       type: object
       additionalProperties: false
@@ -1542,8 +1739,8 @@ components:
         start_at:
           type: string
           format: date-time
-          description: RFC3339 с UTC offset; сервер переводит в IANA timezone города (Europe/Minsk). Обязательно,
-            без подстановки текущего времени.
+          description: RFC3339 с UTC offset; сервер переводит в IANA timezone города
+            (Europe/Minsk). Обязательно, без подстановки текущего времени.
         budget_minutes:
           type: integer
           minimum: 1
@@ -1569,21 +1766,23 @@ components:
           format: int64
           minimum: 0
           nullable: true
-          description: Целые копейки BYN. Отсутствие/null — без лимита; 0 — нулевой лимит. Ограничивается
-            сумма известных билетов; неизвестные цены отмечаются отдельно.
+          description: Целые копейки BYN. Отсутствие/null — без лимита; 0 — нулевой
+            лимит. Ограничивается сумма известных билетов; неизвестные цены отмечаются
+            отдельно.
         seed:
           type: integer
           format: int64
           minimum: 0
           maximum: 9007199254740991
           default: 42
-          description: Безопасное для JavaScript целое. Один seed воспроизводим на том же каталоге, матрице
-            и настройках; новые ответы Mapbox могут изменить результат.
+          description: Безопасное для JavaScript целое. Один seed воспроизводим на
+            том же каталоге, матрице и настройках; новые ответы Mapbox могут изменить
+            результат.
         include_geometry:
           type: boolean
           default: true
-          description: Управляет выдачей геометрии; проверка времени и расстояния через Directions обязательна
-            в обоих случаях.
+          description: Управляет выдачей геометрии; проверка времени и расстояния
+            через Directions обязательна в обоих случаях.
     RouteLeg:
       type: object
       additionalProperties: false
@@ -1636,8 +1835,9 @@ components:
           type: boolean
         price_unconfirmed:
           type: boolean
-      description: Остановка в порядке посещения. Первый incoming_leg идёт от старта, остальные — от предыдущей
-        остановки. departure = arrival + visit_seconds. ID внутри маршрута уникальны.
+      description: Остановка в порядке посещения. Первый incoming_leg идёт от старта,
+        остальные — от предыдущей остановки. departure = arrival + visit_seconds.
+        ID внутри маршрута уникальны.
     RouteTotals:
       type: object
       additionalProperties: false
@@ -1678,15 +1878,16 @@ components:
           - BYN
         cost_complete:
           type: boolean
-          description: true только если цена каждой остановки известна; иначе cost_minor — подтверждённая
-            часть стоимости.
+          description: true только если цена каждой остановки известна; иначе cost_minor
+            — подтверждённая часть стоимости.
         stops_count:
           type: integer
           minimum: 0
         unverified_stops_count:
           type: integer
           minimum: 0
-          description: Остановка с неизвестными часами и/или ценой учитывается один раз.
+          description: Остановка с неизвестными часами и/или ценой учитывается один
+            раз.
     RouteExplanation:
       type: object
       additionalProperties: false
@@ -1710,14 +1911,15 @@ components:
           additionalProperties:
             type: integer
             minimum: 0
-          description: Категории могут пересекаться; сумма не обязана равняться числу остановок.
+          description: Категории могут пересекаться; сумма не обязана равняться числу
+            остановок.
     RouteGeometry:
       type: object
       additionalProperties: false
-      required: &id004
+      required: &id006
       - format
       - segments
-      properties: &id005
+      properties: &id007
         format:
           type: string
           enum:
@@ -1728,8 +1930,8 @@ components:
           items:
             type: string
             minLength: 1
-          description: Упорядоченные части Directions. Соседние части могут иметь общий граничный пункт;
-            возврата к старту нет.
+          description: Упорядоченные части Directions. Соседние части могут иметь
+            общий граничный пункт; возврата к старту нет.
     RouteVariant:
       type: object
       additionalProperties: false
@@ -1745,7 +1947,8 @@ components:
         variant_id:
           type: string
           minLength: 1
-          description: Идентификатор только в рамках данного ответа; маршрут не сохраняется сервером.
+          description: Идентификатор только в рамках данного ответа; маршрут не сохраняется
+            сервером.
         profile:
           type: string
           enum:
@@ -1763,8 +1966,9 @@ components:
             - Больше мест
             - Меньше ходьбы
             - Самый бюджетный
-          description: Сравнение только окончательных вариантов; преимущество минимум 10%. У единственного
-            варианта меток нет. Бюджетная метка требует известных цен.
+          description: Сравнение только окончательных вариантов; преимущество минимум
+            10%. У единственного варианта меток нет. Бюджетная метка требует известных
+            цен.
         stops:
           type: array
           items:
@@ -1776,13 +1980,13 @@ components:
         geometry:
           type: object
           additionalProperties: false
-          required: *id004
-          properties: *id005
+          required: *id006
+          properties: *id007
           nullable: true
           description: null при include_geometry=false или пустом маршруте.
-      description: Открытый пешеходный маршрут, заканчивается у последнего места. Полные посещения известных
-        расписаний должны укладываться в интервалы с учётом исключений и timezone. Неизвестные сведения
-        отмечаются явно.
+      description: Открытый пешеходный маршрут, заканчивается у последнего места.
+        Полные посещения известных расписаний должны укладываться в интервалы с учётом
+        исключений и timezone. Неизвестные сведения отмечаются явно.
     GenerateRouteResponse:
       type: object
       additionalProperties: false
@@ -1804,8 +2008,8 @@ components:
           maxItems: 3
           items:
             $ref: '#/components/schemas/GeneratedRouteVariant'
-          description: Непустые различные варианты после проверки Directions. [] — подходящего маршрута
-            нет; это успешный ответ, а не ошибка.
+          description: Непустые различные варианты после проверки Directions. [] —
+            подходящего маршрута нет; это успешный ответ, а не ошибка.
     RouteChange:
       oneOf:
       - type: object
@@ -1849,8 +2053,8 @@ components:
           items:
             $ref: '#/components/schemas/PlaceID'
           minItems: 1
-          description: 'Порядок исходного маршрута. Только ID: сервер заново получает места, расписания
-            и переходы; клиентские totals не принимаются.'
+          description: 'Порядок исходного маршрута. Только ID: сервер заново получает
+            места, расписания и переходы; клиентские totals не принимаются.'
         change:
           $ref: '#/components/schemas/RouteChange'
     RouteDiff:
@@ -1889,9 +2093,9 @@ components:
           description: true только если цены всех остановок до и после известны.
         text:
           type: string
-      description: 'Знаковые изменения: результат минус исходный маршрут, пересчитанный на тех же свежих
-        данных. Added — в порядке нового маршрута, removed — в порядке исходного. Только перестановка
-        не означает добавление/удаление.'
+      description: 'Знаковые изменения: результат минус исходный маршрут, пересчитанный
+        на тех же свежих данных. Added — в порядке нового маршрута, removed — в порядке
+        исходного. Только перестановка не означает добавление/удаление.'
     RecalculateRouteResponse:
       type: object
       additionalProperties: false
@@ -1913,8 +2117,8 @@ components:
         diff:
           $ref: '#/components/schemas/RouteDiff'
     APIError:
-      description: 'Единый формат ошибки. Сообщение безопасно для клиента; внутренние SQL,
-        ошибки провайдера и токены не раскрываются. Отсутствующие объекты — not_found;
+      description: 'Единый формат ошибки. Сообщение безопасно для клиента; внутренние
+        SQL, ошибки провайдера и токены не раскрываются. Отсутствующие объекты — not_found;
         невыполнимый пересчёт — constraints_violation. Сбой маршрутизации и отмена/таймаут
         route-запроса — routing_unavailable. Для каталога внутренние сбои — internal.
         Отсутствие подходящих вариантов генерации возвращает 200 с variants: [].'
@@ -1959,7 +2163,8 @@ components:
             details:
               type: object
               additionalProperties: true
-              description: Необязательные пояснения; клиент не должен полагаться на конкретные поля.
+              description: Необязательные пояснения; клиент не должен полагаться на
+                конкретные поля.
     GeneratedRouteVariant:
       allOf:
       - $ref: '#/components/schemas/RouteVariant'
@@ -1970,7 +2175,152 @@ components:
             minItems: 1
             items:
               $ref: '#/components/schemas/RouteStop'
-      description: Генерация выдаёт только непустые варианты; recalculate может вернуть пустой маршрут.
+      description: Генерация выдаёт только непустые варианты; recalculate может вернуть
+        пустой маршрут.
+    HistoryItem:
+      type: object
+      required:
+      - id
+      - place_id
+      - place_name
+      - place_active
+      - timezone
+      - created_at
+      - confirmed_at
+      - photo_id
+      - xp_awarded
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        place_id:
+          type: integer
+          format: int64
+          minimum: 1
+        place_name:
+          type: string
+        place_active:
+          type: boolean
+        timezone:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        confirmed_at:
+          type: string
+          format: date-time
+        photo_id:
+          type: string
+          format: uuid
+          nullable: true
+        xp_awarded:
+          type: integer
+          enum:
+          - 0
+          - 100
+    HistoryPage:
+      type: object
+      required:
+      - visits
+      - next_cursor
+      properties:
+        visits:
+          type: array
+          maxItems: 50
+          items:
+            $ref: '#/components/schemas/HistoryItem'
+        next_cursor:
+          type: string
+          nullable: true
+          maxLength: 256
+    DiscoveryAchievement:
+      type: object
+      required:
+      - code
+      - name
+      - target
+      - progress
+      - earned_at
+      properties:
+        code: &id008
+          type: string
+          minLength: 1
+        name: *id008
+        target:
+          type: integer
+          minimum: 1
+        progress: &id009
+          type: integer
+          minimum: 0
+        earned_at: &id010
+          type: string
+          format: date-time
+          nullable: true
+    CollectionPlace:
+      type: object
+      required:
+      - slug
+      - name
+      - place_id
+      - available
+      - visited
+      properties:
+        slug: *id008
+        name: *id008
+        place_id:
+          type: integer
+          format: int64
+          minimum: 1
+          nullable: true
+        available:
+          type: boolean
+        visited:
+          type: boolean
+    DiscoveryCollection:
+      type: object
+      required:
+      - code
+      - name
+      - city
+      - total
+      - visited
+      - completed_at
+      - places
+      properties:
+        code: *id008
+        name: *id008
+        city: *id008
+        total:
+          type: integer
+          minimum: 1
+          maximum: 50
+        visited: *id009
+        completed_at: *id010
+        places:
+          type: array
+          maxItems: 50
+          items:
+            $ref: '#/components/schemas/CollectionPlace'
+    Exploration:
+      type: object
+      required:
+      - discovered_places
+      - achievements
+      - collections
+      properties:
+        discovered_places: *id009
+        achievements:
+          type: array
+          minItems: 3
+          maxItems: 3
+          items:
+            $ref: '#/components/schemas/DiscoveryAchievement'
+        collections:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/DiscoveryCollection'
 tags:
 - name: Catalog
   description: Реализованный каталог

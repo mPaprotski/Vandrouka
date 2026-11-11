@@ -18,6 +18,12 @@ def main():
     args = parser.parse_args()
     spec = yaml.safe_load((ROOT / 'docs/openapi.yaml').read_text())
     validate_spec(spec)
+    path_templates = {}
+    for path in spec['paths']:
+        template = re.sub(r'\{[^}]+\}', '{}', path)
+        if template in path_templates:
+            raise ValueError(f'Duplicate path templates: {path_templates[template]} and {path}')
+        path_templates[template] = path
 
     def resolve(value):
         if '$ref' in value:
@@ -67,7 +73,7 @@ def main():
                         check.validate(example)
                         count += 1
     registered = set()
-    for file in ['backend/internal/http/catalog.go', 'backend/internal/http/auth.go', 'backend/internal/http/media.go', 'backend/internal/http/visits.go', 'backend/internal/http/routes.go', 'backend/internal/http/recalculate.go', 'backend/cmd/api/main.go']:
+    for file in ['backend/internal/http/catalog.go', 'backend/internal/http/auth.go', 'backend/internal/http/media.go', 'backend/internal/http/visits.go', 'backend/internal/http/progress.go', 'backend/internal/http/exploration.go', 'backend/internal/http/history.go', 'backend/internal/http/deletions.go', 'backend/internal/http/routes.go', 'backend/internal/http/recalculate.go', 'backend/cmd/api/main.go']:
         code = (ROOT / file).read_text()
         registered.update((method.lower(), path) for method, path in re.findall(r'\br\.(Get|Post|Head|Delete)\("([^"]+)"', code))
     if operations != registered:

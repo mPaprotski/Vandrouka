@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/yourname/vandrouka/backend/internal/progress"
 )
 
 func TestConfirmationPostgresIntegration(t *testing.T) {
@@ -254,6 +255,18 @@ func TestConfirmationPostgresIntegration(t *testing.T) {
 	if r.XPAwarded != 0 {
 		t.Fatal("reward after deletion")
 	}
+	// Ledger-based progress survives repeats, rejected visits, races and hidden history/photo.
+	progressRepo := progress.Postgres{Pool: pool}
+	state, err := progressRepo.Read(ctx, owner)
+	must(err)
+	if state.TotalXP != 100 || state.Level != 2 || state.NextLevelXP == nil || *state.NextLevelXP != 300 || state.XPToNextLevel == nil || *state.XPToNextLevel != 200 {
+		t.Fatal("owner progress", state)
+	}
+	empty, err := progressRepo.Read(ctx, other)
+	must(err)
+	if empty.TotalXP != 0 || empty.Level != 1 {
+		t.Fatal("cross-owner progress", empty)
+	}
 	// A second owner competes on a genuinely first place: different keys/photos yield only one award.
 	p1, p2 := photo(other, true), photo(other, true)
 	awards := make(chan int, 2)
@@ -276,6 +289,11 @@ func TestConfirmationPostgresIntegration(t *testing.T) {
 	}
 	for e := range errs {
 		must(e)
+	}
+	otherProgress, readErr := progressRepo.Read(ctx, other)
+	must(readErr)
+	if otherProgress.TotalXP != 100 || otherProgress.Level != 2 {
+		t.Fatal("concurrent progress", otherProgress)
 	}
 	if total != 100 {
 		t.Fatal("first-place race", total)

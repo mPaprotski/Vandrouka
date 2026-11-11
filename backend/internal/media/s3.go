@@ -19,9 +19,18 @@ type S3 struct {
 	bucket      string
 	mu          sync.Mutex
 	initialized bool
+	provider    string
+	controlHTTP *http.Client
 }
 
 func NewS3(endpoint, bucket, accessKey, secretKey string) (*S3, error) {
+	return NewObjectStorage("s3", endpoint, bucket, accessKey, secretKey)
+}
+
+func NewObjectStorage(provider, endpoint, bucket, accessKey, secretKey string) (*S3, error) {
+	if provider != "s3" && provider != "r2" && provider != "b2" {
+		return nil, ErrInvalid
+	}
 	if endpoint == "" {
 		return &S3{}, nil
 	}
@@ -29,13 +38,36 @@ func NewS3(endpoint, bucket, accessKey, secretKey string) (*S3, error) {
 	if err != nil || u.User != nil || u.Host == "" || (u.Path != "" && u.Path != "/") || u.RawQuery != "" || u.Fragment != "" || (u.Scheme != "http" && u.Scheme != "https") || accessKey == "" || secretKey == "" || bucket == "" {
 		return nil, ErrInvalid
 	}
+	if provider == "r2" && (u.Scheme != "https" || !strings.HasSuffix(u.Hostname(), ".r2.cloudflarestorage.com")) {
+		return nil, ErrInvalid
+	}
+	region := "us-east-1"
+	if provider == "r2" {
+		region = "auto"
+	}
+	lookup := minio.BucketLookupAuto
+	if provider == "b2" {
+		parts := strings.Split(u.Hostname(), ".")
+		if u.Scheme != "https" || len(parts) != 4 || parts[0] != "s3" || parts[1] == "" || parts[2] != "backblazeb2" || parts[3] != "com" || (u.Port() != "" && u.Port() != "443") {
+			return nil, ErrInvalid
+		}
+		region = parts[1]
+		lookup = minio.BucketLookupPath
+	}
 	transport := http.DefaultTransport.(*http.Transport).Clone()
 	transport.ResponseHeaderTimeout = 10 * time.Second
-	client, err := minio.New(u.Host, &minio.Options{Creds: credentials.NewStaticV4(accessKey, secretKey, ""), Secure: u.Scheme == "https", Region: "us-east-1", Transport: transport, MaxRetries: 2})
+	client, err := minio.New(u.Host, &minio.Options{Creds: credentials.NewStaticV4(accessKey, secretKey, ""), Secure: u.Scheme == "https", Region: region, Transport: transport, MaxRetries: 2, BucketLookup: lookup})
 	if err != nil {
 		return nil, ErrInvalid
 	}
-	return &S3{client: client, bucket: bucket}, nil
+	controlHTTP := &http.Client{
+		Transport: transport,
+		Timeout:   10 * time.Second,
+		CheckRedirect: func(_ *http.Request, _ []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+	return &S3{client: client, bucket: bucket, provider: provider, controlHTTP: controlHTTP}, nil
 }
 func (s *S3) Init(ctx context.Context) error {
 	s.mu.Lock()
@@ -50,6 +82,9 @@ func (s *S3) Init(ctx context.Context) error {
 	if err != nil {
 		return ErrUnavailable
 	}
+	if !exists && (s.provider == "r2" || s.provider == "b2") {
+		return ErrUnavailable
+	}
 	if !exists {
 		if err = s.client.MakeBucket(ctx, s.bucket, minio.MakeBucketOptions{Region: "us-east-1"}); err != nil {
 			code := minio.ToErrorResponse(err).Code
@@ -57,6 +92,18 @@ func (s *S3) Init(ctx context.Context) error {
 				return ErrUnavailable
 			}
 		}
+	}
+	// R2 does not implement bucket policies. Public access must be disabled in its dashboard.
+	if s.provider == "r2" {
+		s.initialized = true
+		return nil
+	}
+	if s.provider == "b2" {
+		if err := s.checkB2Private(ctx); err != nil {
+			return err
+		}
+		s.initialized = true
+		return nil
 	}
 	policy, err := s.client.GetBucketPolicy(ctx, s.bucket)
 	if err != nil && minio.ToErrorResponse(err).Code != "NoSuchBucketPolicy" {
@@ -97,6 +144,9 @@ func (s *S3) Get(ctx context.Context, key string) ([]byte, error) {
 func (s *S3) Delete(ctx context.Context, key string) error {
 	if err := s.Init(ctx); err != nil {
 		return err
+	}
+	if s.provider == "b2" {
+		return s.deleteB2Versions(ctx, key)
 	}
 	if err := s.client.RemoveObject(ctx, s.bucket, key, minio.RemoveObjectOptions{}); err != nil {
 		return ErrUnavailable

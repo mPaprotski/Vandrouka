@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: vandrouka-api
+    runtime: docker
+    plan: free
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    healthCheckPath: /health
+    autoDeployTrigger: "off"
+    envVars:
+      - key: HTTP_PORT
+        value: "10000"
+      - key: ENV
+        value: production
+      - key: POSTGRES_DSN
+        sync: false
+      - key: MEDIA_S3_PROVIDER
+        value: b2
+      - key: MEDIA_S3_ENDPOINT
+        sync: false
+      - key: MEDIA_S3_BUCKET
+        value: vandrouka-visit-photos
+      - key: MEDIA_S3_ACCESS_KEY
+        sync: false
+      - key: MEDIA_S3_SECRET_KEY
+        sync: false
+      - key: VISIT_RADIUS_M
+        value: "70"
+      - key: VISIT_ACCURACY_M
+        value: "30"
+      - key: AUTH_ACCESS_TTL
+        value: 24h
+      - key: AUTH_REFRESH_TTL
+        value: 720h

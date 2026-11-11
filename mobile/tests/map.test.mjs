@@ -81,6 +81,15 @@ test('document boot, marker click, refresh and empty set work without Mapbox/net
   assert.deepEqual(messages.shift(), { type: 'select', id: 9 });
   vm.runInContext(placesScript([]), context);
   assert.equal(markers[0].removed, true);
+  vm.runInContext(placesScript([{...points[0],visited:true}]), context);
+  assert.equal(elements.at(-1).textContent,'✓');
+  assert.match(elements.at(-1).title,/посещено/);
+  vm.runInContext(placesScript([{...points[0],visited:false}]), context);
+  assert.equal(elements.at(-1).textContent,'○');
+  assert.equal(elements.at(-1).style.background,'#8A633F');
+  vm.runInContext(placesScript(points), context);
+  assert.equal(elements.at(-1).textContent,'●');
+  assert.equal(elements.at(-1).title,points[0].name);
   events.load();
   assert.deepEqual(messages.shift(), { type: 'tiles' });
   vm.runInContext(userLocationScript({ latitude: 53.9, longitude: 27.56, accuracy: 10, timestamp: 1 }), context);

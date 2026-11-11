@@ -92,6 +92,7 @@ function PhotoDraft({placeId,owner,session}:{placeId:number;owner:number;session
   {state.status==='confirming'&&<LoadingState message="Подтверждаем посещение…" />}
   {state.status==='uncertain'&&<><Text style={sectionStyles.note}>Результат пока неизвестен. Проверка повторит тот же запрос без повторного начисления XP.</Text><AppButton title="Проверить результат" disabled={!active||!focused} onPress={()=>void flow.confirm()} /></>}
   {state.status==='confirmed'&&state.result&&<View accessibilityLiveRegion="polite"><Text style={styles.success}>{state.result.xp_awarded===100?'Место открыто — +100 XP':'Повторное посещение — 0 XP'}</Text><Text style={sectionStyles.note}>Посещение сохранено. Фото сохранено вместе с посещением.</Text></View>}
+  {state.status==='confirmed'&&<AppButton title="Посмотреть прогресс" onPress={()=>router.navigate('/profile')} />}
   {state.status==='rejected'&&state.result?.error&&<View accessibilityLiveRegion="polite"><Text style={styles.error}>Посещение не подтверждено</Text><Text style={sectionStyles.note}>{state.result.error.message}. XP не начислен.</Text></View>}
   {(state.photo||state.uploaded)&&state.status!=='confirmed'&&<AppButton title="Переснять" variant="secondary" disabled={busy||unresolved} onPress={()=>{setReady(false);cameraEpoch.current++;flow.retake();}} />}
   <AppButton title={busy?'Отменить действие':'Вернуться к месту'} variant="secondary" onPress={()=>{if(busy)flow.interrupt();else router.back();}} />

@@ -19,7 +19,7 @@ export type AuthUser = {id: number; email: string; created_at: string};
 export type AuthSession = {user: AuthUser; access_token: string; refresh_token: string; token_type: 'Bearer'; expires_at: string; refresh_expires_at: string};
 export type Credentials = {email: string; password: string};
 export type UploadedPhoto = {id:string; place_id:number; status:'ready'; mime_type:'image/jpeg'|'image/png'; size_bytes:number; width:number; height:number; created_at:string; ready_at:string};
-export type LocalPhoto = {uri:string; width:number; height:number; size:number};
+export type LocalPhoto = {uri:string; width:number; height:number; size:number;file?:Blob};
 export type VisitRejection='too_far'|'poor_accuracy'|'stale_location'|'future_location'|'inactive_place'|'photo_not_ready';
 export type VisitInput={photo_id:string;location:{lat:number;lon:number;accuracy_m:number;observed_at:string}};
 export type VisitOutcome={visit:{id:number;place_id:number;photo_id:string;status:'confirmed'|'rejected';created_at:string;confirmed_at?:string;rejection_code?:VisitRejection};xp_awarded:0|100;error?:{code:VisitRejection;message:string}};
@@ -35,6 +35,52 @@ export function decodeVisitOutcome(value:unknown):VisitOutcome{
   return {visit:{...base,status:'rejected',rejection_code:code},xp_awarded:0,error:{code,message:named(error.message)}};
  }
  return invalid();
+}
+export type Progress={total_xp:number;level:number;level_start_xp:number;next_level_xp:number|null;xp_to_next_level:number|null};
+export function decodeProgress(value:unknown):Progress{
+ const p=object(value),xp=integer(p.total_xp,0),level=integer(p.level),start=integer(p.level_start_xp,0);
+ if(level>10||start>xp)return invalid();
+ if(level===10){if(p.next_level_xp!==null||p.xp_to_next_level!==null)return invalid();return {total_xp:xp,level,level_start_xp:start,next_level_xp:null,xp_to_next_level:null};}
+ const next=integer(p.next_level_xp),remaining=integer(p.xp_to_next_level);
+ if(next<=xp||remaining!==next-xp)return invalid();
+ return {total_xp:xp,level,level_start_xp:start,next_level_xp:next,xp_to_next_level:remaining};
+}
+export type HistoryItem={id:number;place_id:number;place_name:string;place_active:boolean;timezone:string;created_at:string;confirmed_at:string;photo_id:string|null;xp_awarded:0|100};
+export type HistoryPage={visits:HistoryItem[];next_cursor:string|null};
+export function decodeHistoryPage(value:unknown):HistoryPage{
+ const page=object(value),seen=new Set<number>();
+ const visits=array(page.visits,value=>{
+  const v=object(value),id=integer(v.id),xp=integer(v.xp_awarded,0),photo=v.photo_id;
+  if(seen.has(id)||(xp!==0&&xp!==100)||(photo!==null&&(typeof photo!=='string'||!/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(photo))))return invalid();seen.add(id);
+  return {id,place_id:integer(v.place_id),place_name:named(v.place_name),place_active:boolean(v.place_active),timezone:named(v.timezone),created_at:timestamp(v.created_at),confirmed_at:timestamp(v.confirmed_at),photo_id:photo as string|null,xp_awarded:xp as 0|100};
+ });
+ if(visits.length>50)return invalid();
+ const cursor=page.next_cursor===null?null:named(page.next_cursor);
+ if(cursor!==null&&(!/^[A-Za-z0-9_-]{1,256}$/.test(cursor)||visits.length===0))return invalid();
+ return {visits,next_cursor:cursor};
+}
+export type DiscoveryAchievement={code:string;name:string;target:number;progress:number;earned_at:string|null};
+export type CollectionPlace={slug:string;name:string;place_id:number|null;available:boolean;visited:boolean};
+export type DiscoveryCollection={code:string;name:string;city:string;total:number;visited:number;completed_at:string|null;places:CollectionPlace[]};
+export type Exploration={discovered_places:number;achievements:DiscoveryAchievement[];collections:DiscoveryCollection[]};
+export function decodeExploration(value:unknown):Exploration{
+ const state=object(value),count=integer(state.discovered_places,0),codes=new Set<string>();
+ const achievements=array(state.achievements,raw=>{
+  const a=object(raw),code=named(a.code),target=integer(a.target),progress=integer(a.progress,0),earned=a.earned_at===null?null:timestamp(a.earned_at);
+  if(codes.has(code)||progress!==Math.min(count,target)||(earned!==null)!==(count>=target))return invalid();codes.add(code);
+  return {code,name:named(a.name),target,progress,earned_at:earned};
+ });
+ if(achievements.length!==3||achievements.some((a,i)=>a.code!==['first_discovery','five_discoveries','ten_discoveries'][i]||a.target!==[1,5,10][i]))return invalid();
+ const collectionCodes=new Set<string>();
+ const collections=array(state.collections,raw=>{
+  const c=object(raw),code=named(c.code),total=integer(c.total),visited=integer(c.visited,0),seen=new Set<string>();
+  const places=array(c.places,raw=>{const p=object(raw),slug=named(p.slug),id=p.place_id===null?null:integer(p.place_id),available=boolean(p.available),visited=boolean(p.visited);if(seen.has(slug)||(id===null&&(available||visited)))return invalid();seen.add(slug);return {slug,name:named(p.name),place_id:id,available,visited};});
+  const completed=c.completed_at===null?null:timestamp(c.completed_at);
+  if(collectionCodes.has(code)||places.length!==total||total>50||visited!==places.filter(p=>p.visited).length||(completed!==null)!==(visited===total))return invalid();collectionCodes.add(code);
+  return {code,name:named(c.name),city:named(c.city),total,visited,completed_at:completed,places};
+ });
+ if(collections.length>10)return invalid();
+ return {discovered_places:count,achievements,collections};
 }
 export type RequestOptions = { signal?: AbortSignal; timeoutMs?: number };
 export type ErrorKind = 'http' | 'network' | 'timeout' | 'cancelled' | 'invalid_response' | 'invalid_request';
@@ -139,7 +185,7 @@ function credentials(input: Credentials): Credentials {
  return {email,password:input.password};
 }
 export function createApiClient(options: { baseUrl?: string; fetcher?: typeof fetch; timeoutMs?: number } = {}) {
-  async function request<T>(path: string, decode: (value: unknown, status:number) => T, requestOptions: RequestOptions = {}, transport: {method?: 'POST'|'DELETE'; body?: unknown; form?:FormData; accessToken?: string; idempotencyKey?:string; acceptStatus?:number} = {}): Promise<T> {
+  async function request<T>(path: string, decode: (value: unknown, status:number) => T, requestOptions: RequestOptions = {}, transport: {method?: 'POST'|'DELETE'; body?: unknown; form?:FormData; accessToken?: string; idempotencyKey?:string; acceptStatus?:number;binary?:boolean} = {}): Promise<T> {
     const base = options.baseUrl === undefined ? getApiBaseUrl() : parseApiBaseUrl(options.baseUrl);
     const timeoutMs = requestOptions.timeoutMs ?? options.timeoutMs ?? 10000;
     if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) throw new ApiError('invalid_request', 'Некорректное время ожидания запроса.');
@@ -163,9 +209,16 @@ export function createApiClient(options: { baseUrl?: string; fetcher?: typeof fe
       if(transport.body!==undefined)headers['Content-Type']='application/json';
       if(transport.accessToken){if(!/^[A-Za-z0-9_-]{43}$/.test(transport.accessToken))throw new ApiError('invalid_request','Некорректная сессия.');headers.Authorization=`Bearer ${transport.accessToken}`;}
       if(transport.idempotencyKey)headers['Idempotency-Key']=transport.idempotencyKey;
-      const response = await (options.fetcher ?? fetch)(base + path, {signal:controller.signal,headers,method:transport.method,body:transport.form??(transport.body===undefined?undefined:JSON.stringify(transport.body))});
+      if(transport.binary)headers['Cache-Control']='no-store';
+      const response = await (options.fetcher ?? fetch)(base + path, {signal:controller.signal,headers,method:transport.method,body:transport.form??(transport.body===undefined?undefined:JSON.stringify(transport.body)),...(transport.binary?{cache:'no-store',redirect:'error'}:{})});
       requestId = response.headers.get('X-Request-ID') ?? undefined;
       status = response.status;
+      if(response.ok&&transport.binary){
+       const mime=response.headers.get('Content-Type')?.split(';')[0].trim().toLowerCase();
+       if(mime!=='image/jpeg'&&mime!=='image/png')return invalid();
+       const length=response.headers.get('Content-Length');if(length!==null&&(!/^\d+$/.test(length)||Number(length)>10*1024*1024))return invalid();
+       const blob=await response.blob();if(blob.size<1||blob.size>10*1024*1024)return invalid();return decode(blob,response.status);
+      }
       let data: unknown;
       try { data = response.status===204?undefined:await response.json(); } catch {
         if (response.ok) return invalid();
@@ -198,6 +251,21 @@ export function createApiClient(options: { baseUrl?: string; fetcher?: typeof fe
     }
   }
   return {
+    getExploration:(accessToken:string,o?:RequestOptions)=>request('/v1/me/exploration',decodeExploration,o,{accessToken}),
+    deleteAccount:(password:string,accessToken:string,o?:RequestOptions)=>request('/v1/me',()=>undefined,o,{method:'DELETE',body:{password},accessToken}),
+    hideVisit:(id:number,accessToken:string,o?:RequestOptions)=>{
+      if(!Number.isSafeInteger(id)||id<1)throw new ApiError('invalid_request','Некорректное посещение.');
+      return request(`/v1/users/me/visits/${id}`,()=>undefined,o,{method:'DELETE',accessToken});
+    },
+    listHistory:(accessToken:string,cursor?:string,o?:RequestOptions)=>{
+      if(cursor!==undefined&&!/^[A-Za-z0-9_-]{1,256}$/.test(cursor))throw new ApiError('invalid_request','Некорректная страница истории.');
+      return request(`/v1/users/me/visits${cursor?'?cursor='+encodeURIComponent(cursor):''}`,decodeHistoryPage,o,{accessToken});
+    },
+    getPrivatePhoto:(photoId:string,accessToken:string,o?:RequestOptions)=>{
+      if(!/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(photoId))throw new ApiError('invalid_request','Некорректная фотография.');
+      return request(`/v1/visits/photos/${photoId}`,value=>{if(!(value instanceof Blob))return invalid();return value;},o,{accessToken,binary:true});
+    },
+    getProgress:(accessToken:string,o?:RequestOptions)=>request('/v1/me/progress',decodeProgress,o,{accessToken}),
     confirmVisit:(placeId:number,key:string,input:VisitInput,accessToken:string,o?:RequestOptions)=>{
       const uuid=/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i;
       const l=input.location;
@@ -208,8 +276,8 @@ export function createApiClient(options: { baseUrl?: string; fetcher?: typeof fe
     uploadPhoto:(placeId:number,photo:LocalPhoto,accessToken:string,o:RequestOptions={})=>{
       if(!Number.isSafeInteger(placeId)||placeId<1||!photo.uri.startsWith('file://')||!Number.isSafeInteger(photo.size)||photo.size<1||photo.size>10*1024*1024||!Number.isSafeInteger(photo.width)||!Number.isSafeInteger(photo.height)||photo.width<1||photo.height<1||photo.width>8192||photo.height>8192||photo.width*photo.height>20000000)throw new ApiError('invalid_request','Снимок недоступен или превышает допустимый размер. Сделайте другой.');
       const form=new FormData();form.append('place_id',String(placeId));
-      // React Native's FormData reads the local file URI; it does not load base64 into JS.
-      form.append('file',{uri:photo.uri,type:'image/jpeg',name:'visit.jpg'} as unknown as Blob);
+      // Native camera supplies an Expo File for SDK 58 fetch; Node harness uses URI descriptors.
+      form.append('file',photo.file??({uri:photo.uri,type:'image/jpeg',name:'visit.jpg'} as unknown as Blob));
       return request('/v1/visits/photo-upload',value=>{const result=decodeUploadedPhoto(value);if(result.place_id!==placeId)return invalid();return result;},{...o,timeoutMs:o.timeoutMs??60000},{method:'POST',form,accessToken});
     },
     discardPhoto:(photoId:string,accessToken:string,o?:RequestOptions)=>{

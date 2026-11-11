@@ -3,8 +3,8 @@ import type { CatalogCover } from '../../api/client';
 import { PlaceCover } from '../PlaceCover';
 import { colors } from './theme';
 
-export function PlaceCard({ title, categories = [], description, cover, onPress }: {
-  title: string; categories?: readonly string[]; description?: string; cover?: CatalogCover; onPress: () => void;
+export function PlaceCard({ title, categories = [], description, cover, visited, onPress }: {
+  title: string; categories?: readonly string[]; description?: string; cover?: CatalogCover; visited?:boolean; onPress: () => void;
 }) {
   return (
     <Pressable
@@ -15,6 +15,7 @@ export function PlaceCard({ title, categories = [], description, cover, onPress 
     >
       {cover && <PlaceCover key={cover.url} cover={cover} title={title} />}
       <Text style={styles.title}>{title}</Text>
+      {typeof visited==='boolean' && <Text style={styles.open}>{visited?'✓ Посещено':'○ Ещё не посещено'}</Text>}
       {categories.length > 0 && (
         <View style={styles.categories}>
           {Array.from(new Set(categories)).map(category => <Text key={category} style={styles.category}>{category}</Text>)}

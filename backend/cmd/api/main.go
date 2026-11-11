@@ -15,9 +15,12 @@ import (
 	"github.com/yourname/vandrouka/backend/internal/config"
 	"github.com/yourname/vandrouka/backend/internal/content"
 	"github.com/yourname/vandrouka/backend/internal/data"
+	"github.com/yourname/vandrouka/backend/internal/exploration"
+	"github.com/yourname/vandrouka/backend/internal/history"
 	apihttp "github.com/yourname/vandrouka/backend/internal/http"
 	"github.com/yourname/vandrouka/backend/internal/media"
 	"github.com/yourname/vandrouka/backend/internal/planner"
+	"github.com/yourname/vandrouka/backend/internal/progress"
 	"github.com/yourname/vandrouka/backend/internal/routes"
 	"github.com/yourname/vandrouka/backend/internal/routing"
 	"github.com/yourname/vandrouka/backend/internal/store"
@@ -116,9 +119,13 @@ func run() error {
 	r.Group(func(r chi.Router) {
 		r.Use(apihttp.AuthResponses(10 * time.Second))
 		apihttp.RegisterVisits(r, authentication, confirmations)
+		apihttp.RegisterProgress(r, authentication, progress.Postgres{Pool: pool})
+		apihttp.RegisterExploration(r, authentication, exploration.Postgres{Pool: pool})
+		apihttp.RegisterHistory(r, authentication, history.Postgres{Pool: pool})
+		apihttp.RegisterDeletions(r, authentication, auth.Postgres{Pool: pool}, history.Postgres{Pool: pool})
 	})
 
-	objects, err := media.NewS3(cfg.MediaS3Endpoint, cfg.MediaS3Bucket, cfg.MediaS3AccessKey, cfg.MediaS3SecretKey)
+	objects, err := media.NewObjectStorage(cfg.MediaS3Provider, cfg.MediaS3Endpoint, cfg.MediaS3Bucket, cfg.MediaS3AccessKey, cfg.MediaS3SecretKey)
 	if err != nil {
 		return fmt.Errorf("invalid media configuration")
 	}

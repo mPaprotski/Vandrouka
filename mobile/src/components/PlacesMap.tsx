@@ -10,7 +10,8 @@ import { colors } from './ui/theme';
 export function PlacesMap({ token, places, position, onSelect, onShowList }: {
   token: string | null; places: readonly MapPlace[]; position: PositionFix | null; onSelect: (id: number) => void; onShowList: () => void;
 }) {
-  const webView = useRef<WebView>(null);
+  // WebView 14 defaults its extra props generic to undefined; specify object for strict TS.
+  const webView = useRef<WebView<object>>(null);
   const stage = useRef<MapStage | 'webview' | 'ready'>('webview');
   const [diagnostic, setDiagnostic] = useState<string>();
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -62,7 +63,7 @@ export function PlacesMap({ token, places, position, onSelect, onShowList }: {
 
   return (
     <View style={styles.container}>
-      <WebView
+      <WebView<object>
         key={attempt}
         ref={webView}
         source={source}

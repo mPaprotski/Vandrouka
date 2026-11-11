@@ -1,3 +1,5 @@
+import {photoFile} from '../api/photoFile.native';
+import {validateLocalPhoto} from './localPhoto';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Location from 'expo-location';
 import type { CameraView } from 'expo-camera';
@@ -8,8 +10,7 @@ export async function takeLocalPhoto(camera:CameraView){
  const picture=await camera.takePictureAsync({quality:0.8,exif:false,base64:false,skipProcessing:false});
  try{
   const info=await FileSystem.getInfoAsync(picture.uri);
-  if(picture.format!=='jpg'||!info.exists||info.isDirectory||info.size<1||info.size>10*1024*1024||picture.width>8192||picture.height>8192||picture.width*picture.height>20000000)throw new Error('invalid photo');
-  return {uri:picture.uri,width:picture.width,height:picture.height,size:info.size};
+  return {...validateLocalPhoto(picture,info),file:photoFile(picture.uri)};
  }catch(error){await removeLocalPhoto(picture.uri);throw error;}
 }
 export async function removeLocalPhoto(uri:string){

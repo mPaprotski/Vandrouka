@@ -48,3 +48,10 @@ test('leaving or changing account discards late camera and GPS results',async()=
  const camera=deferred();const {controller:c,calls}=setup();const capture=c.capture(()=>camera.promise);c.dispose();camera.resolve(photo);await capture;assert.deepEqual(calls.local,[photo.uri]);
  const gps=deferred();const {controller:d,calls:more}=setup({locate:async()=>gps.promise});await d.capture(async()=>photo);const op=d.upload();d.dispose();gps.resolve(fix());await op;assert.equal(more.uploads,0);assert.deepEqual(more.local,[photo.uri]);
 });
+
+test('lost upload response never permits confirmation; explicit retry reuses local photo and fresh GPS',async()=>{
+ let failed=true,confirms=0;
+ const {controller:c,calls}=setup({upload:async()=>{calls.uploads++;if(failed)throw Error('Ответ потерян');return uploaded;},confirmation:{storage:{read:async()=>null,write:async()=>{},clear:async()=>{}},key:()=>crypto.randomUUID(),send:async()=>{confirms++;}}});
+ await c.restore();await c.capture(async()=>photo);await c.upload();assert.equal(c.getSnapshot().status,'preview');assert.equal(c.getSnapshot().photo.uri,photo.uri);await c.confirm();assert.equal(confirms,0);
+ failed=false;await c.upload();assert.equal(c.getSnapshot().status,'uploaded');assert.equal(calls.uploads,2);assert.equal(calls.locates,2);c.dispose();
+});

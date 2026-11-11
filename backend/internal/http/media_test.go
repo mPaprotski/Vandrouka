@@ -85,7 +85,8 @@ func (s *fakeMedia) Discard(ctx context.Context, owner int64, id string) error {
 }
 func mediaRouter(service MediaService) http.Handler {
 	r := chi.NewRouter()
-	r.Use(RequestLogging, MediaResponses(time.Second))
+	// Parsing a 10 MiB boundary fixture under -race is not a timeout test.
+	r.Use(RequestLogging, MediaResponses(10*time.Second))
 	RegisterMedia(r, mediaAuth{}, service)
 	return r
 }

@@ -20,6 +20,7 @@ type VisitService interface {
 }
 
 func RegisterVisits(r chi.Router, authentication AuthService, service VisitService) {
+	limits := newVisitLimits()
 	r.Post("/v1/places/{id}/visits", func(w http.ResponseWriter, r *http.Request) {
 		received := time.Now().UTC()
 		requestlog.SetStage(r.Context(), "visits")
@@ -27,6 +28,10 @@ func RegisterVisits(r chi.Router, authentication AuthService, service VisitServi
 		if !ok {
 			return
 		}
+		if !limits.admit(w, user.ID) {
+			return
+		}
+		defer func() { <-limits.slots }()
 		place, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 		if err != nil || place < 1 {
 			Error(w, 400, "invalid_request", "Некорректное место")

@@ -47,6 +47,12 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "4c0b449b-fe92-4f4a-abaa-dbfe1a955ba8"
+      }
+    },
+    "owner": "mpaprotskis-team"
   }
 }

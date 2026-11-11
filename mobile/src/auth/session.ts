@@ -130,14 +130,15 @@ export function createSessionController({api,storage,origin,now=Date.now}:{api:S
   resumeFlight=work;
   try{await work;}finally{if(resumeFlight===work)resumeFlight=undefined;}
  }
- async function logout():Promise<void>{
+ async function logout(notice?:string,expectedOwner?:number):Promise<void>{
+  if(expectedOwner!==undefined&&session?.user.id!==expectedOwner)return;
   epoch++;const version=epoch;
   if(session&&!pending.includes(session.refresh_token))pending.push(session.refresh_token);
   session=null;booted=true;publish({status:'loading'});
   try{await persist(version);}catch(error){try{await flush();}catch{};publish(failure(error));throw error;}
   if(version!==epoch)return;
   publish({status:'guest',message:'Выход завершается…'});
-  try{await flush();if(version===epoch)publish({status:'guest'});}catch{
+  try{await flush();if(version===epoch)publish(notice?{status:'guest',message:notice}:{status:'guest'});}catch{
    if(version===epoch)publish({status:'guest',message:'Вы вышли на этом устройстве. Отзыв на сервере завершится после подключения.'});
   }
  }

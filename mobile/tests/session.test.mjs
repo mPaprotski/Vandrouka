@@ -78,3 +78,9 @@ test('an old screen cannot execute with a newly signed-in owner session',async()
  await assert.rejects(c.withAccess(async()=>{calls++;return 'wrong owner';},1),e=>e.kind==='cancelled');assert.equal(calls,0);
  assert.equal(await c.withAccess(async()=> 'owner two',2),'owner two');
 });
+
+test('delayed account-deletion cleanup cannot log a different owner out',async()=>{
+ const f=fixture(pair(2,'C'));f.api.me=async()=>pair(2,'C').user;const c=f.create();await c.resume();
+ await c.logout('Аккаунт удалён.',1);assert.equal(c.getSnapshot().user.id,2);assert.equal(f.calls.logout.length,0);
+ await c.logout('Аккаунт удалён.',2);assert.equal(c.getSnapshot().status,'guest');assert.equal(c.getSnapshot().message,'Аккаунт удалён.');assert.equal(f.record().session,null);
+});
