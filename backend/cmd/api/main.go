@@ -19,6 +19,7 @@ import (
 	"github.com/yourname/vandrouka/backend/internal/history"
 	apihttp "github.com/yourname/vandrouka/backend/internal/http"
 	"github.com/yourname/vandrouka/backend/internal/media"
+	"github.com/yourname/vandrouka/backend/internal/oauthprobe"
 	"github.com/yourname/vandrouka/backend/internal/planner"
 	"github.com/yourname/vandrouka/backend/internal/progress"
 	"github.com/yourname/vandrouka/backend/internal/routes"
@@ -79,6 +80,14 @@ func run() error {
 	defer pool.Close()
 	r := chi.NewRouter()
 	r.Use(apihttp.RequestLogging)
+	if cfg.OAuthProbeEnabled {
+		probe, err := oauthprobe.FromEnvironment()
+		if err != nil {
+			return fmt.Errorf("configure OAuth probe: %w", err)
+		}
+		r.Handle("/oauth/*", probe.Handler())
+	}
+
 	r.Get("/catalog-media/{filename}", reviewed.Media)
 	r.Head("/catalog-media/{filename}", reviewed.Media)
 	engine, err := planner.NewWithWeights(planner.ScoringWeights{WalkKM: cfg.PlannerWalkPenalty, CostBYN: cfg.PlannerCostPenalty, Unverified: cfg.PlannerUnverifiedPenalty})

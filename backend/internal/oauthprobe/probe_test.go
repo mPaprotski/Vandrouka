@@ -3,6 +3,7 @@ package oauthprobe
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/go-chi/chi/v5"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -180,5 +181,24 @@ func TestProbeCapacity(t *testing.T) {
 	response := post(t, p.Handler(), "/oauth/attempts", map[string]string{"provider": "google", "challenge": strings.Repeat("a", 64)})
 	if response.Code != 429 {
 		t.Fatal("unbounded probe")
+	}
+}
+
+func TestExistingAPIMount(t *testing.T) {
+	p, err := New("https://probe.test", map[string]Provider{"google": {ClientID: "id", ClientSecret: "secret"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	router := chi.NewRouter()
+	router.Get("/health", func(w http.ResponseWriter, r *http.Request) { io.WriteString(w, "existing API") })
+	router.Handle("/oauth/*", p.Handler())
+	response := post(t, router, "/oauth/attempts", map[string]string{"provider": "google", "challenge": strings.Repeat("a", 64)})
+	if response.Code != 200 || response.Header().Get("Cache-Control") != "no-store" {
+		t.Fatal("mount failed", response.Code)
+	}
+	response = httptest.NewRecorder()
+	router.ServeHTTP(response, httptest.NewRequest("GET", "/health", nil))
+	if response.Body.String() != "existing API" {
+		t.Fatal("health was replaced")
 	}
 }

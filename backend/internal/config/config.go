@@ -6,10 +6,11 @@ import (
 )
 
 type Config struct {
-	VisitRadiusM    float64       `env:"VISIT_RADIUS_M" env-default:"70"`
-	VisitAccuracyM  float64       `env:"VISIT_ACCURACY_M" env-default:"30"`
-	VisitMaxAge     time.Duration `env:"VISIT_MAX_AGE" env-default:"120s"`
-	VisitFutureSkew time.Duration `env:"VISIT_FUTURE_SKEW" env-default:"30s"`
+	OAuthProbeEnabled bool          `env:"OAUTH_PROBE_ENABLED" env-default:"false"`
+	VisitRadiusM      float64       `env:"VISIT_RADIUS_M" env-default:"70"`
+	VisitAccuracyM    float64       `env:"VISIT_ACCURACY_M" env-default:"30"`
+	VisitMaxAge       time.Duration `env:"VISIT_MAX_AGE" env-default:"120s"`
+	VisitFutureSkew   time.Duration `env:"VISIT_FUTURE_SKEW" env-default:"30s"`
 
 	MediaS3Provider  string `env:"MEDIA_S3_PROVIDER" env-default:"s3"`
 	MediaS3Endpoint  string `env:"MEDIA_S3_ENDPOINT"`
