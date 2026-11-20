@@ -94,7 +94,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
             {requestId && <Text selectable style={styles.note}>Код обращения — {requestId}</Text>}
             <AppButton title={registering ? 'Создать аккаунт' : 'Войти'} loading={busy} disabled={unavailable} onPress={() => { void submit(); }} />
             <AppButton title={registering ? 'У меня уже есть аккаунт' : 'Создать аккаунт'} variant="secondary" disabled={unavailable} onPress={switchScreen} />
-            {__DEV__ && process.env.EXPO_PUBLIC_OAUTH_PROBE_URL && <AppButton title="Проверить Google и Яндекс" variant="secondary" disabled={unavailable} onPress={() => router.push('/auth-check')} />}
+            {(__DEV__ || process.env.EXPO_PUBLIC_ENABLE_OAUTH_PROBE === 'true') && process.env.EXPO_PUBLIC_OAUTH_PROBE_URL && <AppButton title="Проверить Google и Яндекс" variant="secondary" disabled={unavailable} onPress={() => router.push('/auth-check')} />}
             <AppButton title="Продолжить без входа" variant="secondary" disabled={unavailable} onPress={continueAsGuest} />
           </View>
         )}

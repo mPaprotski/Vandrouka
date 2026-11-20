@@ -2,7 +2,7 @@
   "expo": {
     "name": "Вандроўка",
     "slug": "vandrouka",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -17,7 +17,8 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "by.vandrouka.app"
+      "package": "by.vandrouka.app",
+      "versionCode": 2
     },
     "web": {
       "favicon": "./assets/favicon.png"

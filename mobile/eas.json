@@ -1,15 +1,26 @@
 {
-  "cli": { "appVersionSource": "local" },
+  "cli": {
+    "appVersionSource": "local"
+  },
   "build": {
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "android": { "buildType": "apk" }
+      "android": {
+        "buildType": "apk"
+      }
     },
     "preview": {
       "environment": "preview",
       "distribution": "internal",
-      "android": { "buildType": "apk" }
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://vandrouka-api.onrender.com",
+        "EXPO_PUBLIC_OAUTH_PROBE_URL": "https://vandrouka-api.onrender.com",
+        "EXPO_PUBLIC_ENABLE_OAUTH_PROBE": "true"
+      }
     }
   }
 }
