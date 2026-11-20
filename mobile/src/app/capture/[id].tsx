@@ -110,7 +110,7 @@ export default function CaptureScreen(){
   {state.status==='error'&&<ErrorState message={state.message} requestId={state.requestId} onRetry={retry} />}
   {session.status==='loading'&&<LoadingState message="Проверяем сессию…" />}
   {session.status==='error'&&<ErrorState message={session.message} requestId={session.requestId} onRetry={()=>void controller.resume()} />}
-  {session.status==='guest'&&<><Text style={sectionStyles.note}>Войдите, чтобы сохранить личное фото места.</Text><AppButton title="Войти или зарегистрироваться" onPress={()=>router.push('/auth')} /></>}
+  {session.status==='guest'&&<><Text style={sectionStyles.note}>Войдите, чтобы сохранить личное фото места.</Text><AppButton title="Войти или зарегистрироваться" onPress={()=>router.push({pathname:'/auth',params:{placeId:id}})} /></>}
   {Platform.OS==='web'&&<Text style={sectionStyles.note}>Съёмка доступна в Expo Go на телефоне.</Text>}
   {Platform.OS!=='web'&&session.status==='authenticated'&&place&&<PhotoDraft key={`${session.user.id}:${place.id}`} placeId={place.id} owner={session.user.id} session={controller} />}
  </SectionScreen>;
