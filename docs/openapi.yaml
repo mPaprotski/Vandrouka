@@ -9,6 +9,1095 @@ info:
 servers:
 - url: http://localhost:8080
 paths:
+  "/v1/quest-participations/{id}/attempts":
+    post:
+      summary: Открыть попытку текущего задания
+      description: Повтор возвращает уже открытый черновик или отправленную попытку
+        текущего задания.
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuestAttempt"
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '404':
+          "$ref": "#/components/responses/Error"
+        '409':
+          "$ref": "#/components/responses/Error"
+        '413':
+          "$ref": "#/components/responses/Error"
+        '415':
+          "$ref": "#/components/responses/Error"
+        '500':
+          "$ref": "#/components/responses/Error"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - task_id
+              properties:
+                task_id:
+                  type: string
+                  format: uuid
+  "/v1/quest-attempts/{id}":
+    get:
+      summary: Получить свою попытку
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuestAttempt"
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '404':
+          "$ref": "#/components/responses/Error"
+        '500':
+          "$ref": "#/components/responses/Error"
+  "/v1/quest-attempts/{id}/photo":
+    put:
+      summary: Загрузить и обработать фото
+      description: Одно поле file с JPEG или PNG, до 10 МиБ и 4 Мп. Сервер берёт место
+        из задания и сохраняет только прошедшее обработку фото. Повтор той же загрузки
+        возвращает готовый снимок.
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuestAttempt"
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '404':
+          "$ref": "#/components/responses/Error"
+        '409':
+          "$ref": "#/components/responses/Error"
+        '413':
+          "$ref": "#/components/responses/Error"
+        '415':
+          "$ref": "#/components/responses/Error"
+        '429':
+          "$ref": "#/components/responses/RateLimited"
+        '500':
+          "$ref": "#/components/responses/Error"
+        '503':
+          "$ref": "#/components/responses/Error"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+    get:
+      summary: Получить обработанный снимок
+      description: Приватное фото доступно участнику и организатору его запуска после
+        отправки на проверку.
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Операция выполнена
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '404':
+          "$ref": "#/components/responses/Error"
+        '429':
+          "$ref": "#/components/responses/RateLimited"
+        '500':
+          "$ref": "#/components/responses/Error"
+        '503':
+          "$ref": "#/components/responses/Error"
+  "/v1/quest-attempts/{id}/submit":
+    post:
+      summary: Проверить GPS и отправить работу
+      description: Повтор успешного запроса с тем же ключом и координатами возвращает
+        состояние попытки без новой проверки GPS.
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuestAttempt"
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '404':
+          "$ref": "#/components/responses/Error"
+        '409':
+          "$ref": "#/components/responses/Error"
+        '413':
+          "$ref": "#/components/responses/Error"
+        '415':
+          "$ref": "#/components/responses/Error"
+        '422':
+          description: 'Снимок остаётся в черновике. Ошибки GPS: too_far, poor_accuracy,
+            stale_location, future_location или invalid_quest.'
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - "$ref": "#/components/schemas/APIError"
+                - "$ref": "#/components/schemas/PhotoQuestValidationError"
+        '500':
+          "$ref": "#/components/responses/Error"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - location
+              properties:
+                location:
+                  type: object
+                  required:
+                  - lat
+                  - lon
+                  - accuracy_m
+                  - observed_at
+                  properties:
+                    lat:
+                      type: number
+                      minimum: -90
+                      maximum: 90
+                    lon:
+                      type: number
+                      minimum: -180
+                      maximum: 180
+                    accuracy_m:
+                      type: number
+                      minimum: 0
+                    observed_at:
+                      type: string
+                      format: date-time
+  "/v1/quest-attempts/{id}/withdraw":
+    post:
+      summary: Отозвать черновик или работу на проверке
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuestAttempt"
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '404':
+          "$ref": "#/components/responses/Error"
+        '409':
+          "$ref": "#/components/responses/Error"
+        '500':
+          "$ref": "#/components/responses/Error"
+  "/v1/quest-runs/{run_id}/reviews":
+    get:
+      summary: Очередь снимков для организатора
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - items
+                properties:
+                  items:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/PhotoQuestReviewItem"
+                    maxItems: 30
+                  next_cursor:
+                    type: string
+                    format: uuid
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '404':
+          "$ref": "#/components/responses/Error"
+        '500':
+          "$ref": "#/components/responses/Error"
+  "/v1/quest-attempts/{id}/review":
+    post:
+      summary: Принять или отклонить работу
+      description: При отклонении нужен комментарий. При принятии посещение, XP и переход
+        к следующему заданию фиксируются вместе.
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuestAttempt"
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '404':
+          "$ref": "#/components/responses/Error"
+        '409':
+          "$ref": "#/components/responses/Error"
+        '413':
+          "$ref": "#/components/responses/Error"
+        '415':
+          "$ref": "#/components/responses/Error"
+        '422':
+          description: Некорректное поле квеста
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuestValidationError"
+        '500':
+          "$ref": "#/components/responses/Error"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - expected_revision
+              - decision
+              properties:
+                expected_revision:
+                  type: integer
+                  minimum: 1
+                decision:
+                  type: string
+                  enum:
+                  - accept
+                  - reject
+                reason:
+                  type: string
+                  maxLength: 1000
+  "/v1/quests":
+    post:
+      summary: Создать черновик
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                city_id:
+                  type: integer
+                  format: int64
+                  minimum: 1
+              required:
+              - city_id
+      responses:
+        '201':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuestEditor"
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '404':
+          "$ref": "#/components/responses/Error"
+        '413':
+          "$ref": "#/components/responses/Error"
+        '415':
+          "$ref": "#/components/responses/Error"
+        '422':
+          description: Укажите корректные данные
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuestValidationError"
+        '500':
+          "$ref": "#/components/responses/Error"
+  "/v1/quests/mine":
+    get:
+      summary: Список моих маршрутов
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/PhotoQuest"
+                    maxItems: 30
+                  next_cursor:
+                    type: string
+                    format: uuid
+                required:
+                - items
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '500':
+          "$ref": "#/components/responses/Error"
+  "/v1/quests/{quest_id}/editor":
+    get:
+      summary: Открыть редактор
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: quest_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuestEditor"
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '404':
+          "$ref": "#/components/responses/Error"
+        '500':
+          "$ref": "#/components/responses/Error"
+  "/v1/quests/{quest_id}":
+    put:
+      summary: Сохранить черновик
+      description: Заменяет весь список заданий. Порядок берётся из массива. Сохранение
+        опубликованного шаблона создаёт черновик новой редакции.
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: quest_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                expected_revision:
+                  type: integer
+                  format: int64
+                  minimum: 1
+                title:
+                  type: string
+                  maxLength: 120
+                description:
+                  type: string
+                  maxLength: 3000
+                steps:
+                  type: array
+                  items:
+                    "$ref": "#/components/schemas/PhotoQuestStep"
+                  maxItems: 20
+              required:
+              - expected_revision
+              - steps
+      responses:
+        '200':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuestEditor"
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '404':
+          "$ref": "#/components/responses/Error"
+        '409':
+          "$ref": "#/components/responses/Error"
+        '413':
+          "$ref": "#/components/responses/Error"
+        '415':
+          "$ref": "#/components/responses/Error"
+        '422':
+          description: Укажите корректные данные
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuestValidationError"
+        '500':
+          "$ref": "#/components/responses/Error"
+    delete:
+      summary: Удалить черновик без запусков
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: quest_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: expected_revision
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        '204':
+          description: Черновик удалён
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '404':
+          "$ref": "#/components/responses/Error"
+        '409':
+          "$ref": "#/components/responses/Error"
+        '500':
+          "$ref": "#/components/responses/Error"
+  "/v1/quests/{quest_id}/publish":
+    post:
+      summary: Опубликовать редакцию
+      description: Нужны от 2 до 20 разных действующих мест одного города, название
+        от 3 символов и три непустых текста на каждое задание.
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: quest_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                expected_revision:
+                  type: integer
+                  format: int64
+                  minimum: 1
+              required:
+              - expected_revision
+      responses:
+        '200':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuest"
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '404':
+          "$ref": "#/components/responses/Error"
+        '409':
+          "$ref": "#/components/responses/Error"
+        '413':
+          "$ref": "#/components/responses/Error"
+        '415':
+          "$ref": "#/components/responses/Error"
+        '422':
+          description: Укажите корректные данные
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuestValidationError"
+        '500':
+          "$ref": "#/components/responses/Error"
+  "/v1/quests/{quest_id}/archive":
+    post:
+      summary: Архивировать шаблон
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: quest_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                expected_revision:
+                  type: integer
+                  format: int64
+                  minimum: 1
+              required:
+              - expected_revision
+      responses:
+        '200':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuest"
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '404':
+          "$ref": "#/components/responses/Error"
+        '409':
+          "$ref": "#/components/responses/Error"
+        '413':
+          "$ref": "#/components/responses/Error"
+        '415':
+          "$ref": "#/components/responses/Error"
+        '500':
+          "$ref": "#/components/responses/Error"
+  "/v1/quests/{quest_id}/runs":
+    post:
+      summary: Создать запуск из опубликованной редакции
+      description: Сохраняет копию заданий и показывает код приглашения. Последующие
+        правки шаблона на запуск не влияют.
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: quest_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                expected_revision:
+                  type: integer
+                  format: int64
+                  minimum: 1
+                title:
+                  type: string
+                  maxLength: 120
+                  minLength: 3
+              required:
+              - expected_revision
+              - title
+      responses:
+        '201':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuestInvite"
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '404':
+          "$ref": "#/components/responses/Error"
+        '409':
+          "$ref": "#/components/responses/Error"
+        '413':
+          "$ref": "#/components/responses/Error"
+        '415':
+          "$ref": "#/components/responses/Error"
+        '422':
+          description: Укажите корректные данные
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuestValidationError"
+        '500':
+          "$ref": "#/components/responses/Error"
+  "/v1/quest-runs/mine":
+    get:
+      summary: Список моих запусков
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/PhotoQuestRun"
+                    maxItems: 30
+                  next_cursor:
+                    type: string
+                    format: uuid
+                required:
+                - items
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '500':
+          "$ref": "#/components/responses/Error"
+  "/v1/quest-runs/{run_id}/manage":
+    get:
+      summary: Получить свой запуск
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuestRun"
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '404':
+          "$ref": "#/components/responses/Error"
+        '500':
+          "$ref": "#/components/responses/Error"
+  "/v1/quest-runs/{run_id}/start":
+    post:
+      summary: Начать запуск
+      description: Повторный вызов возвращает прежнее время старта.
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuestRun"
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '404':
+          "$ref": "#/components/responses/Error"
+        '500':
+          "$ref": "#/components/responses/Error"
+  /v1/quest-runs/{run_id}/finish:
+    post:
+      summary: Завершить прогулку
+      description: Закрывает вход и новые отправки. Уже отправленные снимки остаются доступны организатору для проверки.
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: run_id
+        in: path
+        required: true
+        schema: {type: string, format: uuid}
+      responses:
+        '200':
+          description: Прогулка завершена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhotoQuestRun'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+  "/v1/quest-runs/{run_id}/join-code":
+    post:
+      summary: Заменить код запуска
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuestInvite"
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '404':
+          "$ref": "#/components/responses/Error"
+        '500':
+          "$ref": "#/components/responses/Error"
+  "/v1/quest-runs/{run_id}/joining":
+    patch:
+      summary: Открыть или закрыть присоединение
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                join_enabled:
+                  type: boolean
+              required:
+              - join_enabled
+      responses:
+        '200':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuestRun"
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '404':
+          "$ref": "#/components/responses/Error"
+        '413':
+          "$ref": "#/components/responses/Error"
+        '415':
+          "$ref": "#/components/responses/Error"
+        '500':
+          "$ref": "#/components/responses/Error"
+  "/v1/quest-runs/{run_id}/participants":
+    get:
+      summary: Список участников своего запуска
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/PhotoQuestParticipant"
+                    maxItems: 30
+                  next_cursor:
+                    type: string
+                    format: uuid
+                required:
+                - items
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '404':
+          "$ref": "#/components/responses/Error"
+        '500':
+          "$ref": "#/components/responses/Error"
+  "/v1/quest-participations/join":
+    post:
+      summary: Присоединиться по коду
+      description: Повтор по действующему коду возвращает существующее прохождение.
+        До старта current_task отсутствует.
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  minLength: 8
+                display_name:
+                  type: string
+                  maxLength: 60
+                  minLength: 1
+              required:
+              - code
+              - display_name
+      responses:
+        '200':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuestProgress"
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '404':
+          "$ref": "#/components/responses/Error"
+        '413':
+          "$ref": "#/components/responses/Error"
+        '415':
+          "$ref": "#/components/responses/Error"
+        '422':
+          description: Укажите корректные данные
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuestValidationError"
+        '429':
+          "$ref": "#/components/responses/RateLimited"
+        '500':
+          "$ref": "#/components/responses/Error"
+  "/v1/quest-participations/mine":
+    get:
+      summary: Мои прохождения
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/PhotoQuestParticipation"
+                    maxItems: 30
+                  next_cursor:
+                    type: string
+                    format: uuid
+                required:
+                - items
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '500':
+          "$ref": "#/components/responses/Error"
+  "/v1/quest-participations/{id}":
+    get:
+      summary: Открыть своё прохождение
+      description: После старта ответ содержит только доступное задание. Название, адрес,
+        координаты места и рассказ скрыты.
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PhotoQuestProgress"
+        '400':
+          "$ref": "#/components/responses/Error"
+        '401':
+          "$ref": "#/components/responses/Error"
+        '404':
+          "$ref": "#/components/responses/Error"
+        '500':
+          "$ref": "#/components/responses/Error"
   /v1/me/progress:
     get:
       summary: Read your lifetime XP and level
@@ -1137,6 +2226,395 @@ components:
                 токен или истёк срок запроса. Токен и внутренние URL не возвращаются
                 клиенту.
   schemas:
+    PhotoQuest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        city_id:
+          type: integer
+          format: int64
+          minimum: 1
+        title:
+          type: string
+          maxLength: 120
+        description:
+          type: string
+          maxLength: 3000
+        status:
+          type: string
+          enum:
+          - draft
+          - published
+          - archived
+        revision:
+          type: integer
+          format: int64
+          minimum: 1
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - city_id
+      - title
+      - description
+      - status
+      - revision
+      - created_at
+      - updated_at
+    PhotoQuestEditor:
+      allOf:
+      - "$ref": "#/components/schemas/PhotoQuest"
+      - type: object
+        properties:
+          steps:
+            type: array
+            items:
+              "$ref": "#/components/schemas/PhotoQuestStep"
+            maxItems: 20
+        required:
+        - steps
+    PhotoQuestStep:
+      type: object
+      properties:
+        place_id:
+          type: integer
+          format: int64
+          minimum: 1
+        clue:
+          type: string
+          maxLength: 1000
+        photo_task:
+          type: string
+          maxLength: 1000
+        reveal_text:
+          type: string
+          maxLength: 3000
+      required:
+      - place_id
+    PhotoQuestRun:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        quest_id:
+          type: string
+          format: uuid
+        quest_revision:
+          type: integer
+          format: int64
+          minimum: 1
+        title:
+          type: string
+          maxLength: 120
+          minLength: 3
+        status:
+          type: string
+          enum:
+          - waiting
+          - active
+          - finished
+        join_enabled:
+          type: boolean
+        total_steps:
+          type: integer
+          format: int64
+          minimum: 2
+        created_at:
+          type: string
+          format: date-time
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        finished_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - quest_id
+      - quest_revision
+      - title
+      - status
+      - join_enabled
+      - total_steps
+      - created_at
+      - started_at
+    PhotoQuestInvite:
+      allOf:
+      - "$ref": "#/components/schemas/PhotoQuestRun"
+      - type: object
+        properties:
+          join_code:
+            type: string
+            pattern: "^[A-HJ-NP-Z2-9]{8}$"
+        required:
+        - join_code
+    PhotoQuestParticipation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        run_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          maxLength: 120
+          minLength: 3
+        status:
+          type: string
+          enum:
+          - waiting
+          - active
+          - completed
+          - closed
+        completed_steps:
+          type: integer
+          format: int64
+          minimum: 0
+        total_steps:
+          type: integer
+          format: int64
+          minimum: 2
+        joined_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - run_id
+      - title
+      - status
+      - completed_steps
+      - total_steps
+      - joined_at
+    PhotoQuestProgress:
+      allOf:
+      - "$ref": "#/components/schemas/PhotoQuestParticipation"
+      - type: object
+        properties:
+          current_task:
+            type: object
+            properties:
+              task_id:
+                type: string
+                format: uuid
+              position:
+                type: integer
+                format: int64
+                minimum: 1
+              clue:
+                type: string
+                maxLength: 1000
+                minLength: 1
+              photo_task:
+                type: string
+                maxLength: 1000
+                minLength: 1
+            required:
+            - task_id
+            - position
+            - clue
+            - photo_task
+          current_attempt:
+            "$ref": "#/components/schemas/PhotoQuestAttempt"
+          stories:
+            type: array
+            items:
+              "$ref": "#/components/schemas/PhotoQuestStory"
+            maxItems: 20
+          xp_awarded:
+            type: integer
+            minimum: 0
+          review_pending:
+            type: boolean
+          started_at:
+            type: string
+            format: date-time
+          completed_at:
+            type: string
+            format: date-time
+        required:
+        - stories
+        - xp_awarded
+        - review_pending
+    PhotoQuestAttempt:
+      type: object
+      required:
+      - id
+      - participation_id
+      - task_id
+      - position
+      - status
+      - revision
+      - photo_ready
+      - uploading
+      - xp_awarded
+      properties:
+        id:
+          type: string
+          format: uuid
+        participation_id:
+          type: string
+          format: uuid
+        task_id:
+          type: string
+          format: uuid
+        position:
+          type: integer
+          minimum: 1
+        status:
+          type: string
+          enum:
+          - draft
+          - pending_review
+          - accepted
+          - rejected
+          - withdrawn
+          - expired
+        revision:
+          type: integer
+          minimum: 1
+        photo_ready:
+          type: boolean
+        uploading:
+          type: boolean
+        xp_awarded:
+          type: integer
+          minimum: 0
+        submitted_at:
+          type: string
+          format: date-time
+        reviewed_at:
+          type: string
+          format: date-time
+        rejection_reason:
+          type: string
+          maxLength: 1000
+    PhotoQuestStory:
+      type: object
+      required:
+      - task_id
+      - position
+      - place_id
+      - place_name
+      - address
+      - text
+      - links
+      - attempt_id
+      - xp_awarded
+      properties:
+        task_id:
+          type: string
+          format: uuid
+        position:
+          type: integer
+          minimum: 1
+        place_id:
+          type: integer
+          minimum: 1
+        place_name:
+          type: string
+        address:
+          type: string
+        text:
+          type: string
+          maxLength: 3000
+        links:
+          type: array
+          items:
+            type: object
+            required:
+            - kind
+            - url
+            - title
+            properties:
+              kind:
+                type: string
+              url:
+                type: string
+              title:
+                type: string
+        attempt_id:
+          type: string
+          format: uuid
+        xp_awarded:
+          type: integer
+          minimum: 0
+    PhotoQuestReviewItem:
+      allOf:
+      - "$ref": "#/components/schemas/PhotoQuestAttempt"
+      - type: object
+        required:
+        - participant_name
+        - place_name
+        - photo_task
+        - distance_m
+        - accuracy_m
+        properties:
+          participant_name:
+            type: string
+            maxLength: 60
+          place_name:
+            type: string
+          photo_task:
+            type: string
+            maxLength: 1000
+          distance_m:
+            type: number
+            minimum: 0
+          accuracy_m:
+            type: number
+            minimum: 0
+    PhotoQuestParticipant:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        display_name:
+          type: string
+          maxLength: 60
+          minLength: 1
+        completed_steps:
+          type: integer
+          format: int64
+          minimum: 0
+        joined_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - display_name
+      - completed_steps
+      - joined_at
+    PhotoQuestValidationError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              enum:
+              - invalid_quest
+            message:
+              type: string
+            field:
+              type: string
+          required:
+          - code
+          - message
+          - field
+      required:
+      - error
     Progress:
       type: object
       additionalProperties: false
@@ -1574,6 +3052,9 @@ components:
           type: string
         summary:
           type: string
+        address:
+          type: string
+          description: Human-readable street address or named park/area. Omitted when unavailable.
         lat:
           type: number
           format: double

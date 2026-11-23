@@ -42,6 +42,7 @@ type Place struct {
 	City              string          `json:"city"`
 	Name              string          `json:"name"`
 	Summary           string          `json:"summary"`
+	Address           string          `json:"address,omitempty"`
 	Lat               float64         `json:"lat"`
 	Lon               float64         `json:"lon"`
 	Importance        int             `json:"importance"`

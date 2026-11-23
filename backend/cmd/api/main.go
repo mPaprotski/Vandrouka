@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5"
 	"github.com/yourname/vandrouka/backend/internal/auth"
 	"github.com/yourname/vandrouka/backend/internal/config"
 	"github.com/yourname/vandrouka/backend/internal/content"
@@ -22,6 +23,7 @@ import (
 	"github.com/yourname/vandrouka/backend/internal/oauthprobe"
 	"github.com/yourname/vandrouka/backend/internal/planner"
 	"github.com/yourname/vandrouka/backend/internal/progress"
+	"github.com/yourname/vandrouka/backend/internal/quests"
 	"github.com/yourname/vandrouka/backend/internal/routes"
 	"github.com/yourname/vandrouka/backend/internal/routing"
 	"github.com/yourname/vandrouka/backend/internal/store"
@@ -158,9 +160,20 @@ func run() error {
 		return fmt.Errorf("unsupported MEDIA_ANONYMIZER")
 	}
 
+	questDB := quests.Postgres{
+		Pool: pool,
+		Catalog: func(tx pgx.Tx) quests.PlaceReader {
+			return content.Catalog{Base: store.NewCatalog(tx), Registry: reviewed}
+		},
+	}
+	r.Group(func(r chi.Router) {
+		r.Use(apihttp.AuthResponses(10 * time.Second))
+		apihttp.RegisterQuests(r, authentication, questDB)
+	})
 	r.Group(func(r chi.Router) {
 		r.Use(apihttp.MediaResponses(45 * time.Second))
-		apihttp.RegisterMedia(r, authentication, photos)
+		mediaHTTP := apihttp.RegisterMedia(r, authentication, photos)
+		mediaHTTP.RegisterQuestPhotos(r, questDB, photos)
 	})
 	if cfg.MediaS3Endpoint != "" {
 		workerCtx, workerCancel := context.WithCancel(ctx)
@@ -171,6 +184,9 @@ func run() error {
 			defer ticker.Stop()
 			for {
 				cycle, cancel := context.WithTimeout(workerCtx, 30*time.Second)
+				if err := questDB.ExpirePhotos(cycle); err != nil && workerCtx.Err() == nil {
+					slog.Warn("quest photo expiration pending", "code", "quest_photo_expiration_failed")
+				}
 				if err := photos.Cleanup(cycle); err != nil && workerCtx.Err() == nil {
 					slog.Warn("media cleanup pending", "code", "media_unavailable")
 				}

@@ -7,15 +7,19 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/yourname/vandrouka/backend/internal/places"
 )
 
 var ErrNotFound = errors.New("not found")
 
-type Catalog struct{ pool *pgxpool.Pool }
+type catalogQueries interface {
+	Query(context.Context, string, ...any) (pgx.Rows, error)
+	QueryRow(context.Context, string, ...any) pgx.Row
+}
 
-func NewCatalog(pool *pgxpool.Pool) *Catalog { return &Catalog{pool: pool} }
+type Catalog struct{ pool catalogQueries }
+
+func NewCatalog(pool catalogQueries) *Catalog { return &Catalog{pool: pool} }
 
 func (s *Catalog) ListCities(ctx context.Context) ([]places.City, error) {
 	rows, err := s.pool.Query(ctx, "SELECT id,slug,name,center_lat,center_lon,timezone FROM cities ORDER BY slug")

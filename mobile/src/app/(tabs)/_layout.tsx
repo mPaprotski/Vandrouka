@@ -15,6 +15,7 @@ export default function MainTabs() {
     }}>
       <Tabs.Screen name="explore" options={{ title: 'Исследовать', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 22 }}>⌖</Text> }} />
       <Tabs.Screen name="visits" options={{ title: 'Посещения', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 22 }}>◷</Text> }} />
+      <Tabs.Screen name="quests" options={{ title: 'Квесты', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 22 }}>◇</Text> }} />
       <Tabs.Screen name="profile" options={{ title: 'Профиль', tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 22 }}>○</Text> }} />
     </Tabs>
   );

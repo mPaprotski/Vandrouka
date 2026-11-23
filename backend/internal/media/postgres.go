@@ -81,8 +81,15 @@ func (p Postgres) Abort(ctx context.Context, owner int64, id string) error {
 	}
 	return nil
 }
+
+// Ordinary photo endpoints can open a quest image once it is part of
+// the owner's confirmed visit. Unsubmitted and pending images stay in quests.
+const ordinaryPhotoAccess = `(purpose='visit' OR EXISTS (
+	SELECT 1 FROM visits v WHERE v.photo_id=visit_photos.id AND v.status='confirmed'
+))`
+
 func (p Postgres) Read(ctx context.Context, owner int64, id string) (visits.Photo, error) {
-	return scanPhoto(p.Pool.QueryRow(ctx, "SELECT "+photoColumns+" FROM visit_photos WHERE id=$1 AND user_id=$2 AND status='ready' AND deleted_at IS NULL", id, owner))
+	return scanPhoto(p.Pool.QueryRow(ctx, "SELECT "+photoColumns+" FROM visit_photos WHERE id=$1 AND user_id=$2 AND status='ready' AND deleted_at IS NULL AND "+ordinaryPhotoAccess, id, owner))
 }
 func (p Postgres) Tombstone(ctx context.Context, owner int64, id string, unconfirmedOnly bool) (string, error) {
 	tx, err := p.Pool.Begin(ctx)
@@ -91,7 +98,7 @@ func (p Postgres) Tombstone(ctx context.Context, owner int64, id string, unconfi
 	}
 	defer tx.Rollback(ctx)
 	var key string
-	err = tx.QueryRow(ctx, "SELECT object_key FROM visit_photos WHERE id=$1 AND user_id=$2 FOR UPDATE", id, owner).Scan(&key)
+	err = tx.QueryRow(ctx, "SELECT object_key FROM visit_photos WHERE id=$1 AND user_id=$2 AND "+ordinaryPhotoAccess+" FOR UPDATE", id, owner).Scan(&key)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return "", ErrNotFound
 	}
@@ -138,7 +145,8 @@ func (p Postgres) Cleanup(ctx context.Context, now, unusedBefore time.Time, remo
 	defer selection.Rollback(ctx)
 	rows, err := selection.Query(ctx, `SELECT p.id::text FROM visit_photos p WHERE p.deleted_at IS NULL AND
  ((p.status='uploading' AND p.upload_expires_at<=$1) OR p.status='failed' OR
- (p.status='ready' AND p.created_at<$2 AND NOT EXISTS(SELECT 1 FROM visits v WHERE v.photo_id=p.id AND v.status='confirmed')))
+ (p.status='ready' AND p.created_at<$2 AND NOT EXISTS(SELECT 1 FROM visits v WHERE v.photo_id=p.id AND v.status='confirmed')
+ AND NOT EXISTS(SELECT 1 FROM quest_attempts a WHERE a.photo_id=p.id AND a.status IN ('pending_review','rejected'))))
  ORDER BY p.created_at,p.id LIMIT 25 FOR UPDATE OF p SKIP LOCKED`, now, unusedBefore)
 	if err != nil {
 		return ErrUnavailable
@@ -160,7 +168,8 @@ func (p Postgres) Cleanup(ctx context.Context, now, unusedBefore time.Time, remo
 		_, err = selection.Exec(ctx, `UPDATE visit_photos p SET deleted_at=$1,status=CASE WHEN p.status='uploading' THEN 'failed' ELSE p.status END
    WHERE p.id=ANY($3::uuid[]) AND p.deleted_at IS NULL
    AND ((p.status='uploading' AND p.upload_expires_at<=$1) OR p.status='failed' OR (p.status='ready' AND p.created_at<$2))
-   AND NOT EXISTS(SELECT 1 FROM visits v WHERE v.photo_id=p.id AND v.status='confirmed')`, now, unusedBefore, ids)
+   AND NOT EXISTS(SELECT 1 FROM visits v WHERE v.photo_id=p.id AND v.status='confirmed')
+   AND NOT EXISTS(SELECT 1 FROM quest_attempts a WHERE a.photo_id=p.id AND a.status IN ('pending_review','rejected'))`, now, unusedBefore, ids)
 		if err != nil {
 			return ErrUnavailable
 		}

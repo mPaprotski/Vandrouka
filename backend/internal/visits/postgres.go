@@ -6,6 +6,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -61,7 +62,7 @@ func (p Postgres) Confirm(ctx context.Context, c Command) (Result, error) {
 		return Result{}, errors.New("invalid catalog coordinates")
 	}
 	var status PhotoStatus
-	err = tx.QueryRow(ctx, `SELECT status FROM visit_photos WHERE id=$1 AND user_id=$2 AND place_id=$3 AND deleted_at IS NULL FOR UPDATE`, c.Input.PhotoID, c.Owner, c.Place).Scan(&status)
+	err = tx.QueryRow(ctx, `SELECT status FROM visit_photos WHERE id=$1 AND user_id=$2 AND place_id=$3 AND purpose='visit' AND deleted_at IS NULL FOR UPDATE`, c.Input.PhotoID, c.Owner, c.Place).Scan(&status)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return Result{}, ErrNotFound
 	}
@@ -84,20 +85,54 @@ func (p Postgres) Confirm(ctx context.Context, c Command) (Result, error) {
 		v.ConfirmedAt = nil
 		v.RejectionCode = &code
 	}
-	v, err = scanVisit(tx.QueryRow(ctx, `INSERT INTO visits(user_id,place_id,photo_id,idempotency_key,request_hash,status,rejection_code,created_at,confirmed_at,location_observed_at,distance_m,accuracy_m)
+	result, err := recordVisit(ctx, tx, v, c.ReceivedAt)
+	if err != nil {
+		return Result{}, err
+	}
+	if err = tx.Commit(ctx); err != nil {
+		return Result{}, err
+	}
+	return result, nil
+}
+
+// QuestEvidence comes from a locked, submitted quest attempt. Its location
+// was validated when the participant submitted the photo.
+type QuestEvidence struct {
+	Owner, Place         int64
+	PhotoID              string
+	RequestHash          []byte
+	ObservedAt           time.Time
+	DistanceM, AccuracyM float64
+}
+
+// RecordQuestVisit joins the organizer's decision transaction. The caller
+// locks the participant's user row before locking the attempt and the photo.
+func RecordQuestVisit(ctx context.Context, tx pgx.Tx, proof QuestEvidence, now time.Time) (Result, error) {
+	key, err := uuid.NewRandom()
+	if err != nil {
+		return Result{}, err
+	}
+	now = now.UTC().Truncate(time.Microsecond)
+	return recordVisit(ctx, tx, Visit{
+		UserID: proof.Owner, PlaceID: proof.Place, PhotoID: proof.PhotoID,
+		IdempotencyKey: key.String(), RequestHash: proof.RequestHash, Status: Confirmed,
+		CreatedAt: now, ConfirmedAt: &now, LocationObservedAt: &proof.ObservedAt,
+		DistanceM: &proof.DistanceM, AccuracyM: &proof.AccuracyM,
+	}, now)
+}
+
+func recordVisit(ctx context.Context, tx pgx.Tx, v Visit, awardedAt time.Time) (Result, error) {
+	v, err := scanVisit(tx.QueryRow(ctx, `INSERT INTO visits(user_id,place_id,photo_id,idempotency_key,request_hash,status,rejection_code,created_at,confirmed_at,location_observed_at,distance_m,accuracy_m)
  VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING `+visitColumns, v.UserID, v.PlaceID, v.PhotoID, v.IdempotencyKey, v.RequestHash, v.Status, v.RejectionCode, v.CreatedAt, v.ConfirmedAt, v.LocationObservedAt, v.DistanceM, v.AccuracyM))
 	if err != nil {
 		return Result{}, err
 	}
 	xp := 0
 	if v.Status == Confirmed {
-		err = tx.QueryRow(ctx, `INSERT INTO xp_transactions(user_id,place_id,visit_id,amount,created_at) VALUES($1,$2,$3,$4,$5) ON CONFLICT(user_id,place_id) DO NOTHING RETURNING amount`, c.Owner, c.Place, v.ID, FirstVisitXP, c.ReceivedAt).Scan(&xp)
+		err = tx.QueryRow(ctx, `INSERT INTO xp_transactions(user_id,place_id,visit_id,amount,created_at) VALUES($1,$2,$3,$4,$5) ON CONFLICT(user_id,place_id) DO NOTHING RETURNING amount`, v.UserID, v.PlaceID, v.ID, FirstVisitXP, awardedAt).Scan(&xp)
 		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 			return Result{}, err
 		}
 	}
-	if err = tx.Commit(ctx); err != nil {
-		return Result{}, err
-	}
-	return Result{v, xp, false}, nil
+	return Result{Visit: v, XPAwarded: xp}, nil
 }
