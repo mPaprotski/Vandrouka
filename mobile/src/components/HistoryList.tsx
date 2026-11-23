@@ -1,26 +1,17 @@
 import {VisitDeletion} from './VisitDeletion';
 import {useCallback,useEffect,useState,useSyncExternalStore} from 'react';
-import {AppState,FlatList,Image,StyleSheet,Text,View} from 'react-native';
+import {AppState,FlatList,StyleSheet,Text,View} from 'react-native';
 import {useFocusEffect,router} from 'expo-router';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {api} from '../api/client';
 import type {SessionController} from '../auth/session';
 import {createHistoryController} from '../history/controller';
-import {historyDate,privatePhotoDataUri} from '../history/photo';
-import {usePrivateResource} from '../hooks/usePrivateResource';
+import {historyDate} from '../history/photo';
+import {PrivatePhoto} from './PrivatePhoto';
 import {AppButton} from './ui/AppButton';
 import {EmptyState,ErrorState,LoadingState} from './ui/ContentState';
 import {colors} from './ui/theme';
 
-function PrivatePhoto({id,owner,session}:{id:string;owner:number;session:SessionController}){
- const load=useCallback(async(signal:AbortSignal)=>privatePhotoDataUri(await session.withAccess(token=>api.getPrivatePhoto(id,token,{signal}),owner),signal),[id,owner,session]);
- const {state,retry}=usePrivateResource(load);
- const [failed,setFailed]=useState(false);
- if(state.status==='loading'||state.status==='idle')return <LoadingState message="Загружаем личное фото…"/>;
- if(state.status==='error')return <ErrorState message={state.message} requestId={state.requestId} onRetry={retry}/>;
- if(failed)return <ErrorState message="Не удалось показать фото." onRetry={()=>{setFailed(false);retry();}}/>;
- return <Image accessibilityLabel="Фото вашего посещения" source={{uri:state.data}} style={styles.photo} resizeMode="contain" resizeMethod="resize" onError={()=>setFailed(true)}/>;
-}
 export function HistoryList({owner,session}:{owner:number;session:SessionController}){
  const [controller]=useState(()=>createHistoryController((cursor,signal)=>session.withAccess(token=>api.listHistory(token,cursor,{signal}),owner)));
  const state=useSyncExternalStore(controller.subscribe,controller.getSnapshot,controller.getSnapshot);
@@ -40,7 +31,7 @@ export function HistoryList({owner,session}:{owner:number;session:SessionControl
   ListEmptyComponent={(state.status==='loading'||state.status==='idle')?<LoadingState message="Загружаем посещения…"/>:state.status==='error'?<ErrorState message={state.message} requestId={state.requestId} onRetry={()=>void controller.refresh()}/>:<EmptyState title="Пока нет открытий" description="Посетите место и подтвердите посещение с фотографией." action={<AppButton title="Исследовать город" onPress={()=>router.navigate('/explore')}/>}/>}
   renderItem={({item})=><View style={styles.card}><Text style={styles.name}>{item.place_name}</Text><Text style={styles.note}>{historyDate(item.confirmed_at,item.timezone)}</Text><Text style={styles.xp}>{item.xp_awarded?`+${item.xp_awarded} XP`:'Повторное посещение · 0 XP'}</Text>
    {item.place_active?<AppButton title="О месте" variant="secondary" onPress={()=>router.push({pathname:'/places/[id]',params:{id:item.place_id}})}/>:<Text style={styles.note}>Место больше недоступно в каталоге.</Text>}
-   {item.photo_id?<><AppButton title={selected===item.id?'Скрыть фото':'Показать фото'} variant="secondary" onPress={()=>setSelected(selected===item.id?null:item.id)}/>{selected===item.id?<PrivatePhoto key={`${owner}:${item.photo_id}`} id={item.photo_id} owner={owner} session={session}/>:null}</>:<Text style={styles.note}>Фото удалено</Text>}
+   {item.photo_id?<><AppButton title={selected===item.id?'Скрыть фото':'Показать фото'} variant="secondary" onPress={()=>setSelected(selected===item.id?null:item.id)}/>{selected===item.id?<PrivatePhoto key={`${owner}:${item.photo_id}`} id={item.photo_id} style={styles.photo} owner={owner} session={session}/>:null}</>:<Text style={styles.note}>Фото удалено</Text>}
    <VisitDeletion id={item.id} photo={item.photo_id} owner={owner} session={session} onRemoved={()=>{setSelected(null);void controller.refresh();}}/>
   </View>}
   ListFooterComponent={state.next?<View style={styles.header}>{state.moreError?<Text accessibilityRole="alert" style={styles.note}>{state.moreError}</Text>:null}<AppButton title="Загрузить ещё" loading={state.loadingMore} onPress={()=>void controller.more()}/></View>:undefined}

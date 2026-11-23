@@ -8,6 +8,7 @@ import { AppState, Image, Linking, Platform, StyleSheet, Text, View } from 'reac
 import { api } from '../../api/client';
 import { useSession } from '../../auth/SessionProvider';
 import type { SessionController } from '../../auth/session';
+import { PrivatePhoto } from '../../components/PrivatePhoto';
 import { SectionScreen, sectionStyles } from '../../components/SectionScreen';
 import { AppButton } from '../../components/ui/AppButton';
 import { ErrorState, LoadingState } from '../../components/ui/ContentState';
@@ -34,6 +35,7 @@ function PhotoDraft({placeId,owner,session}:{placeId:number;owner:number;session
  const [active,setActive]=useState(AppState.currentState==='active');
  const [size,setSize]=useState<string>();
  const [ready,setReady]=useState(false);
+ const [reviewedPhoto,setReviewedPhoto]=useState<string>();
  const [cameraError,setCameraError]=useState<string>();
  const [asking,setAsking]=useState(false);
  const [cameraKey,setCameraKey]=useState(0);
@@ -78,6 +80,7 @@ function PhotoDraft({placeId,owner,session}:{placeId:number;owner:number;session
   </>}
   {showCamera&&<CameraView key={cameraKey} ref={camera} style={styles.image} facing="back" mode="picture" pictureSize={size} onCameraReady={()=>void cameraReady()} onMountError={()=>{setReady(false);setCameraError('Камера недоступна. Закройте другие приложения с камерой и попробуйте снова.');}} />}
   {state.photo&&<Image source={{uri:state.photo.uri}} style={styles.image} resizeMode="contain" accessibilityLabel="Предпросмотр снимка места" />}
+  {state.uploaded&&state.status!=='photoExpired'&&<PrivatePhoto key={state.uploaded.id} id={state.uploaded.id} owner={owner} session={session} style={styles.image} onLoad={()=>setReviewedPhoto(state.uploaded?.id)} onError={()=>setReviewedPhoto(undefined)} />}
   {!active&&<Text style={sectionStyles.note}>Вернитесь в приложение, чтобы продолжить.</Text>}
   {cameraError&&<ErrorState message={cameraError} onRetry={()=>{setCameraError(undefined);flow.retake();setReady(false);setCameraKey(v=>v+1);}} />}
   {state.message&&state.status!=='storage_error'&&<View accessibilityLiveRegion="polite"><Text style={styles.error}>{state.message}</Text>{state.requestId&&<Text style={sectionStyles.note}>Код обращения: {state.requestId}</Text>}</View>}
@@ -85,9 +88,9 @@ function PhotoDraft({placeId,owner,session}:{placeId:number;owner:number;session
   {state.status==='capturing'&&<LoadingState message="Делаем снимок…" />}
   {state.status==='preview'&&<AppButton title="Загрузить фото" disabled={!active||!focused} onPress={()=>void flow.upload()} />}
   {state.status==='locating'&&<LoadingState message="Получаем свежую геопозицию с точностью до 30 м…" />}
-  {state.status==='uploading'&&<LoadingState message="Загружаем приватное фото…" />}
-  {state.status==='uploaded'&&<View accessibilityLiveRegion="polite"><Text style={styles.success}>Фото загружено</Text><Text style={sectionStyles.note}>Фото готово. Подтвердите посещение, когда будете рядом с местом.</Text></View>}
-  {(state.status==='uploaded'||state.status==='rejected')&&<AppButton title={state.status==='rejected'?'Повторить со свежим GPS':'Подтвердить посещение'} disabled={!active||!focused} onPress={()=>void flow.confirm()} />}
+  {state.status==='uploading'&&<LoadingState message="Загружаем и обрабатываем фото…" />}
+  {state.status==='uploaded'&&<View accessibilityLiveRegion="polite"><Text style={styles.success}>Фото загружено</Text><Text style={sectionStyles.note}>Проверьте сохранённый снимок. Если нужно, переснимите его.</Text></View>}
+  {(state.status==='uploaded'||state.status==='rejected')&&<AppButton title={state.status==='rejected'?'Повторить со свежим GPS':'Подтвердить посещение'} disabled={!active||!focused||reviewedPhoto!==state.uploaded?.id} onPress={()=>void flow.confirm()} />}
   {state.status==='confirmLocating'&&<LoadingState message="Обновляем геопозицию перед подтверждением…" />}
   {state.status==='confirming'&&<LoadingState message="Подтверждаем посещение…" />}
   {state.status==='uncertain'&&<><Text style={sectionStyles.note}>Результат пока неизвестен. Проверка повторит тот же запрос без повторного начисления XP.</Text><AppButton title="Проверить результат" disabled={!active||!focused} onPress={()=>void flow.confirm()} /></>}

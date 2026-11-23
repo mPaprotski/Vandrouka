@@ -17,14 +17,16 @@ import (
 const MaxFileBytes = 10 << 20
 const MaxPixels = 20_000_000
 const MaxDimension = 8192
+const MaxAnonymizedPixels = 4_000_000
 
 var (
-	ErrInvalid     = errors.New("invalid image request")
-	ErrTooLarge    = errors.New("image too large")
-	ErrUnsupported = errors.New("unsupported image format")
-	ErrUnavailable = errors.New("media unavailable")
-	ErrNotFound    = errors.New("photo not found")
-	ErrConfirmed   = errors.New("photo is confirmed")
+	ErrInvalid                 = errors.New("invalid image request")
+	ErrAnonymizedImageTooLarge = errors.New("image exceeds anonymization pixel limit")
+	ErrTooLarge                = errors.New("image too large")
+	ErrUnsupported             = errors.New("unsupported image format")
+	ErrUnavailable             = errors.New("media unavailable")
+	ErrNotFound                = errors.New("photo not found")
+	ErrConfirmed               = errors.New("photo is confirmed")
 )
 
 type Image struct {
@@ -43,6 +45,10 @@ func (b *cappedBuffer) Write(value []byte) (int, error) {
 }
 func (b *cappedBuffer) Bytes() []byte { return b.buffer.Bytes() }
 func Sanitize(reader io.Reader, declaredMIME string) (Image, error) {
+	return sanitize(reader, declaredMIME, false)
+}
+
+func sanitize(reader io.Reader, declaredMIME string, anonymize bool) (Image, error) {
 	if declaredMIME != "image/jpeg" && declaredMIME != "image/png" {
 		return Image{}, ErrUnsupported
 	}
@@ -81,6 +87,9 @@ func Sanitize(reader io.Reader, declaredMIME string) (Image, error) {
 	if config.Width > MaxDimension || config.Height > MaxDimension || int64(config.Width)*int64(config.Height) > MaxPixels {
 		return Image{}, ErrTooLarge
 	}
+	if anonymize && int64(config.Width)*int64(config.Height) > MaxAnonymizedPixels {
+		return Image{}, ErrAnonymizedImageTooLarge
+	}
 	decoded, err := imaging.Decode(bytes.NewReader(raw), imaging.AutoOrientation(true))
 	if err != nil {
 		return Image{}, ErrInvalid
@@ -89,7 +98,11 @@ func Sanitize(reader io.Reader, declaredMIME string) (Image, error) {
 	if format == "jpeg" {
 		err = jpeg.Encode(&output, decoded, &jpeg.Options{Quality: 85})
 	} else {
-		err = png.Encode(&output, decoded)
+		encoder := png.Encoder{}
+		if anonymize {
+			encoder.CompressionLevel = png.BestSpeed
+		}
+		err = encoder.Encode(&output, decoded)
 	}
 	if errors.Is(err, ErrTooLarge) {
 		return Image{}, ErrTooLarge

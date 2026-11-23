@@ -4,7 +4,9 @@ import (
 	"context"
 	"crypto/sha256"
 	"crypto/subtle"
+	"errors"
 	"io"
+	"log/slog"
 	"time"
 
 	"github.com/yourname/vandrouka/backend/internal/visits"
@@ -27,6 +29,7 @@ type Repository interface {
 }
 type Service struct {
 	Repository Repository
+	Anonymizer Anonymizer
 	Objects    Objects
 	Now        func() time.Time
 }
@@ -38,9 +41,19 @@ func (s *Service) Upload(ctx context.Context, owner, place int64, reader io.Read
 	if owner < 1 || place < 1 {
 		return visits.Photo{}, ErrInvalid
 	}
-	cleaned, err := Sanitize(reader, mime)
+	cleaned, err := sanitize(reader, mime, s.Anonymizer != nil)
 	if err != nil {
 		return visits.Photo{}, err
+	}
+	if s.Anonymizer != nil {
+		cleaned, err = s.Anonymizer.Anonymize(ctx, cleaned)
+		if errors.Is(err, ErrAnonymizerBusy) {
+			return visits.Photo{}, err
+		}
+		if err != nil {
+			slog.WarnContext(ctx, "photo anonymization failed", "timed_out", errors.Is(err, context.DeadlineExceeded))
+			return visits.Photo{}, ErrAnonymizerUnavailable
+		}
 	}
 	if err = s.Objects.Init(ctx); err != nil {
 		return visits.Photo{}, ErrUnavailable

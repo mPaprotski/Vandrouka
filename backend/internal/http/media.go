@@ -53,6 +53,8 @@ func mediaFailure(w http.ResponseWriter, err error) {
 	switch {
 	case errors.Is(err, media.ErrInvalid):
 		Error(w, 400, "invalid_request", "Некорректная фотография или параметры запроса")
+	case errors.Is(err, media.ErrAnonymizedImageTooLarge):
+		Error(w, 413, "request_too_large", "Для размытия лиц снимок должен быть не больше 4 мегапикселей")
 	case errors.Is(err, media.ErrTooLarge):
 		Error(w, 413, "request_too_large", "Фотография превышает лимит 10 МБ, 20 мегапикселей или 8192 пикселя по стороне")
 	case errors.Is(err, media.ErrUnsupported):
@@ -61,6 +63,11 @@ func mediaFailure(w http.ResponseWriter, err error) {
 		Error(w, 409, "photo_confirmed", "Фотография уже связана с подтверждённым посещением")
 	case errors.Is(err, media.ErrNotFound):
 		Error(w, 404, "not_found", "Объект не найден")
+	case errors.Is(err, media.ErrAnonymizerBusy):
+		w.Header().Set("Retry-After", "1")
+		Error(w, 429, "rate_limited", "Обработка фотографий занята. Попробуйте ещё раз")
+	case errors.Is(err, media.ErrAnonymizerUnavailable):
+		Error(w, 503, "photo_processing_unavailable", "Не удалось размыть лица. Попробуйте загрузить фото ещё раз")
 	case errors.Is(err, media.ErrUnavailable):
 		Error(w, 503, "media_unavailable", "Фотохранилище временно недоступно")
 	default:

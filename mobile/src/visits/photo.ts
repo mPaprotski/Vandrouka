@@ -63,7 +63,7 @@ export function createPhotoController(deps:Dependencies){
    const fix=await deps.locate(abort.signal);if(!valid(v))return;
    if(!visitFixReady(fix))throw new Error('Нужна свежая геопозиция с точностью до 30 м. Попробуйте на открытом месте.');
    publish({status:'uploading',photo});const uploaded=await deps.upload(photo,abort.signal);
-   if(!valid(v)){removeRemote(uploaded.id);return;}publish({status:'uploaded',photo,uploaded,fix});
+   if(!valid(v)){removeRemote(uploaded.id);return;}publish({status:'uploaded',uploaded,fix});removeLocal(photo.uri);
   }catch(error){if(valid(v)&&!abort.signal.aborted)publish({status:'preview',photo,...errorState(error)});}
   finally{if(current===abort)current=undefined;}
  }

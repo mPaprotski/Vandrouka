@@ -24,6 +24,7 @@ test('preview -> fresh GPS -> upload is single flight; retake deletes abandoned 
  await c.capture(async()=>photo);assert.equal(c.getSnapshot().status,'preview');
  const operation=c.upload();await Promise.resolve();await c.upload();assert.equal(calls.uploads,1);
  work.resolve(uploaded);await operation;assert.equal(c.getSnapshot().status,'uploaded');assert.equal(c.getSnapshot().fix.accuracy,30);
+ assert.equal(c.getSnapshot().photo,undefined);assert.deepEqual(calls.local,[photo.uri]);
  c.retake();assert.equal(c.getSnapshot().status,'camera');assert.deepEqual(calls.local,[photo.uri]);assert.deepEqual(calls.remote,[uploaded.id]);c.dispose();
 });
 test('poor/unknown GPS never uploads and retry retains preview',async()=>{

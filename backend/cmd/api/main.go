@@ -146,6 +146,18 @@ func run() error {
 		cancel()
 	}
 	photos := media.New(media.Postgres{Pool: pool}, objects)
+	switch os.Getenv("MEDIA_ANONYMIZER") {
+	case "", "off":
+	case "deface":
+		anonymizer, err := media.NewDeface()
+		if err != nil {
+			return fmt.Errorf("configure photo anonymizer: %w", err)
+		}
+		photos.Anonymizer = anonymizer
+	default:
+		return fmt.Errorf("unsupported MEDIA_ANONYMIZER")
+	}
+
 	r.Group(func(r chi.Router) {
 		r.Use(apihttp.MediaResponses(45 * time.Second))
 		apihttp.RegisterMedia(r, authentication, photos)
