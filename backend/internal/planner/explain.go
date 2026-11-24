@@ -9,11 +9,14 @@ import (
 
 // Explain summarizes a final evaluated route. Durations round up to a minute;
 // exact budgets continue to be checked using durations, not this presentation.
-func Explain(route Route) string {
+func Explain(route Route, mode ...string) string {
 	if len(route.Stops) == 0 {
 		return "Маршрут пуст: подходящих мест нет."
 	}
 	text := fmt.Sprintf("%d %s, до %s, %s км пешком.", len(route.Stops), plural(len(route.Stops), "место", "места", "мест"), formatMinutes(route.Metrics.TotalMinutes), decimal(route.Metrics.WalkKM, 1))
+	if len(mode) > 0 && mode[0] == "cycling" {
+		text = strings.Replace(text, "км пешком.", "км на велосипеде.", 1)
+	}
 	keys := make([]string, 0, len(route.Metrics.CategoryCounts))
 	for category, count := range route.Metrics.CategoryCounts {
 		if count > 0 {

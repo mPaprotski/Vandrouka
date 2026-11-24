@@ -1,3 +1,4 @@
+import { createWalkApi } from '../walks/api.ts';
 import { ApiError } from './errors.ts';
 import { createQuestApi } from '../quests/api.ts';
 import { briefSummary } from '../places/presentation.ts';
@@ -251,6 +252,7 @@ export function createApiClient(options: { baseUrl?: string; fetcher?: typeof fe
   }
   return {
     quests: createQuestApi(request),
+    walks: createWalkApi(request),
     getExploration:(accessToken:string,o?:RequestOptions)=>request('/v1/me/exploration',decodeExploration,o,{accessToken}),
     deleteAccount:(password:string,accessToken:string,o?:RequestOptions)=>request('/v1/me',()=>undefined,o,{method:'DELETE',body:{password},accessToken}),
     hideVisit:(id:number,accessToken:string,o?:RequestOptions)=>{

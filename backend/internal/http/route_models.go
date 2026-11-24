@@ -9,6 +9,9 @@ import (
 // checks belong to request validation. TicketBudgetMinor nil means no limit;
 // a pointer to zero means a zero budget. Monetary values are BYN kopecks.
 type GenerateRouteRequest struct {
+	MaxDistanceM      *float64     `json:"max_distance_m,omitempty"`
+	MaxStops          *int         `json:"max_stops,omitempty"`
+	TravelMode        *string      `json:"travel_mode,omitempty"`
 	City              *string      `json:"city,omitempty"`
 	Start             *Coordinates `json:"start"`
 	StartAt           *time.Time   `json:"start_at"`

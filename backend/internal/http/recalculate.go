@@ -27,6 +27,7 @@ func RegisterRecalculation(r chi.Router, service RouteRecalculator) {
 		}
 		req := input.Request
 		baseline, err := service.PrepareBaseline(ctx, req.City, planner.Request{
+			MaxDistanceM: req.MaxDistanceM, MaxStops: req.MaxStops, TravelMode: req.TravelMode,
 			Start: planner.Point{Lat: req.Start.Lat, Lon: req.Start.Lon}, StartAt: req.StartAt,
 			BudgetMinutes: req.BudgetMinutes, Pace: planner.Pace(req.Pace), Categories: req.Categories,
 			MaxTicketCostMinor: req.TicketBudgetMinor, Seed: req.Seed,

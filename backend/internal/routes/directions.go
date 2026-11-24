@@ -31,6 +31,7 @@ type Result struct {
 // Generate returns only routes feasible after Directions. NoRoute and constraint
 // failures discard individual candidates; provider outages fail the request.
 func (s *Service) Generate(ctx context.Context, citySlug string, request planner.Request, includeGeometry bool) (Result, error) {
+	ctx = routing.WithTravelMode(ctx, request.TravelMode)
 	prepared, err := s.Prepare(ctx, citySlug, request)
 	if err != nil {
 		return Result{}, err
