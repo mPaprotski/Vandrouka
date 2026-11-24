@@ -19,6 +19,17 @@ function setup(overrides={},saved={value:null}){
  return {c,calls,saved,storage};
 }
 async function prepare(c){await c.restore();await c.capture(async()=>photo);await c.upload();assert.equal(c.getSnapshot().status,'uploaded');}
+test('walk progress failure retains confirmation until replay settles saved walk context',async()=>{
+ const saved={value:null};let fail=true;const seen=[];
+ const options={confirmation:{walkId:key,settle:async(attempt,result)=>{seen.push(attempt.walkId);if(fail)throw Error('disk full');assert.equal(result.visit.status,'confirmed');}}};
+ const first=setup(options,saved);await prepare(first.c);await first.c.confirm();
+ assert.equal(first.c.getSnapshot().status,'uncertain');assert.equal(saved.value.walkId,key);first.c.dispose();
+ fail=false;
+ const restarted=setup({confirmation:{settle:options.confirmation.settle}},saved);
+ await restarted.c.restore();await restarted.c.confirm();
+ assert.equal(restarted.c.getSnapshot().status,'confirmed');assert.equal(saved.value,null);
+ assert.deepEqual(seen,[key,key]);restarted.c.dispose();
+});
 test('fresh GPS for confirmation, +100/0 success, persistent-before-send and media retention',async()=>{
  for(const xp of [100,0]){
   const {c,calls,saved}=setup({confirmation:{send:async()=>success(xp)}});await prepare(c);assert.equal(calls.locations,1);

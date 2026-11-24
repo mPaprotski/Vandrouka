@@ -1,0 +1,727 @@
+{
+  "minsk/alexander-nevsky-church": {
+    "address": "Минск, улица Козлова, 11А",
+    "summary": "Православный храм конца XIX века на Военном кладбище. Его фасады выполнены в традициях русского церковного зодчества.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Храм_Александра_Невского_(Минск)",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/alexandrovsky-square": {
+    "address": "Минск, Александровский сквер",
+    "summary": "Сквер в центре Минска с фонтаном «Мальчик с лебедем».",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Александровский_сквер_(Минск)",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/all-saints-church": {
+    "address": "Минск, улица Всехсвятская",
+    "summary": "Храм-памятник у пересечения улиц Калиновского и Всехсвятской. Посвящён памяти погибших, чьи имена остались неизвестны.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Всехсвятская_церковь_(Минск)",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/azgur-museum": {
+    "address": "Минск, улица Заира Азгура, 8",
+    "summary": "Мастерская скульптора Заира Азгура с его произведениями и мемориальной коллекцией.",
+    "links": [
+      {
+        "kind": "official",
+        "url": "https://azgur.by/en/",
+        "title": "Официальный сайт"
+      },
+      {
+        "kind": "official",
+        "url": "https://azgur.museum.by/",
+        "title": "Музей на портале «Музеи Беларуси»"
+      }
+    ]
+  },
+  "minsk/basilian-convent-building": {
+    "address": "Минск, улица Энгельса, 1",
+    "summary": "Сохранившийся корпус бывшего женского монастыря базилианок в Верхнем городе.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Свято-Духовский_монастырь_базилианок_(Минск)",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/basilian-monastery-building": {
+    "address": "Минск, площадь Свободы, 23",
+    "summary": "Исторический корпус бывшего базилианского монастыря в ансамбле площади Свободы.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Высокий_рынок",
+        "title": "Верхний город · Википедия"
+      }
+    ]
+  },
+  "minsk/bolshoi-theatre": {
+    "address": "Минск, площадь Парижской Коммуны, 1",
+    "summary": "Театр оперы и балета на площади Парижской Коммуны.",
+    "links": [
+      {
+        "kind": "official",
+        "url": "https://bolshoibelarus.by/rus/",
+        "title": "Большой театр Беларуси"
+      },
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Большой_театр_Беларуси",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/boulder-museum": {
+    "address": "Минск, Музей валунов, Уручье",
+    "summary": "Музей под открытым небом, где валуны образуют карту Беларуси и знакомят с её ледниковым прошлым.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Музей_валунов",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/calvary-church": {
+    "address": "Минск, Кальварийское кладбище",
+    "summary": "Неоготический костёл на Кальварийском кладбище, одном из старейших сохранившихся некрополей Минска.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Кальварийское_кладбище",
+        "title": "Кальварийское кладбище · Википедия"
+      }
+    ]
+  },
+  "minsk/calvary-gate": {
+    "address": "Минск, вход на Кальварийское кладбище",
+    "summary": "Исторические входные ворота Кальварийского кладбища. С них начинается знакомство с архитектурой старого некрополя.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Кальварийское_кладбище",
+        "title": "Кальварийское кладбище · Википедия"
+      }
+    ]
+  },
+  "minsk/chelyuskintsev-park": {
+    "address": "Минск, парк Челюскинцев",
+    "summary": "Прогулка по части аллей парка рядом с проспектом Независимости.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Парк_Челюскинцев_(Минск)",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/first-congress-museum": {
+    "address": "Минск, проспект Независимости, 31А",
+    "summary": "Небольшой музей у Свислочи на проспекте Независимости, 31а.",
+    "links": [
+      {
+        "kind": "official",
+        "url": "https://histmuseum.by/",
+        "title": "Национальный исторический музей — головное учреждение"
+      }
+    ]
+  },
+  "minsk/freedom-square-manor": {
+    "address": "Минск, площадь Свободы, 15",
+    "summary": "Сохранившееся здание городской усадьбы в исторической застройке площади Свободы.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Высокий_рынок",
+        "title": "Верхний город · Википедия"
+      }
+    ]
+  },
+  "minsk/gorky-park": {
+    "address": "Минск, Центральный детский парк имени Максима Горького",
+    "summary": "Парк у Свислочи с аллеями и аттракционами.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Парк_Горького_(Минск)",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/guest-court": {
+    "address": "Минск, площадь Свободы, 2–10",
+    "summary": "Комплекс торговых зданий вокруг внутреннего двора на площади Свободы, напоминающий о купеческой истории Минска.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Гостиный_двор_(Минск)",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/holy-spirit-cathedral": {
+    "address": "Минск, улица Кирилла и Мефодия, 3",
+    "summary": "Двухбашенный собор в Верхнем городе.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Свято-Духов_собор_(Минск)",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/independence-square": {
+    "address": "Минск, площадь Независимости",
+    "summary": "Центральная площадь с ансамблем общественных зданий.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Площадь_Независимости_(Минск)",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/island-of-tears": {
+    "address": "Минск, Остров Мужества и Скорби, Троицкое предместье",
+    "summary": "Мемориальный остров на Свислочи возле Троицкого предместья, посвящённый погибшим в Афганистане.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Остров_Мужества_и_Скорби",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/kupala-museum": {
+    "address": "Минск, улица Янки Купалы, 4",
+    "summary": "Музей на улице Янки Купалы, посвящённый жизни и творчеству поэта.",
+    "links": [
+      {
+        "kind": "official",
+        "url": "https://kupala-museum.by/navedvalniku/kosht-paslug",
+        "title": "Информация для посетителей"
+      }
+    ]
+  },
+  "minsk/kupala-park": {
+    "address": "Минск, парк имени Янки Купалы",
+    "summary": "Прогулка по аллеям парка у Свислочи с остановкой возле памятника Янке Купале.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Парк_имени_Янки_Купалы_(Минск)",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/loshitsa-chapel": {
+    "address": "Минск, Лошицкий усадебно-парковый комплекс, руины часовни",
+    "summary": "Руины усадебной часовни — часть исторического ансамбля Лошицы.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Лошица_(усадьба)",
+        "title": "Лошицкая усадьба · Википедия"
+      }
+    ]
+  },
+  "minsk/loshitsa-distillery": {
+    "address": "Минск, Лошицкий усадебно-парковый комплекс, винокурня",
+    "summary": "Здание винокурни знакомит с хозяйственной стороной жизни Лошицкой усадьбы.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Лошица_(усадьба)",
+        "title": "Лошицкая усадьба · Википедия"
+      }
+    ]
+  },
+  "minsk/loshitsa-gate": {
+    "address": "Минск, вход в Лошицкий усадебно-парковый комплекс",
+    "summary": "Въездная брама и сторожка обозначают исторический вход в Лошицкую усадьбу.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Лошица_(усадьба)",
+        "title": "Лошицкая усадьба · Википедия"
+      }
+    ]
+  },
+  "minsk/loshitsa-manager-house": {
+    "address": "Минск, Лошицкий усадебно-парковый комплекс, дом управляющего",
+    "summary": "Дом управляющего входил в хозяйственный комплекс Лошицкой усадьбы.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Лошица_(усадьба)",
+        "title": "Лошицкая усадьба · Википедия"
+      }
+    ]
+  },
+  "minsk/loshitsa-manor-house": {
+    "address": "Минск, проезд Чижевских, 10",
+    "summary": "Главный дом Лошицкой усадьбы — центральная постройка исторического паркового ансамбля.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Лошица_(усадьба)",
+        "title": "Лошицкая усадьба · Википедия"
+      }
+    ]
+  },
+  "minsk/loshitsa-mill-ruins": {
+    "address": "Минск, Лошицкий усадебно-парковый комплекс, руины мельницы",
+    "summary": "Остатки мельницы сохраняют следы хозяйственной истории Лошицкой усадьбы.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Лошица_(усадьба)",
+        "title": "Лошицкая усадьба · Википедия"
+      }
+    ]
+  },
+  "minsk/loshitsa-park": {
+    "address": "Минск, Лошицкий парк",
+    "summary": "Прогулка по части усадебно-паркового комплекса «Лошица» с внешним осмотром усадьбы.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Лошица_(усадьба)",
+        "title": "Лошицкая усадьба · Википедия"
+      }
+    ]
+  },
+  "minsk/loshitsa-service-building": {
+    "address": "Минск, Лошицкий усадебно-парковый комплекс, служебный корпус",
+    "summary": "Служебный корпус — часть сохранившейся хозяйственной застройки Лошицкой усадьбы.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Лошица_(усадьба)",
+        "title": "Лошицкая усадьба · Википедия"
+      }
+    ]
+  },
+  "minsk/loshitsa-water-mill": {
+    "address": "Минск, Лошицкий усадебно-парковый комплекс, водяная мельница",
+    "summary": "Здание водяной мельницы напоминает об использовании рек в хозяйстве Лошицкой усадьбы.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Лошица_(усадьба)",
+        "title": "Лошицкая усадьба · Википедия"
+      }
+    ]
+  },
+  "minsk/loshitsa-workers-house": {
+    "address": "Минск, Лошицкий усадебно-парковый комплекс, дом рабочих",
+    "summary": "Дом рабочих винокурни дополняет ансамбль хозяйственных построек Лошицкой усадьбы.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Лошица_(усадьба)",
+        "title": "Лошицкая усадьба · Википедия"
+      }
+    ]
+  },
+  "minsk/main-post-office": {
+    "address": "Минск, проспект Независимости, 10",
+    "summary": "Архитектурная остановка у главного почтамта на проспекте Независимости.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Здание_главного_почтамта_(Минск)",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/mary-cathedral": {
+    "address": "Минск, площадь Свободы",
+    "summary": "Внешний осмотр католического собора на площади Свободы, напротив ратуши.",
+    "links": [
+      {
+        "kind": "official",
+        "url": "https://katedra.by/",
+        "title": "Официальный сайт"
+      },
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Собор_Пресвятого_Имени_Пресвятой_Девы_Марии_(Минск)",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/mary-magdalene-church": {
+    "address": "Минск, улица Киселёва, 42",
+    "summary": "Православная церковь XIX века в стиле классицизма, связанная с историей Сторожевского кладбища.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Церковь_Марии_Магдалины_(Минск)",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/masons-house": {
+    "address": "Минск, Музыкальный переулок, 5",
+    "summary": "Исторический дом в Музыкальном переулке, известный как Дом масонов. Здесь размещается музей театральной и музыкальной культуры.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Дом_масонов",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/mickiewicz-monument": {
+    "address": "Минск, сквер Адама Мицкевича",
+    "summary": "Короткая остановка возле бронзового памятника поэту в сквере на Городском Валу.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Памятник_Адаму_Мицкевичу_(Минск)",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/mikhailovsky-square": {
+    "address": "Минск, Михайловский сквер",
+    "summary": "Небольшой сквер рядом с вокзалом со скульптурами Владимира Жбанова, включая «Незнакомку» и «Девочку с зонтиком».",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Михайловский_сквер",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/minsk-gates": {
+    "address": "Минск, улица Кирова, Привокзальная площадь",
+    "summary": "Две башни на Привокзальной площади обрамляют начало улицы Кирова.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Ворота_Минска",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/national-academy": {
+    "address": "Минск, проспект Независимости",
+    "summary": "Внешний осмотр главного корпуса академии на проспекте Независимости, 66.",
+    "links": [
+      {
+        "kind": "official",
+        "url": "https://nasb.gov.by/rus/about/kontakty/",
+        "title": "Официальный сайт"
+      },
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Национальная_академия_наук_Беларуси",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/national-art-museum": {
+    "address": "Минск, улица Ленина, 20",
+    "summary": "Музей белорусского и зарубежного искусства на улице Ленина.",
+    "links": [
+      {
+        "kind": "official",
+        "url": "https://artmuseum.by/",
+        "title": "Часы работы и адрес"
+      },
+      {
+        "kind": "official",
+        "url": "https://artmuseum.by/services",
+        "title": "Билеты и услуги"
+      },
+      {
+        "kind": "encyclopedia",
+        "url": "https://fr.wikipedia.org/wiki/Musée_national_des_Beaux-Arts_de_Biélorussie",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/national-history-museum": {
+    "address": "Минск, улица Карла Маркса, 12",
+    "summary": "Музей истории Беларуси на Карла Маркса, 12.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Национальный_исторический_музей_Республики_Беларусь",
+        "title": "Википедия"
+      },
+      {
+        "kind": "official",
+        "url": "https://histmuseum.by/",
+        "title": "Официальный сайт музея"
+      },
+      {
+        "kind": "official",
+        "url": "https://histmuseum.by/informacziya-dlya-posetitelej/",
+        "title": "Информация для посетителей"
+      }
+    ]
+  },
+  "minsk/national-library": {
+    "address": "Минск, проспект Независимости, 116",
+    "summary": "Библиотека в здании необычной многогранной формы.",
+    "links": [
+      {
+        "kind": "official",
+        "url": "https://www.nlb.by/",
+        "title": "Национальная библиотека Беларуси"
+      },
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Национальная_библиотека_Беларуси",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/oktyabrskaya-street": {
+    "address": "Минск, Октябрьская улица",
+    "summary": "Прогулка по части улицы с промышленной застройкой и уличными рисунками.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Октябрьская_улица_(Минск)",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/peter-paul-cathedral": {
+    "address": "Минск, Раковская улица, 4",
+    "summary": "Внешний осмотр исторического храма на Раковской улице возле Немиги.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Собор_Святых_Апостолов_Петра_и_Павла_(Минск)",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/pishchalovsky-castle": {
+    "address": "Минск, улица Володарского",
+    "summary": "Здание XIX века с угловыми башнями, построенное как тюремный замок и известное как «Володарка».",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Пищаловский_замок",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/rakov-suburb": {
+    "address": "Минск, Раковское предместье",
+    "summary": "Короткая прогулка по историческому кварталу вдоль Раковской улицы.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Раковское_предместье",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/red-church": {
+    "address": "Минск, площадь Независимости",
+    "summary": "Осмотр фасадов костёла Святого Симеона и Святой Елены у площади Независимости.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Костёл_Святого_Симеона_и_Святой_Елены_(Минск)",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/roch-church": {
+    "address": "Минск, улица Золотая Горка",
+    "summary": "Внешний осмотр неоготического костёла на Золотой Горке, в стороне от проспекта Независимости.",
+    "links": [
+      {
+        "kind": "official",
+        "url": "https://www.roch.by/",
+        "title": "Официальный сайт"
+      },
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Костёл_Пресвятой_Троицы_(Минск)",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/saint-joseph-church": {
+    "address": "Минск, улица Кирилла и Мефодия, 4",
+    "summary": "Бывший костёл бернардинского монастыря — памятник барочной архитектуры в Верхнем городе.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Улица_Кирилла_и_Мефодия_(Минск)",
+        "title": "Улица Кирилла и Мефодия · Википедия"
+      }
+    ]
+  },
+  "minsk/town-hall": {
+    "address": "Минск, площадь Свободы, 2А",
+    "summary": "Восстановленная ратуша с башней и колоннами на площади Свободы.",
+    "links": [
+      {
+        "kind": "official",
+        "url": "https://minskmuseum.by/",
+        "title": "Музей истории города Минска"
+      },
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Минская_ратуша",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/trinity-basilian-convent": {
+    "address": "Минск, улица Максима Богдановича, 2",
+    "summary": "Комплекс бывшего женского монастыря в Троицком предместье, позднее приспособленный под больницу.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Троицкий_монастырь_базильянок",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/trinity-suburb": {
+    "address": "Минск, Троицкое предместье",
+    "summary": "Исторический квартал у Свислочи с невысокими домами.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Троицкое_предместье",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/upper-town": {
+    "address": "Минск, площадь Свободы, Верхний город",
+    "summary": "Исторический район вокруг площади Свободы с ратушей, храмами и сохранившейся городской застройкой.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Высокий_рынок",
+        "title": "Верхний город · Википедия"
+      }
+    ]
+  },
+  "minsk/vankovich-house": {
+    "address": "Минск, Интернациональная улица, 33А",
+    "summary": "Дом-музей на Интернациональной улице, посвящённый культуре и искусству первой половины XIX века.",
+    "links": [
+      {
+        "kind": "official",
+        "url": "https://artmuseum.by/",
+        "title": "Часы работы филиала"
+      },
+      {
+        "kind": "official",
+        "url": "https://artmuseum.by/services?branchUrl=vankovich.artmuseum.by",
+        "title": "Билеты и услуги"
+      },
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Дом_Ваньковичей",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/vankovich-large-slepyanka": {
+    "address": "Минск, улица Филимонова, 24",
+    "summary": "Усадебный дом с парком в бывшей Большой Слепянке, связанный с историей рода Ваньковичей.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Усадьба_Ваньковичей",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/victory-park": {
+    "address": "Минск, парк Победы",
+    "summary": "Прогулка по части парка у Комсомольского озера.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Парк_Победы_(Минск)",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/victory-square": {
+    "address": "Минск, площадь Победы",
+    "summary": "Мемориальная площадь с монументом Победы и Вечным огнём.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Площадь_Победы_(Минск)",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/war-museum": {
+    "address": "Минск, проспект Победителей, 8",
+    "summary": "Экспозиция о войне с документами, предметами быта и военной техникой.",
+    "links": [
+      {
+        "kind": "official",
+        "url": "https://www.warmuseum.by/posetitelyam/rezhim-raboty-i-stoimost/",
+        "title": "Информация для посетителей"
+      }
+    ]
+  },
+  "minsk/white-dacha": {
+    "address": "Минск, улица Казинца, 54",
+    "summary": "Неоклассическая усадьба в Курасовщине, где в 1947 году жил и работал художник Витольд Бялыницкий-Бируля.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Белая_дача_(усадьба,_Минск)",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/yakub-kolas-square": {
+    "address": "Минск, площадь Якуба Коласа",
+    "summary": "Сквер на площади Якуба Коласа с памятником поэту и скульптурами героев его произведений.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Площадь_Якуба_Коласа",
+        "title": "Википедия"
+      }
+    ]
+  },
+  "minsk/zero-kilometer": {
+    "address": "Минск, Октябрьская площадь",
+    "summary": "Остановка на Октябрьской площади возле гранитного знака начала дорог Беларуси.",
+    "links": [
+      {
+        "kind": "encyclopedia",
+        "url": "https://ru.wikipedia.org/wiki/Нулевой_километр_Беларуси",
+        "title": "Википедия"
+      }
+    ]
+  }
+}

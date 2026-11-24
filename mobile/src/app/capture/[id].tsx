@@ -6,6 +6,7 @@ import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { AppState, Image, Linking, Platform, StyleSheet, Text, View } from 'react-native';
 import { api } from '../../api/client';
+import { walkStorage } from '../../walks/storage';
 import { useSession } from '../../auth/SessionProvider';
 import type { SessionController } from '../../auth/session';
 import { PrivatePhoto } from '../../components/PrivatePhoto';
@@ -17,13 +18,22 @@ import { useApiResource } from '../../hooks/useApiResource';
 import { locateForPhoto, removeLocalPhoto, takeLocalPhoto } from '../../visits/native';
 import { choosePictureSize, createPhotoController } from '../../visits/photo';
 
-function PhotoDraft({placeId,owner,session}:{placeId:number;owner:number;session:SessionController}){
+function PhotoDraft({placeId,owner,session,walkId}:{placeId:number;owner:number;session:SessionController;walkId?:string}){
  const [flow]=useState(()=>createPhotoController({
   locate:locateForPhoto,
   upload:(photo,signal)=>session.withAccess(token=>api.uploadPhoto(placeId,photo,token,{signal}),owner),
   removeRemote:id=>session.withAccess(token=>api.discardPhoto(id,token),owner),
   removeLocal:removeLocalPhoto,
   confirmation:{
+   walkId,
+   bindWalk:async()=>{
+    const walk=await walkStorage(owner).read();
+    if(walkId&&walk?.id!==walkId)throw Error('Эта прогулка больше не активна. Вернитесь к прогулке.');
+    if(walk?.status==='active'&&walk.variant.stops.some(stop=>stop.place_id===placeId))return walk.id;
+    if(walkId)throw Error('Продолжите прогулку перед подтверждением остановки.');
+    return undefined;
+   },
+   settle:async(attempt,result)=>{if(attempt.walkId)await walkStorage(owner).confirm(attempt.walkId,result);},
    key:Crypto.randomUUID,
    storage:secureAttemptStorage(getApiBaseUrl(),owner,placeId),
    send:(key,input,signal)=>session.withAccess(token=>api.confirmVisit(placeId,key,input,token,{signal}),owner),
@@ -103,7 +113,7 @@ function PhotoDraft({placeId,owner,session}:{placeId:number;owner:number;session
  </View>;
 }
 export default function CaptureScreen(){
- const {id}=useLocalSearchParams<{id:string}>();const {state:session,controller}=useSession();
+ const {id,walkId}=useLocalSearchParams<{id:string;walkId?:string}>();const {state:session,controller}=useSession();
  const load=useCallback((signal:AbortSignal)=>api.getPlace(id??'',{signal}),[id]);
  const {state,retry,data}=useApiResource(load);
  // A focus refresh must not discard a private draft while the same place reloads.
@@ -115,7 +125,8 @@ export default function CaptureScreen(){
   {session.status==='error'&&<ErrorState message={session.message} requestId={session.requestId} onRetry={()=>void controller.resume()} />}
   {session.status==='guest'&&<><Text style={sectionStyles.note}>Войдите, чтобы сохранить личное фото места.</Text><AppButton title="Войти или зарегистрироваться" onPress={()=>router.push({pathname:'/auth',params:{placeId:id}})} /></>}
   {Platform.OS==='web'&&<Text style={sectionStyles.note}>Съёмка доступна в Expo Go на телефоне.</Text>}
-  {Platform.OS!=='web'&&session.status==='authenticated'&&place&&<PhotoDraft key={`${session.user.id}:${place.id}`} placeId={place.id} owner={session.user.id} session={controller} />}
+  {Platform.OS!=='web'&&session.status==='authenticated'&&place&&<PhotoDraft key={`${session.user.id}:${place.id}:${walkId??''}`} placeId={place.id} owner={session.user.id} session={controller} walkId={typeof walkId==='string'&&/^[a-f0-9-]{36}$/i.test(walkId)?walkId:undefined} />}
+  {walkId&&<AppButton title="Вернуться к прогулке" onPress={()=>router.navigate('/walks/active')}/>}
  </SectionScreen>;
 }
 const styles=StyleSheet.create({content:{gap:16},image:{width:'100%',height:360,borderRadius:18,overflow:'hidden',backgroundColor:'#17231e'},error:{color:colors.error,fontSize:16,lineHeight:24},success:{color:colors.primary,fontSize:22,fontWeight:'700'}});

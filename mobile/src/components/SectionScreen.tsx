@@ -4,15 +4,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors } from './ui/theme';
 
-export function SectionScreen({ title, description, children }: {
-  title: string; description: string; children?: ReactNode;
+export function SectionScreen({ title, description, children, city = 'МИНСК' }: {
+  title: string; description?: string; children?: ReactNode; city?: string | null;
 }) {
   return (
     <SafeAreaView edges={['left', 'right']} style={styles.screen}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
-        <Text style={styles.city}>МИНСК</Text>
+        {city ? <Text style={styles.city}>{city}</Text> : null}
         <Text accessibilityRole="header" style={styles.title}>{title}</Text>
-        <Text style={styles.description}>{description}</Text>
+        {description ? <Text style={styles.description}>{description}</Text> : null}
         {children}
       </ScrollView>
     </SafeAreaView>

@@ -27,6 +27,7 @@ type Baseline struct {
 // checked here too, so unknown/inactive add targets cannot trigger provider work.
 // No totals from the client or previously generated routes are used.
 func (s *Service) PrepareBaseline(ctx context.Context, city string, req planner.Request, order []int64, changePlaceID int64, includeGeometry bool) (Baseline, error) {
+	ctx = routing.WithTravelMode(ctx, req.TravelMode)
 	if len(order) == 0 || changePlaceID <= 0 {
 		return Baseline{}, fmt.Errorf("invalid baseline input")
 	}

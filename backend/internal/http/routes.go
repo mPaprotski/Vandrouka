@@ -28,6 +28,7 @@ func RegisterRoutes(r chi.Router, service RouteGenerator) {
 			return
 		}
 		result, err := service.Generate(ctx, input.City, planner.Request{
+			MaxDistanceM: input.MaxDistanceM, MaxStops: input.MaxStops, TravelMode: input.TravelMode,
 			Start:   planner.Point{Lat: input.Start.Lat, Lon: input.Start.Lon},
 			StartAt: input.StartAt, BudgetMinutes: input.BudgetMinutes,
 			Pace: planner.Pace(input.Pace), Categories: input.Categories,

@@ -8,12 +8,14 @@ import (
 	"sort"
 
 	"github.com/yourname/vandrouka/backend/internal/planner"
+	"github.com/yourname/vandrouka/backend/internal/routing"
 )
 
 // Add preserves as many baseline stops as the deterministic greedy search can.
 // The target is mandatory in every trial, including the final singleton trial.
 // Surviving stops retain their relative order; no budgets are expanded.
 func (s *Service) Add(ctx context.Context, baseline Baseline, placeID int64, includeGeometry bool) (VerifiedVariant, error) {
+	ctx = routing.WithTravelMode(ctx, baseline.Prepared.Request.TravelMode)
 	if err := ctx.Err(); err != nil {
 		return VerifiedVariant{}, err
 	}

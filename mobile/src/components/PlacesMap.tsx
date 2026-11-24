@@ -2,13 +2,15 @@ import type { PositionFix } from '../location/locate';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, StyleSheet, Text, View } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { MAP_DOCUMENT_ORIGIN, isMapDocumentNavigation, mapDocument, parseMapMessage, placesScript, userLocationScript, type MapPlace, type MapStage } from '../map/document';
+import { MAP_DOCUMENT_ORIGIN, isMapDocumentNavigation, mapDocument, parseMapMessage, placesScript, userLocationScript, walkScript, type MapPlace, type MapStage } from '../map/document';
+import type { MapWalk } from '../walks/geometry';
 import { AppButton } from './ui/AppButton';
 import { EmptyState, ErrorState, LoadingState } from './ui/ContentState';
 import { colors } from './ui/theme';
 
-export function PlacesMap({ token, places, position, onSelect, onShowList }: {
+export function PlacesMap({ token, places, position, onSelect, onShowList, route }: {
   token: string | null; places: readonly MapPlace[]; position: PositionFix | null; onSelect: (id: number) => void; onShowList: () => void;
+  route?: MapWalk;
 }) {
   // WebView 14 defaults its extra props generic to undefined; specify object for strict TS.
   const webView = useRef<WebView<object>>(null);
@@ -43,8 +45,12 @@ export function PlacesMap({ token, places, position, onSelect, onShowList }: {
   }, [places, phase]);
 
   useEffect(() => {
-    if (phase === 'ready') webView.current?.injectJavaScript(userLocationScript(position));
-  }, [position, phase]);
+    if (phase === 'ready' && route) webView.current?.injectJavaScript(walkScript(route));
+  }, [route, places, phase]);
+
+  useEffect(() => {
+    if (phase === 'ready') webView.current?.injectJavaScript(userLocationScript(position, !route));
+  }, [position, phase, route]);
 
   function openAttribution(url: string) {
     try {
@@ -93,12 +99,14 @@ export function PlacesMap({ token, places, position, onSelect, onShowList }: {
           if (value.type === 'tiles') {
             stage.current = 'ready'; stopTimer(); setTiles('ready'); setDiagnostic(undefined); setPhase('ready');
             webView.current?.injectJavaScript(placesScript(places));
-            webView.current?.injectJavaScript(userLocationScript(position)); return;
+            if (route) webView.current?.injectJavaScript(walkScript(route));
+            webView.current?.injectJavaScript(userLocationScript(position, !route)); return;
           }
           if (value.type === 'ready') {
             stage.current = 'ready'; stopTimer(); setDiagnostic(undefined); setPhase('ready');
             webView.current?.injectJavaScript(placesScript(places));
-            webView.current?.injectJavaScript(userLocationScript(position));
+            if (route) webView.current?.injectJavaScript(walkScript(route));
+            webView.current?.injectJavaScript(userLocationScript(position, !route));
             setTiles('loading');
             timer.current = setTimeout(() => {
               setTiles('slow');
@@ -112,6 +120,10 @@ export function PlacesMap({ token, places, position, onSelect, onShowList }: {
         onContentProcessDidTerminate={() => fail('Карта была остановлена системой. Попробуйте открыть её снова.')}
         style={styles.webview}
       />
+      {route && phase === 'ready' && <View style={styles.walkControls}>
+        <AppButton title="Весь маршрут" variant="secondary" onPress={() => webView.current?.injectJavaScript('window.fitWalk && window.fitWalk(); true;')} />
+        {position && <AppButton title="Моё положение" variant="secondary" onPress={() => webView.current?.injectJavaScript(userLocationScript(position, true, true))} />}
+      </View>}
       {phase === 'ready' && tiles !== 'ready' && <View style={styles.tileNotice} accessibilityLiveRegion="polite">
         {tiles === 'loading' && <ActivityIndicator color={colors.primary} />}
         <Text style={styles.noticeText}>{tiles === 'slow' ? `Подложка карты не загрузилась. Можно выбрать маркер или открыть список. Код: ${tileCode}` : 'Загружаем подложку карты…'}</Text>
@@ -127,6 +139,7 @@ export function PlacesMap({ token, places, position, onSelect, onShowList }: {
 }
 
 const styles = StyleSheet.create({
+  walkControls: { position: 'absolute', bottom: 12, left: 12, right: 12, gap: 8 },
   container: { flex: 1, backgroundColor: colors.background },
   webview: { flex: 1, backgroundColor: colors.background },
   fallback: { padding: 22 },

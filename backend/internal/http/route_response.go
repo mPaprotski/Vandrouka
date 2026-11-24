@@ -80,7 +80,7 @@ func buildRouteResponse(result routes.Result, allowEmpty bool) (GenerateRouteRes
 			if !leg.Reachable || !responseNumber(leg.Seconds) || !responseNumber(leg.Kilometers) {
 				return response, fmt.Errorf("invalid confirmed transition")
 			}
-			walkNS := math.Ceil(leg.Seconds * prepared.Request.Pace.WalkMultiplier() * float64(time.Second))
+			walkNS := math.Ceil(leg.Seconds * prepared.Request.TravelMultiplier() * float64(time.Second))
 			if walkNS >= float64(math.MaxInt64) {
 				return response, fmt.Errorf("transition duration overflow")
 			}
@@ -132,7 +132,13 @@ func buildRouteResponse(result routes.Result, allowEmpty bool) (GenerateRouteRes
 			return response, fmt.Errorf("inconsistent final route totals")
 		}
 		variant.Totals = RouteTotals{WalkSeconds: walk.Seconds(), VisitSeconds: int(visit / time.Second), TotalSeconds: total.Seconds(), DistanceM: meters, CostMinor: cost, Currency: "BYN", CostComplete: variant.Explanation.PricesUnconfirmedCount == 0, StopsCount: len(route.Stops), UnverifiedStopsCount: unverified}
-		variant.Explanation.Text = planner.Explain(route)
+		if prepared.Request.MaxDistanceM != nil && meters > *prepared.Request.MaxDistanceM {
+			return response, fmt.Errorf("final route exceeds distance limit")
+		}
+		if prepared.Request.MaxStops != nil && len(route.Stops) > *prepared.Request.MaxStops {
+			return response, fmt.Errorf("final route exceeds stop limit")
+		}
+		variant.Explanation.Text = planner.Explain(route, prepared.Request.TravelMode)
 		if len(verified.Shapes) > 0 {
 			for _, shape := range verified.Shapes {
 				if shape == "" {

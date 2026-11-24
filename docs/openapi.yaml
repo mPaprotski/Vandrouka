@@ -3210,6 +3210,22 @@ components:
       - start_at
       - budget_minutes
       properties:
+        travel_mode:
+          type: string
+          enum: [walking, cycling]
+          default: walking
+          description: Вид транспорта. Темп pace применяется к walking.
+        max_distance_m:
+          type: number
+          exclusiveMinimum: true
+          minimum: 0
+          maximum: 1000000
+          description: Максимальная длина пути в метрах. Отсутствие означает отсутствие лимита.
+        max_stops:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: Максимальное число мест. Отсутствие означает отсутствие лимита.
         city:
           type: string
           default: minsk

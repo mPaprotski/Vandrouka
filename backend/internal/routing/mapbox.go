@@ -197,7 +197,7 @@ func (c *MapboxClient) block(ctx context.Context, sources, targets []Point) (Mat
 		Durations [][]*float64 `json:"durations"`
 		Distances [][]*float64 `json:"distances"`
 	}
-	if err := c.get(ctx, "/directions-matrix/v1/mapbox/walking/"+coordinates(points), q, &out); err != nil {
+	if err := c.get(ctx, "/directions-matrix/v1/mapbox/"+mapboxProfile(ctx)+"/"+coordinates(points), q, &out); err != nil {
 		return nil, err
 	}
 	if out.Code == "NoRoute" {
@@ -252,7 +252,7 @@ func (c *MapboxClient) Route(ctx context.Context, points []Point) (Route, error)
 			} `json:"routes"`
 		}
 		q := url.Values{"geometries": {"polyline6"}, "overview": {"full"}, "steps": {"false"}, "alternatives": {"false"}}
-		if err := c.get(ctx, "/directions/v5/mapbox/walking/"+coordinates(points[start:end]), q, &out); err != nil {
+		if err := c.get(ctx, "/directions/v5/mapbox/"+mapboxProfile(ctx)+"/"+coordinates(points[start:end]), q, &out); err != nil {
 			return Route{}, err
 		}
 		if out.Code == "NoRoute" {

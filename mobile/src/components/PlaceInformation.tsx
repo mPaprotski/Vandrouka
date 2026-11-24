@@ -1,42 +1,42 @@
 import { useState } from 'react';
 import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
 import type { City, PlaceDetails } from '../api/client';
-import { navigationUrls, safeSourceUrl, ticketLines, weeklyHours } from '../places/presentation';
+import { navigationUrls, placeSources, ticketLines, weeklyHours } from '../places/presentation';
 import { PlaceCover } from './PlaceCover';
 import { AppButton } from './ui/AppButton';
 import { colors } from './ui/theme';
 
 export function PlaceInformation({ place, city }: { place: PlaceDetails; city?: City }) {
   const [opening, setOpening] = useState(false);
-  const [linkError, setLinkError] = useState<string>();
+  const [mapError, setMapError] = useState<string>();
+  const [sourceError, setSourceError] = useState<string>();
   async function navigate() {
     if (opening) return;
-    setOpening(true); setLinkError(undefined);
+    setOpening(true); setMapError(undefined);
     try {
       for (const url of navigationUrls(place, Platform.OS)) {
         try { await Linking.openURL(url); return; } catch { /* Try browser fallback. */ }
       }
-      setLinkError('Не удалось открыть навигацию. Попробуйте позже или выберите другое приложение карт.');
+      setMapError('Не удалось открыть место в картах. Попробуйте позже.');
     } finally { setOpening(false); }
   }
-  const sources = place.links.filter(link => safeSourceUrl(link.url));
+  const sources = placeSources(place);
 
   return <>
     <PlaceCover key={place.content?.cover.url ?? 'missing'} cover={place.content?.cover} title={place.name} interactive />
+    <View style={styles.panel}>
+      <Text accessibilityRole="header" style={styles.heading}>Адрес</Text>
+      {!place.address?.trim() && <Text style={styles.body}>Адрес пока не указан.</Text>}
+      <AppButton title={place.address?.trim() || 'Открыть место на карте'} accessibilityLabel={`${place.address?.trim() || place.name}. Открыть в картах`} variant="secondary" loading={opening} onPress={() => { void navigate(); }} />
+      {mapError && <Text accessibilityRole="alert" style={styles.error}>{mapError}</Text>}
+    </View>
     {place.content && <View style={styles.panel}>
-      <Text accessibilityRole="header" style={styles.heading}>История места</Text>
-      <Text style={styles.body}>{place.content.story}</Text>
       <Text accessibilityRole="header" style={styles.heading}>Как подойти</Text>
       <Text style={styles.body}>{place.content.approach}</Text>
-      <Text style={styles.note}>Источники просмотрены: {place.content.reviewed_on}. {place.content.field_verified ? 'Проверено на месте.' : 'Проверка подхода на месте ещё не выполнена.'}</Text>
-      {place.content.sources.map(url => <AppButton key={url} title={new URL(url).hostname} variant="secondary" onPress={() => { void Linking.openURL(url).catch(() => setLinkError('Не удалось открыть источник.')); }} />)}
     </View>}
-    <AppButton title="Как добраться" loading={opening} onPress={() => { void navigate(); }} />
-    {linkError && <Text accessibilityRole="alert" style={styles.error}>{linkError}</Text>}
     <View style={styles.panel}>
       <Text accessibilityRole="header" style={styles.heading}>Перед прогулкой</Text>
-      <Text style={styles.body}>Время осмотра: {place.visit_minutes > 0 ? `${place.visit_minutes} мин` : 'не указано'}.</Text>
-      <Text style={styles.body}>{city?.name ?? place.city} · {place.lat.toFixed(5)}, {place.lon.toFixed(5)}</Text>
+      <Text style={styles.body}>Время осмотра — {place.visit_minutes > 0 ? `${place.visit_minutes} мин` : 'не указано'}.</Text>
     </View>
     <View style={styles.panel}>
       <Text accessibilityRole="header" style={styles.heading}>Билеты</Text>
@@ -57,11 +57,11 @@ export function PlaceInformation({ place, city }: { place: PlaceDetails; city?: 
     </View>
     {sources.length > 0 && <View style={styles.panel}>
       <Text accessibilityRole="header" style={styles.heading}>Источники и подробности</Text>
-      {sources.map((link, index) => <AppButton key={`${link.url}-${index}`} title={link.title || (link.kind === 'official' ? 'Официальный сайт' : 'Источник информации')} variant="secondary" onPress={() => {
-        setLinkError(undefined);
-        const url = safeSourceUrl(link.url);
-        if (url) void Linking.openURL(url).catch(() => setLinkError('Не удалось открыть ссылку. Попробуйте позже.'));
+      {sources.map(link => <AppButton key={link.url} title={link.title} variant="secondary" onPress={() => {
+        setSourceError(undefined);
+        void Linking.openURL(link.url).catch(() => setSourceError('Не удалось открыть ссылку. Попробуйте позже.'));
       }} />)}
+      {sourceError && <Text accessibilityRole="alert" style={styles.error}>{sourceError}</Text>}
       {place.verified_at && <Text style={styles.note}>Данные проверены: {place.verified_at.slice(0, 10)}</Text>}
     </View>}
   </>;

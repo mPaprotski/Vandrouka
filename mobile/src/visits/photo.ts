@@ -19,7 +19,7 @@ type Dependencies={
  upload:(photo:LocalPhoto,signal:AbortSignal)=>Promise<UploadedPhoto>;
  removeRemote:(id:string)=>Promise<void>;
  removeLocal:(uri:string)=>Promise<void>;
- confirmation?:{storage:AttemptStorage;key:()=>string;send:(key:string,input:VisitInput,signal:AbortSignal)=>Promise<VisitOutcome>};
+ confirmation?:{storage:AttemptStorage;key:()=>string;send:(key:string,input:VisitInput,signal:AbortSignal)=>Promise<VisitOutcome>;walkId?:string;bindWalk?:()=>Promise<string|undefined>;settle?:(attempt:Attempt,result:VisitOutcome)=>Promise<void>};
 };
 /** A draft plus one durable idempotent confirmation. Uncertain/confirmed media is never discarded. */
 export function createPhotoController(deps:Dependencies){
@@ -77,7 +77,9 @@ export function createPhotoController(deps:Dependencies){
     publish({status:'confirmLocating',photo,uploaded});
     const fix=await deps.locate(abort.signal);if(!valid(v))return;
     if(!visitFixReady(fix))throw new Error('Нужна свежая геопозиция с точностью до 30 м. Попробуйте на открытом месте.');
-    pending={key:confirmation.key(),photo:uploaded,input:{photo_id:uploaded.id,location:{lat:fix.latitude,lon:fix.longitude,accuracy_m:fix.accuracy!,observed_at:new Date(fix.timestamp).toISOString()}}};
+    const walkId=confirmation.bindWalk?await confirmation.bindWalk():confirmation.walkId;
+    if(!valid(v))return;
+    pending={key:confirmation.key(),photo:uploaded,input:{photo_id:uploaded.id,location:{lat:fix.latitude,lon:fix.longitude,accuracy_m:fix.accuracy!,observed_at:new Date(fix.timestamp).toISOString()}},...(walkId?{walkId}:{})};
     protectedPhotos.add(uploaded.id);
    }
    const attempt=pending;
@@ -89,6 +91,8 @@ export function createPhotoController(deps:Dependencies){
    if(!valid(v))return;
    // Never allow an invalid/mismatched transport response to erase the durable request.
    if(result.visit.photo_id.toLowerCase()!==uploaded.id.toLowerCase()||result.visit.place_id!==uploaded.place_id)throw new Error('Ответ не соответствует посещению. Повторите проверку результата.');
+   await confirmation.settle?.(attempt,result);
+   if(!valid(v))return;
    try{await confirmation.storage.write(null,attempt.key);}catch{throw new Error('Ответ получен, но не удалось завершить сохранённую попытку. Повторите проверку результата.');}
    if(!valid(v))return;
    pending=undefined;

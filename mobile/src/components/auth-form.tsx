@@ -11,7 +11,8 @@ import { colors } from './ui/theme';
 
 export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
   const { state, controller } = useSession();
-  const { placeId } = useLocalSearchParams<{ placeId?: string }>();
+  const { placeId, returnTo } = useLocalSearchParams<{ placeId?: string; returnTo?: string }>();
+  const fromQuest = returnTo === 'quests';
   const captureId = typeof placeId === 'string' && /^[1-9]\d*$/.test(placeId) && Number.isSafeInteger(Number(placeId)) ? placeId : undefined;
   const registering = mode === 'register';
   const [email, setEmail] = useState('');
@@ -26,9 +27,9 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
   useFocusEffect(useCallback(() => {
     if (state.status === 'authenticated') {
       if (captureId) router.replace({ pathname: '/capture/[id]', params: { id: captureId } });
-      else router.replace('/profile');
+      else router.replace(fromQuest ? '/quests' : '/profile');
     }
-  }, [state.status, captureId]));
+  }, [state.status, captureId, fromQuest]));
 
   async function submit() {
     if (submitting.current || unavailable) return;
@@ -60,7 +61,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
   function switchScreen() {
     setPassword('');
     setConfirmation('');
-    router.replace({ pathname: registering ? '/auth' : '/register', params: captureId ? { placeId: captureId } : {} });
+    router.replace({ pathname: registering ? '/auth' : '/register', params: captureId ? { placeId: captureId } : fromQuest ? { returnTo: 'quests' } : {} });
   }
 
   function continueAsGuest() {
