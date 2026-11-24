@@ -80,6 +80,17 @@ func (p Policy) reject(active, ready bool, distance float64, l Location, receive
 	}
 }
 
+// ValidLocation checks the shape of a fix before inspecting its age or distance.
+func ValidLocation(l Location) bool {
+	return validCoordinates(l.Lat, l.Lon) && finite(l.AccuracyM) && l.AccuracyM >= 0 && !l.ObservedAt.IsZero()
+}
+
+// CheckLocation applies the visit rules to an active point and a ready photo.
+func (p Policy) CheckLocation(lat, lon float64, l Location, received time.Time) (float64, RejectionCode) {
+	distance := DistanceM(lat, lon, l.Lat, l.Lon)
+	return distance, p.reject(true, true, distance, l, received)
+}
+
 type Command struct {
 	Owner, Place int64
 	Key          string
@@ -113,7 +124,7 @@ func (s *Service) Confirm(ctx context.Context, owner, place int64, key string, i
 		return Result{}, ErrInvalid
 	}
 	l := in.Location
-	if owner < 1 || place < 1 || !validCoordinates(l.Lat, l.Lon) || !finite(l.AccuracyM) || l.AccuracyM < 0 || l.ObservedAt.IsZero() || received.IsZero() {
+	if owner < 1 || place < 1 || !ValidLocation(l) || received.IsZero() {
 		return Result{}, ErrInvalid
 	}
 	in.PhotoID = photo.String()

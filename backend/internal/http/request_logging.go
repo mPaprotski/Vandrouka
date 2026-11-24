@@ -58,5 +58,42 @@ func endpointTemplate(path string) string {
 	if len(parts) == 5 && parts[1] == "v1" && parts[2] == "cities" && (parts[4] == "categories" || parts[4] == "places") {
 		return "/v1/cities/{slug}/" + parts[4]
 	}
+	if len(parts) >= 3 && parts[1] == "v1" {
+		switch parts[2] {
+		case "quests":
+			if len(parts) == 3 || path == "/v1/quests/mine" {
+				return path
+			}
+			return scopedEndpoint(parts, "quest_id", "editor", "publish", "archive", "runs")
+		case "quest-runs":
+			if path == "/v1/quest-runs/mine" {
+				return path
+			}
+			return scopedEndpoint(parts, "run_id", "manage", "start", "finish", "joining", "join-code", "participants", "reviews")
+		case "quest-participations":
+			if path == "/v1/quest-participations/mine" || path == "/v1/quest-participations/join" {
+				return path
+			}
+			return scopedEndpoint(parts, "id", "attempts")
+		case "quest-attempts":
+			return scopedEndpoint(parts, "id", "photo", "submit", "withdraw", "review")
+		}
+	}
+
+	return "/unmatched"
+}
+
+func scopedEndpoint(parts []string, param string, actions ...string) string {
+	prefix := "/v1/" + parts[2] + "/{" + param + "}"
+	if len(parts) == 4 {
+		return prefix
+	}
+	if len(parts) == 5 {
+		for _, action := range actions {
+			if parts[4] == action {
+				return prefix + "/" + action
+			}
+		}
+	}
 	return "/unmatched"
 }

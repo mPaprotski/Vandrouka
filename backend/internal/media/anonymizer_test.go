@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 )
 
 type failedAnonymizer struct{ err error }
@@ -31,5 +32,53 @@ func TestUploadStopsBeforeStorageWhenAnonymizationFails(t *testing.T) {
 				t.Fatalf("Upload returned %v, want %v", err, tt.want)
 			}
 		})
+	}
+}
+
+type heldAnonymizer struct {
+	entered chan struct{}
+	release chan struct{}
+}
+
+func (a heldAnonymizer) Anonymize(ctx context.Context, _ Image) (Image, error) {
+	close(a.entered)
+	select {
+	case <-a.release:
+		return Image{}, errors.New("stop before writing to storage")
+	case <-ctx.Done():
+		return Image{}, ctx.Err()
+	}
+}
+
+type unreadablePhoto struct{ read bool }
+
+func (p *unreadablePhoto) Read([]byte) (int, error) {
+	p.read = true
+	return 0, errors.New("competing upload must not read the photo")
+}
+
+func TestAnonymizationLimitsConcurrentImageDecoding(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	held := heldAnonymizer{entered: make(chan struct{}), release: make(chan struct{})}
+	service := &Service{Anonymizer: held}
+	first := fixtureImage(t, "jpeg")
+	finished := make(chan error, 1)
+	go func() {
+		_, err := service.Upload(ctx, 1, 1, bytes.NewReader(first), "image/jpeg")
+		finished <- err
+	}()
+	select {
+	case <-held.entered:
+	case <-ctx.Done():
+		t.Fatal("upload did not reach the anonymizer")
+	}
+	racing := &unreadablePhoto{}
+	if _, err := service.PrepareQuest(ctx, racing, "image/jpeg"); !errors.Is(err, ErrAnonymizerBusy) || racing.read {
+		t.Fatalf("quest upload decoded a competing image: error=%v, read=%t", err, racing.read)
+	}
+	close(held.release)
+	if err := <-finished; !errors.Is(err, ErrAnonymizerUnavailable) {
+		t.Fatalf("first upload returned %v", err)
 	}
 }

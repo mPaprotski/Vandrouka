@@ -1,3 +1,6 @@
+import { ApiError } from './errors.ts';
+import { createQuestApi } from '../quests/api.ts';
+import { briefSummary } from '../places/presentation.ts';
 import { getApiBaseUrl, parseApiBaseUrl } from '../config/api.ts';
 
 export type City = { id: number; slug: string; name: string; center_lat: number; center_lon: number; timezone: string };
@@ -5,7 +8,7 @@ export type Category = { slug: string; name: string; places_count: number };
 // Only fields consumed by the current mobile screens. Other server fields are ignored.
 export type CatalogCover = { url: string; author: string; license: string; license_url: string; source_url: string; changes: string };
 export type CuratedContent = { order: number; story: string; approach: string; sources: string[]; reviewed_on: string; field_verified: boolean; cover: CatalogCover };
-export type Place = { content?: CuratedContent; id: number; slug: string; city: string; name: string; summary: string; lat: number; lon: number; categories: string[] };
+export type Place = { content?: CuratedContent; id: number; slug: string; city: string; name: string; summary: string; address?: string; lat: number; lon: number; categories: string[] };
 export type OpeningHours = { weekday: number; open_time: string; close_time: string };
 export type OpeningException = { date: string; closed: boolean; open_time: string | null; close_time: string | null; note: string };
 export type TicketPrice = { kind: string; amount: number; currency: string };
@@ -83,20 +86,8 @@ export function decodeExploration(value:unknown):Exploration{
  return {discovered_places:count,achievements,collections};
 }
 export type RequestOptions = { signal?: AbortSignal; timeoutMs?: number };
-export type ErrorKind = 'http' | 'network' | 'timeout' | 'cancelled' | 'invalid_response' | 'invalid_request';
-
-export class ApiError extends Error {
-  readonly kind: ErrorKind;
-  readonly status?: number;
-  readonly code?: string;
-  readonly requestId?: string;
-  constructor(kind: ErrorKind, message: string, details: { status?: number; code?: string; requestId?: string } = {}) {
-    super(message);
-    this.name = 'ApiError';
-    this.kind = kind;
-    Object.assign(this, details);
-  }
-}
+export { ApiError } from './errors.ts';
+export type { ErrorKind } from './errors.ts';
 
 function invalid(): never { throw new ApiError('invalid_response', 'Сервер вернул данные в неожиданном формате.'); }
 function object(value: unknown): Record<string, unknown> {
@@ -128,7 +119,7 @@ function content(value: unknown): CuratedContent {
 }
 function place(value: unknown): Place {
   const v = object(value);
-  return { ...(v.content === undefined ? {} : { content: content(v.content) }), id: integer(v.id), slug: named(v.slug), city: named(v.city), name: named(v.name), summary: text(v.summary), lat: coordinate(v.lat, 90), lon: coordinate(v.lon, 180), categories: array(v.categories, named) };
+  return { ...(v.content === undefined ? {} : { content: content(v.content) }), id: integer(v.id), slug: named(v.slug), city: named(v.city), name: named(v.name), summary: briefSummary(text(v.summary)), ...(v.address === undefined ? {} : { address: text(v.address) }), lat: coordinate(v.lat, 90), lon: coordinate(v.lon, 180), categories: array(v.categories, named) };
 }
 function boolean(value: unknown): boolean { return typeof value === 'boolean' ? value : invalid(); }
 function clock(value: unknown): string {
@@ -184,8 +175,14 @@ function credentials(input: Credentials): Credentials {
  if(!email||email.length>254||length<12||length>128)throw new ApiError('invalid_request','Введите email и пароль длиной 12–128 символов.');
  return {email,password:input.password};
 }
+export type TransportOptions = {
+  method?: 'POST' | 'PUT' | 'PATCH' | 'DELETE'; body?: unknown; form?: FormData;
+  accessToken?: string; idempotencyKey?: string; acceptStatus?: number; binary?: boolean;
+};
+export type ApiRequest = <T>(path: string, decode: (value: unknown, status: number) => T, options?: RequestOptions, transport?: TransportOptions) => Promise<T>;
+
 export function createApiClient(options: { baseUrl?: string; fetcher?: typeof fetch; timeoutMs?: number } = {}) {
-  async function request<T>(path: string, decode: (value: unknown, status:number) => T, requestOptions: RequestOptions = {}, transport: {method?: 'POST'|'DELETE'; body?: unknown; form?:FormData; accessToken?: string; idempotencyKey?:string; acceptStatus?:number;binary?:boolean} = {}): Promise<T> {
+  async function request<T>(path: string, decode: (value: unknown, status:number) => T, requestOptions: RequestOptions = {}, transport: TransportOptions = {}): Promise<T> {
     const base = options.baseUrl === undefined ? getApiBaseUrl() : parseApiBaseUrl(options.baseUrl);
     const timeoutMs = requestOptions.timeoutMs ?? options.timeoutMs ?? 10000;
     if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) throw new ApiError('invalid_request', 'Некорректное время ожидания запроса.');
@@ -233,7 +230,9 @@ export function createApiClient(options: { baseUrl?: string; fetcher?: typeof fe
             if ('message' in detail && typeof detail.message === 'string' && detail.message.trim()) message = detail.message;
           }
         }
-        throw new ApiError('http', message, { status, code, requestId });
+        const after = response.headers.get('Retry-After');
+        const retryAfterMs = after && /^[1-9][0-9]{0,2}$/.test(after) ? Math.min(Number(after), 120) * 1000 : undefined;
+        throw new ApiError('http', message, { status, code, requestId, retryAfterMs });
       }
       return decode(data,response.status);
     };
@@ -251,6 +250,7 @@ export function createApiClient(options: { baseUrl?: string; fetcher?: typeof fe
     }
   }
   return {
+    quests: createQuestApi(request),
     getExploration:(accessToken:string,o?:RequestOptions)=>request('/v1/me/exploration',decodeExploration,o,{accessToken}),
     deleteAccount:(password:string,accessToken:string,o?:RequestOptions)=>request('/v1/me',()=>undefined,o,{method:'DELETE',body:{password},accessToken}),
     hideVisit:(id:number,accessToken:string,o?:RequestOptions)=>{

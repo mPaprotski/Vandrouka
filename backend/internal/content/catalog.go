@@ -131,6 +131,7 @@ func Load(root string) (*Registry, error) {
 	return registry, nil
 }
 func (r *Registry) enrich(place places.Place) places.Place {
+	place = enrichCard(place)
 	place.Content = r.entries[place.City+"/"+place.Slug]
 	return place
 }

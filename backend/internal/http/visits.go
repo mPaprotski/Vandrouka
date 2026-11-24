@@ -101,9 +101,8 @@ func RegisterVisits(r chi.Router, authentication AuthService, service VisitServi
 			return
 		}
 		if result.Visit.Status == visits.Rejected {
-			code := string(*result.Visit.RejectionCode)
-			messages := map[string]string{"too_far": "Подойдите ближе к месту", "poor_accuracy": "Дождитесь более точного GPS", "stale_location": "Получите свежую геопозицию", "future_location": "Проверьте время на устройстве", "inactive_place": "Место недоступно для посещения", "photo_not_ready": "Дождитесь готовности фотографии"}
-			JSON(w, 422, map[string]any{"visit": result.Visit, "xp_awarded": 0, "error": map[string]string{"code": code, "message": messages[code]}})
+			code := *result.Visit.RejectionCode
+			JSON(w, 422, map[string]any{"visit": result.Visit, "xp_awarded": 0, "error": map[string]string{"code": string(code), "message": visitRejectionMessage(code)}})
 			return
 		}
 		status := 201
@@ -112,4 +111,9 @@ func RegisterVisits(r chi.Router, authentication AuthService, service VisitServi
 		}
 		JSON(w, status, result)
 	})
+}
+
+func visitRejectionMessage(code visits.RejectionCode) string {
+	messages := map[visits.RejectionCode]string{"too_far": "Подойдите ближе к месту", "poor_accuracy": "Дождитесь более точного GPS", "stale_location": "Получите свежую геопозицию", "future_location": "Проверьте время на устройстве", "inactive_place": "Место недоступно для посещения", "photo_not_ready": "Дождитесь готовности фотографии"}
+	return messages[code]
 }

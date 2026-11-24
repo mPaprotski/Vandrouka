@@ -32,11 +32,12 @@ type mediaHandler struct {
 	now            func() time.Time
 }
 
-func RegisterMedia(r chi.Router, authentication AuthService, service MediaService) {
+func RegisterMedia(r chi.Router, authentication AuthService, service MediaService) *mediaHandler {
 	h := &mediaHandler{service: service, authentication: authentication, windows: make(map[int64]authWindow), slots: make(chan struct{}, 2), now: time.Now}
 	r.Post("/v1/visits/photo-upload", h.upload)
 	r.Get("/v1/visits/photos/{photo_id}", h.read)
 	r.Delete("/v1/visits/photos/{photo_id}", h.remove)
+	return h
 }
 func MediaResponses(timeout time.Duration) func(http.Handler) http.Handler {
 	guard := responseGuard(timeout, mediaErrors)
@@ -107,6 +108,9 @@ func (h *mediaHandler) admit(w http.ResponseWriter, owner int64, upload bool) bo
 	}
 }
 func readPhotoForm(w http.ResponseWriter, r *http.Request) (int64, []byte, string, error) {
+	return readPhotoFormFields(w, r, true)
+}
+func readPhotoFormFields(w http.ResponseWriter, r *http.Request, needPlace bool) (int64, []byte, string, error) {
 	r.Body = http.MaxBytesReader(w, r.Body, media.MaxFileBytes+(64<<10))
 	mr, err := r.MultipartReader()
 	if err != nil {
@@ -126,7 +130,7 @@ func readPhotoForm(w http.ResponseWriter, r *http.Request) (int64, []byte, strin
 		}
 		switch part.FormName() {
 		case "place_id":
-			if hasPlace || part.FileName() != "" {
+			if !needPlace || hasPlace || part.FileName() != "" {
 				return 0, nil, "", media.ErrInvalid
 			}
 			hasPlace = true
@@ -161,7 +165,7 @@ func readPhotoForm(w http.ResponseWriter, r *http.Request) (int64, []byte, strin
 			return 0, nil, "", formError(err)
 		}
 	}
-	if !hasFile || !hasPlace {
+	if !hasFile || (needPlace && !hasPlace) {
 		return 0, nil, "", media.ErrInvalid
 	}
 	return place, file, declared, nil
@@ -210,6 +214,10 @@ func (h *mediaHandler) read(w http.ResponseWriter, r *http.Request) {
 		mediaFailure(w, err)
 		return
 	}
+	writePrivatePhoto(w, photo, body)
+}
+
+func writePrivatePhoto(w http.ResponseWriter, photo visits.Photo, body []byte) {
 	w.Header().Set("Content-Type", *photo.MIMEType)
 	w.Header().Set("Content-Length", strconv.Itoa(len(body)))
 	w.Header().Set("Content-Disposition", "inline")
