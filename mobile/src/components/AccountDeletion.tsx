@@ -17,14 +17,7 @@ export function AccountDeletion({owner,session}:{owner:number;session:SessionCon
    // Include pre-index records for places still present in the public catalog.
    const places=await api.listPlaces('minsk');
    await session.withAccess(token=>api.deleteAccount(password,token),owner);setPassword('');
-   let notice='Аккаунт удалён.';
-   try{
-    const origin=getApiBaseUrl();
-    const cleanups=await Promise.allSettled([clearAccountAttempts(origin,owner,places.map(place=>place.id)),clearQuestDrafts(origin,owner),clearWalks(origin,owner)]);
-    if(cleanups.some(result=>result.status==='rejected'))throw new Error('Local cleanup incomplete');
-   }
-   catch{notice='Аккаунт удалён. Не удалось полностью очистить защищённые локальные записи; локальная очистка требует повторной проверки.';}
-   await session.logout(notice,owner);
+   await cleanupDeletedAccount(owner,session,places.map(place=>place.id));
   }
   catch(e){setError(e instanceof Error?e.message:'Не удалось удалить аккаунт. Проверьте результат перед повтором.');}
   finally{pending.current=false;setBusy(false);}
@@ -37,4 +30,15 @@ export function AccountDeletion({owner,session}:{owner:number;session:SessionCon
   <AppButton title="Удалить аккаунт навсегда" loading={busy} disabled={!password} onPress={()=>void remove()}/>
   <AppButton title="Отмена" variant="secondary" disabled={busy} onPress={()=>{setOpen(false);setPassword('');setError(undefined);}}/>
  </>}</View>;
+}
+
+export async function cleanupDeletedAccount(owner:number,session:SessionController,placeIds:number[]=[]){
+   let notice='Аккаунт удалён.';
+   try{
+    const origin=getApiBaseUrl();
+    const cleanups=await Promise.allSettled([clearAccountAttempts(origin,owner,placeIds),clearQuestDrafts(origin,owner),clearWalks(origin,owner)]);
+    if(cleanups.some(result=>result.status==='rejected'))throw new Error('Local cleanup incomplete');
+   }
+   catch{notice='Аккаунт удалён. Не удалось полностью очистить защищённые локальные записи; локальная очистка требует повторной проверки.';}
+   await session.logout(notice,owner);
 }

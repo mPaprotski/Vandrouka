@@ -6,6 +6,8 @@ import (
 )
 
 type Config struct {
+	OAuthLoginEnabled bool          `env:"OAUTH_LOGIN_ENABLED" env-default:"false"`
+	OAuthLoginOrigin  string        `env:"OAUTH_LOGIN_ORIGIN"`
 	OAuthProbeEnabled bool          `env:"OAUTH_PROBE_ENABLED" env-default:"false"`
 	VisitRadiusM      float64       `env:"VISIT_RADIUS_M" env-default:"70"`
 	VisitAccuracyM    float64       `env:"VISIT_ACCURACY_M" env-default:"30"`

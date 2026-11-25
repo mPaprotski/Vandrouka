@@ -1537,6 +1537,153 @@ paths:
           $ref: '#/components/responses/Error'
         '409':
           $ref: '#/components/responses/Error'
+  /v1/me/login-methods:
+    get:
+      x-implementation-status: implemented
+      summary: Read connected login methods
+      security: [{BearerAuth: []}]
+      responses:
+        '200':
+          description: Available password and providers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  password: {type: boolean}
+                  providers: {type: array, items: {type: string, enum: [google, yandex]}}
+        '401': {$ref: '#/components/responses/Error'}
+  /v1/auth/oauth/account-attempts:
+    post:
+      x-implementation-status: implemented
+      summary: Start provider linking or account deletion confirmation
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [provider, challenge, purpose]
+              properties:
+                provider: {type: string, enum: [google, yandex]}
+                challenge: {type: string, pattern: '^[0-9a-f]{64}$'}
+                purpose: {type: string, enum: [link, delete]}
+                password: {type: string}
+      responses:
+        '201': {description: Browser attempt}
+        '401': {$ref: '#/components/responses/Error'}
+        '403': {$ref: '#/components/responses/Error'}
+  /v1/auth/oauth/account-complete:
+    post:
+      x-implementation-status: implemented
+      summary: Confirm linking or explicitly execute account deletion
+      security: [{BearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [attempt_id, code, device_secret, purpose]
+              properties:
+                attempt_id: {type: string}
+                code: {type: string}
+                device_secret: {type: string}
+                purpose: {type: string, enum: [link, delete]}
+      responses:
+        '204': {description: Linked identity or deleted account}
+        '401': {$ref: '#/components/responses/Error'}
+        '403': {$ref: '#/components/responses/Error'}
+        '409': {$ref: '#/components/responses/Error'}
+  /v1/auth/oauth/attempts:
+    post:
+      x-implementation-status: implemented
+      summary: Start mobile Google or Yandex login
+      description: Enabled by OAUTH_LOGIN_ENABLED. The device saves a random 32-byte secret encoded in lowercase hex and sends the lowercase hex SHA-256 of that UTF-8 string. Attempts last five minutes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [provider, challenge]
+              properties:
+                provider: {type: string, enum: [google, yandex]}
+                challenge: {type: string, pattern: '^[0-9a-f]{64}$'}
+      responses:
+        '201':
+          description: Open browser_url on the configured API origin in the system browser
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [attempt_id, browser_url, expires_at]
+                properties:
+                  attempt_id: {type: string, pattern: '^[A-Za-z0-9_-]{43}$'}
+                  browser_url: {type: string, format: uri}
+                  expires_at: {type: string, format: date-time}
+        '400': {$ref: '#/components/responses/Error'}
+        '415': {$ref: '#/components/responses/Error'}
+        '429': {$ref: '#/components/responses/Error'}
+        '503': {$ref: '#/components/responses/Error'}
+  /v1/auth/oauth/begin/{id}:
+    get:
+      x-implementation-status: implemented
+      summary: Bind the browser to the attempt and redirect to the provider
+      parameters:
+      - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        '302':
+          description: Provider authorization with state and PKCE S256
+          headers:
+            Location: {schema: {type: string, format: uri}}
+        '401': {$ref: '#/components/responses/Error'}
+        '503': {$ref: '#/components/responses/Error'}
+  /v1/auth/oauth/callback/{provider}:
+    get:
+      x-implementation-status: implemented
+      summary: Accept the browser callback for the configured web client
+      parameters:
+      - {name: provider, in: path, required: true, schema: {type: string, enum: [google, yandex]}}
+      - {name: state, in: query, required: true, schema: {type: string}}
+      - {name: code, in: query, schema: {type: string}}
+      - {name: error, in: query, schema: {type: string}}
+      responses:
+        '200':
+          description: Browser page with a return link (vandrouka://auth-return?attempt=…&code=…). The handoff expires within one minute and within the original attempt lifetime.
+          content:
+            text/html: {schema: {type: string}}
+        '401': {$ref: '#/components/responses/Error'}
+  /v1/auth/oauth/complete:
+    post:
+      x-implementation-status: implemented
+      summary: Redeem both mobile and browser proofs for a Vandrouka session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [attempt_id, code, device_secret]
+              properties:
+                attempt_id: {type: string, pattern: '^[A-Za-z0-9_-]{43}$'}
+                code: {type: string, pattern: '^[A-Za-z0-9_-]{43}$'}
+                device_secret: {type: string, pattern: '^[0-9a-f]{64}$'}
+      responses:
+        '200':
+          description: Existing application session format, issued once
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AuthSession'}
+        '400': {$ref: '#/components/responses/Error'}
+        '401': {$ref: '#/components/responses/Error'}
+        '409': {$ref: '#/components/responses/Error'}
+        '415': {$ref: '#/components/responses/Error'}
+        '422': {$ref: '#/components/responses/Error'}
+        '503': {$ref: '#/components/responses/Error'}
   /v1/auth/login:
     post:
       summary: Sign in and create a session

@@ -1,3 +1,4 @@
+import {SocialLoginButtons} from './SocialLoginButtons';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -93,6 +94,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
             </>}
             {error && <Text accessibilityRole="alert" style={styles.error}>{error}</Text>}
             {requestId && <Text selectable style={styles.note}>Код обращения — {requestId}</Text>}
+            <SocialLoginButtons target={captureId?`/capture/${captureId}`:fromQuest?'/quests':'/profile'} disabled={unavailable}/>
             <AppButton title={registering ? 'Создать аккаунт' : 'Войти'} loading={busy} disabled={unavailable} onPress={() => { void submit(); }} />
             <AppButton title={registering ? 'У меня уже есть аккаунт' : 'Создать аккаунт'} variant="secondary" disabled={unavailable} onPress={switchScreen} />
             {(__DEV__ || process.env.EXPO_PUBLIC_ENABLE_OAUTH_PROBE === 'true') && process.env.EXPO_PUBLIC_OAUTH_PROBE_URL && <AppButton title="Проверить Google и Яндекс" variant="secondary" disabled={unavailable} onPress={() => router.push('/auth-check')} />}

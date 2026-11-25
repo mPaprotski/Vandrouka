@@ -82,10 +82,17 @@ func NewWithLifetimes(repository Repository, lifetime, refreshLifetime time.Dura
 	return &Service{repository: repository, dummyHash: dummy, now: time.Now, lifetime: lifetime, refreshLifetime: refreshLifetime}, nil
 }
 
-// Email matching is case-insensitive. No provider-specific dot/plus rewriting.
 func normalize(email, password string) (string, error) {
+	if !utf8.ValidString(password) || utf8.RuneCountInString(password) < 12 || utf8.RuneCountInString(password) > 128 || len(password) > 512 {
+		return "", ErrInvalidInput
+	}
+	return normalizeEmail(email)
+}
+
+// Email matching is case-insensitive. No provider-specific dot/plus rewriting.
+func normalizeEmail(email string) (string, error) {
 	email = strings.ToLower(strings.TrimSpace(email))
-	if len(email) > 254 || len(email) == 0 || !utf8.ValidString(password) || utf8.RuneCountInString(password) < 12 || utf8.RuneCountInString(password) > 128 || len(password) > 512 {
+	if len(email) > 254 || len(email) == 0 {
 		return "", ErrInvalidInput
 	}
 	for _, c := range email {

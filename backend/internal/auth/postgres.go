@@ -45,7 +45,7 @@ func (p Postgres) Register(ctx context.Context, email, hash string, input Sessio
 }
 func (p Postgres) FindCredentials(ctx context.Context, email string) (Credentials, error) {
 	var record Credentials
-	err := p.Pool.QueryRow(ctx, "SELECT id,email,created_at,password_hash FROM users WHERE email=$1", email).Scan(&record.User.ID, &record.User.Email, &record.User.CreatedAt, &record.PasswordHash)
+	err := p.Pool.QueryRow(ctx, "SELECT id,email,created_at,password_hash FROM users WHERE email=$1 AND password_hash IS NOT NULL", email).Scan(&record.User.ID, &record.User.Email, &record.User.CreatedAt, &record.PasswordHash)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return Credentials{}, ErrCredentials
 	}
