@@ -151,3 +151,27 @@ go run ./cmd/oauth-probe
 - [Код подтверждения и PKCE Яндекса](https://yandex.ru/dev/id/doc/ru/codes/code-url)
 - [API пользователя Яндекс ID](https://yandex.ru/dev/id/doc/ru/user-information)
 - [Go Web Service на Render](https://render.com/docs/deploy-go-gin)
+
+## Серверный вход для мобильного приложения
+
+Рабочий протокол использует основной API, миграции 21–22 и существующие сессии
+«Вандроўкі». Для включения при выпуске задать `OAUTH_LOGIN_ENABLED=true` и
+`OAUTH_LOGIN_ORIGIN=https://vandrouka-api.onrender.com`. Пары
+`GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` и
+`YANDEX_CLIENT_ID` / `YANDEX_CLIENT_SECRET` читаются отдельно для каждого
+провайдера. По умолчанию маршруты выключены. В консоли веб-клиента каждого
+провайдера добавить соответствующий HTTPS callback:
+
+- `https://vandrouka-api.onrender.com/v1/auth/oauth/callback/google`
+- `https://vandrouka-api.onrender.com/v1/auth/oauth/callback/yandex`
+
+Контракт мобильного клиента описан в `openapi.yaml`. Телефон сохраняет 32 случайных
+байта в виде 64 строчных hex-символов и передаёт SHA-256 именно этой строки
+в `POST /v1/auth/oauth/attempts`. Браузер открывает выданный URL, подтверждает
+вход и возвращается по ссылке `vandrouka://auth-return?attempt=…&code=…`.
+Срок попытки — пять минут. На завершение после callback отводится до минуты
+в пределах исходного срока. Приложение предъявляет оба доказательства в
+`POST /v1/auth/oauth/complete` и получает стандартный AuthSession. При потере
+ответа на успешный обмен пользователь начинает новый вход с тем же провайдером.
+Код `account_link_required` означает, что почта уже занята существующим профилем.
+Диагностический экран Expo Go использует отдельные маршруты `/oauth/*`.

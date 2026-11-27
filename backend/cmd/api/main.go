@@ -20,6 +20,7 @@ import (
 	"github.com/yourname/vandrouka/backend/internal/history"
 	apihttp "github.com/yourname/vandrouka/backend/internal/http"
 	"github.com/yourname/vandrouka/backend/internal/media"
+	"github.com/yourname/vandrouka/backend/internal/oauthlogin"
 	"github.com/yourname/vandrouka/backend/internal/oauthprobe"
 	"github.com/yourname/vandrouka/backend/internal/planner"
 	"github.com/yourname/vandrouka/backend/internal/progress"
@@ -122,6 +123,21 @@ func run() error {
 		r.Use(apihttp.AuthResponses(10 * time.Second))
 		apihttp.RegisterAuth(r, authentication)
 	})
+
+	if cfg.OAuthLoginEnabled {
+		login, err := oauthlogin.New(cfg.OAuthLoginOrigin, pool, authentication)
+		if err != nil {
+			return err
+		}
+		r.Group(func(r chi.Router) {
+			r.Use(apihttp.AuthResponses(25 * time.Second))
+			apihttp.RegisterOAuthLogin(r, login)
+		})
+		cleanupCtx, cancelCleanup := context.WithCancel(ctx)
+		done := make(chan struct{})
+		go func() { defer close(done); login.CleanExpired(cleanupCtx) }()
+		defer func() { cancelCleanup(); <-done }()
+	}
 
 	confirmations, err := visits.New(visits.Postgres{Pool: pool}, visits.Policy{RadiusM: cfg.VisitRadiusM, AccuracyM: cfg.VisitAccuracyM, MaxAge: cfg.VisitMaxAge, FutureSkew: cfg.VisitFutureSkew})
 	if err != nil {

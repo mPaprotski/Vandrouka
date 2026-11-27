@@ -1,3 +1,4 @@
+import {createOAuthAPI} from '../auth/oauth-api.ts';
 import { createWalkApi } from '../walks/api.ts';
 import { ApiError } from './errors.ts';
 import { createQuestApi } from '../quests/api.ts';
@@ -251,6 +252,7 @@ export function createApiClient(options: { baseUrl?: string; fetcher?: typeof fe
     }
   }
   return {
+    oauth: createOAuthAPI(request,options.baseUrl === undefined ? getApiBaseUrl() : parseApiBaseUrl(options.baseUrl)),
     quests: createQuestApi(request),
     walks: createWalkApi(request),
     getExploration:(accessToken:string,o?:RequestOptions)=>request('/v1/me/exploration',decodeExploration,o,{accessToken}),

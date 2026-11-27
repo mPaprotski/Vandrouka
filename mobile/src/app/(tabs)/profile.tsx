@@ -1,3 +1,4 @@
+import {LoginMethods} from '../../components/LoginMethods';
 import {ExplorationPanel} from '../../components/ExplorationPanel';
 import {AccountDeletion} from '../../components/AccountDeletion';
 import { ProgressPanel } from '../../components/ProgressPanel';
@@ -21,6 +22,7 @@ export default function ProfileScreen(){
    <ProgressPanel key={state.user.id} owner={state.user.id} session={controller} />
    <AppButton title="Исследовать город" onPress={()=>router.navigate('/explore')}/>
    <ExplorationPanel key={`exploration-${state.user.id}`} owner={state.user.id} session={controller}/>
+   <LoginMethods key={`methods-${state.user.id}`}/>
    <AccountDeletion key={state.user.id} owner={state.user.id} session={controller}/>
    <AppButton title="Выйти из аккаунта" variant="secondary" loading={exiting} onPress={()=>{void logout();}}/>
   </View>}

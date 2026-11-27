@@ -142,7 +142,7 @@ export function createSessionController({api,storage,origin,now=Date.now}:{api:S
    if(version===epoch)publish({status:'guest',message:'Вы вышли на этом устройстве. Отзыв на сервере завершится после подключения.'});
   }
  }
- async function signIn(mode:'login'|'register',input:Credentials):Promise<void>{
+ async function signInWith(operation:()=>Promise<AuthSession>):Promise<void>{
   if(signingIn)throw new Error('Дождитесь завершения входа.');
   signingIn=true;
   try{
@@ -151,7 +151,7 @@ export function createSessionController({api,storage,origin,now=Date.now}:{api:S
    await flush();
    const version=++epoch;publish({status:'loading'});
    let result:AuthSession;
-   try{result=await api[mode](input);}catch(error){if(version===epoch)publish({status:'guest'});throw error;}
+   try{result=decodeAuthSession(await operation());}catch(error){if(version===epoch)publish({status:'guest'});throw error;}
    if(version!==epoch){await revokeLate(result);throw cancelled();}
    session=result;booted=true;
    try{await persist(version);}catch(error){session=null;await revokeLate(result);if(version===epoch)publish(failure(error));throw error;}
@@ -162,7 +162,7 @@ export function createSessionController({api,storage,origin,now=Date.now}:{api:S
  return {
   getSnapshot:()=>state,
   subscribe:(listener:()=>void)=>{listeners.add(listener);return()=>{listeners.delete(listener);};},
-  resume,signIn,logout,withAccess,
+  resume,signIn:(mode:'login'|'register',input:Credentials)=>signInWith(()=>api[mode](input)),signInWith,logout,withAccess,
  };
 }
 export type SessionController=ReturnType<typeof createSessionController>;
