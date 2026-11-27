@@ -11,6 +11,7 @@ import (
 
 	"github.com/yourname/vandrouka/backend/internal/places"
 	"github.com/yourname/vandrouka/backend/internal/planner"
+	"github.com/yourname/vandrouka/backend/internal/routing"
 )
 
 var ErrCityNotFound = errors.New("route city not found")
@@ -88,6 +89,7 @@ func (s *Service) GenerateCandidates(ctx context.Context, citySlug string, reque
 }
 
 func (s *Service) generateCandidates(ctx context.Context, prepared Prepared) (Candidates, error) {
+	ctx = routing.WithTravelMode(ctx, prepared.Request.TravelMode)
 	result := Candidates{Prepared: prepared, Variants: []planner.Variant{}}
 	if prepared.Empty() {
 		return result, nil

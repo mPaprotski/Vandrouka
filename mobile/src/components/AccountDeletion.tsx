@@ -1,3 +1,5 @@
+import {clearQuestDrafts} from '../quests/draftStorage';
+import {clearWalks} from '../walks/storage';
 import {clearAccountAttempts} from '../visits/attemptStorage';
 import {getApiBaseUrl} from '../config/api';
 import {useRef,useState} from 'react';
@@ -16,7 +18,11 @@ export function AccountDeletion({owner,session}:{owner:number;session:SessionCon
    const places=await api.listPlaces('minsk');
    await session.withAccess(token=>api.deleteAccount(password,token),owner);setPassword('');
    let notice='Аккаунт удалён.';
-   try{await clearAccountAttempts(getApiBaseUrl(),owner,places.map(place=>place.id));}
+   try{
+    const origin=getApiBaseUrl();
+    const cleanups=await Promise.allSettled([clearAccountAttempts(origin,owner,places.map(place=>place.id)),clearQuestDrafts(origin,owner),clearWalks(origin,owner)]);
+    if(cleanups.some(result=>result.status==='rejected'))throw new Error('Local cleanup incomplete');
+   }
    catch{notice='Аккаунт удалён. Не удалось полностью очистить защищённые локальные записи; локальная очистка требует повторной проверки.';}
    await session.logout(notice,owner);
   }

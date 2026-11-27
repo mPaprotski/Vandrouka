@@ -28,6 +28,7 @@ export default function RootLayout() {
         headerTintColor: '#173F34',
         contentStyle: { backgroundColor: '#F7F4EC' },
       }}>
+        <Stack.Screen name="walks" options={{ headerShown: false }} />
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="quests" options={{ headerShown: false }} />

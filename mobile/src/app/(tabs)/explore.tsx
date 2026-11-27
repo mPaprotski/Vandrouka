@@ -44,6 +44,7 @@ function ExploreContent({owner,session}:{owner:number|null;session:SessionContro
 
   return (
     <SafeAreaView edges={['left', 'right']} style={styles.screen}>
+      <AppButton title="Спланировать прогулку" onPress={() => router.push("/walks")} />
       <View style={styles.toolbar}>
         <Text accessibilityRole="header" style={styles.title}>МИНСК</Text>
         <View style={styles.modes}>

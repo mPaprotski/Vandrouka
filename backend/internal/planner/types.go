@@ -66,6 +66,9 @@ const (
 )
 
 type Request struct {
+	MaxDistanceM       *float64
+	MaxStops           *int
+	TravelMode         string
 	Profile            Profile
 	Categories         []string
 	BudgetMinutes      int
@@ -74,6 +77,13 @@ type Request struct {
 	Pace               Pace
 	MaxTicketCostMinor *int64 // nil means no ticket budget limit.
 	Seed               int64
+}
+
+func (r Request) TravelMultiplier() float64 {
+	if r.TravelMode == "cycling" {
+		return 1
+	}
+	return r.Pace.WalkMultiplier()
 }
 
 type Stop struct {

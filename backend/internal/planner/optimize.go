@@ -27,6 +27,9 @@ func (p *Planner) EvaluateOrder(req Request, places []Place, matrix DistanceMatr
 }
 
 func (p *Planner) evaluateOrder(req Request, places []Place, matrix DistanceMatrix, index map[int64]int, order []int64) (Route, error) {
+	if req.MaxStops != nil && len(order) > *req.MaxStops {
+		return Route{}, fmt.Errorf("%w: stop limit", ErrInfeasible)
+	}
 	route := Route{Seed: req.Seed, Metrics: Metrics{CategoryCounts: make(map[string]int)}}
 	current := req.StartAt
 	remaining := time.Duration(req.BudgetMinutes) * time.Minute
@@ -52,7 +55,10 @@ func (p *Planner) evaluateOrder(req Request, places []Place, matrix DistanceMatr
 		if math.IsNaN(leg.Seconds) || math.IsInf(leg.Seconds, 0) || leg.Seconds < 0 || math.IsNaN(leg.Kilometers) || math.IsInf(leg.Kilometers, 0) || leg.Kilometers < 0 {
 			return Route{}, fmt.Errorf("invalid matrix leg %d -> %d", from, i+1)
 		}
-		walkNS := math.Ceil(leg.Seconds * req.Pace.WalkMultiplier() * float64(time.Second))
+		if req.MaxDistanceM != nil && (route.Metrics.WalkKM+leg.Kilometers)*1000 > *req.MaxDistanceM {
+			return Route{}, fmt.Errorf("%w: distance limit", ErrInfeasible)
+		}
+		walkNS := math.Ceil(leg.Seconds * req.TravelMultiplier() * float64(time.Second))
 		if walkNS >= float64(math.MaxInt64) {
 			return Route{}, fmt.Errorf("%w: walking time overflow", ErrInfeasible)
 		}

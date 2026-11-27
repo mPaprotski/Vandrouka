@@ -8,12 +8,14 @@ import (
 	"sort"
 
 	"github.com/yourname/vandrouka/backend/internal/planner"
+	"github.com/yourname/vandrouka/backend/internal/routing"
 )
 
 // Remove uses the verified baseline snapshot without reloading or rebuilding
 // Matrix. Surviving stops retain relative order. Refill greedily inserts eligible
 // places, checking the entire route through Directions after each insertion.
 func (s *Service) Remove(ctx context.Context, baseline Baseline, placeID int64, includeGeometry bool) (VerifiedVariant, error) {
+	ctx = routing.WithTravelMode(ctx, baseline.Prepared.Request.TravelMode)
 	if err := ctx.Err(); err != nil {
 		return VerifiedVariant{}, err
 	}

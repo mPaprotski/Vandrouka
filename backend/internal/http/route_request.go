@@ -26,6 +26,9 @@ var routeDateTime = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}[Tt]\d{2}:\d{2}:\d{2}(
 // ValidatedGenerateRouteRequest has explicit defaults, while a nil ticket budget
 // still means unlimited. It is not a Planner request and causes no service calls.
 type ValidatedGenerateRouteRequest struct {
+	MaxDistanceM      *float64
+	MaxStops          *int
+	TravelMode        string
 	City              string
 	Start             Coordinates
 	StartAt           time.Time
@@ -100,7 +103,7 @@ func ParseGenerateRouteRequest(reader io.Reader) (ValidatedGenerateRouteRequest,
 	if err := json.Unmarshal(body, &fields); err != nil || fields == nil {
 		return ValidatedGenerateRouteRequest{}, invalidRoute("Ожидается JSON-объект")
 	}
-	allowed := map[string]bool{"city": true, "start": true, "start_at": true, "budget_minutes": true, "pace": true, "categories": true, "ticket_budget_minor": true, "seed": true, "include_geometry": true}
+	allowed := map[string]bool{"max_distance_m": true, "max_stops": true, "travel_mode": true, "city": true, "start": true, "start_at": true, "budget_minutes": true, "pace": true, "categories": true, "ticket_budget_minor": true, "seed": true, "include_geometry": true}
 	for key, value := range fields {
 		if !allowed[key] {
 			return ValidatedGenerateRouteRequest{}, invalidRoute("Неизвестное поле запроса")
@@ -140,6 +143,27 @@ func ParseGenerateRouteRequest(reader io.Reader) (ValidatedGenerateRouteRequest,
 
 func ValidateGenerateRouteRequest(request GenerateRouteRequest) (ValidatedGenerateRouteRequest, error) {
 	result := ValidatedGenerateRouteRequest{City: "minsk", Pace: "normal", Seed: 42, IncludeGeometry: true, Categories: []string{}}
+	result.TravelMode = "walking"
+	if request.TravelMode != nil {
+		result.TravelMode = *request.TravelMode
+	}
+	if result.TravelMode != "walking" && result.TravelMode != "cycling" {
+		return result, invalidRoute("Неизвестный вид транспорта")
+	}
+	if request.MaxStops != nil {
+		v := *request.MaxStops
+		if v < 1 || v > 100 {
+			return result, invalidRoute("Число мест должно быть от 1 до 100")
+		}
+		result.MaxStops = &v
+	}
+	if request.MaxDistanceM != nil {
+		v := *request.MaxDistanceM
+		if math.IsNaN(v) || math.IsInf(v, 0) || v <= 0 || v > 1000000 {
+			return result, invalidRoute("Дистанция должна быть больше 0 и не более 1000 км")
+		}
+		result.MaxDistanceM = &v
+	}
 	if request.City != nil {
 		result.City = *request.City
 	}

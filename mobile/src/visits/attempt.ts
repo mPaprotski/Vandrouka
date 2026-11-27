@@ -1,6 +1,6 @@
 import {decodeUploadedPhoto} from '../api/client.ts';
 import type {UploadedPhoto,VisitInput} from '../api/client.ts';
-export type Attempt={key:string;photo:UploadedPhoto;input:VisitInput};
+export type Attempt={key:string;photo:UploadedPhoto;input:VisitInput;walkId?:string};
 export type AttemptStorage={read():Promise<Attempt|null>;write(attempt:Attempt|null,expectedKey?:string):Promise<void>};
 export function decodeAttempt(value:unknown,placeId:number):Attempt{
  if(!value||typeof value!=='object')throw new Error('invalid attempt');
@@ -8,7 +8,8 @@ export function decodeAttempt(value:unknown,placeId:number):Attempt{
  const uuid=/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i;
  const photo=decodeUploadedPhoto(a.photo);
  if(typeof a.key!=='string'||!uuid.test(a.key)||photo.place_id!==placeId||a.input?.photo_id!==photo.id||!l||!Number.isFinite(l.lat)||Math.abs(l.lat)>90||!Number.isFinite(l.lon)||Math.abs(l.lon)>180||!Number.isFinite(l.accuracy_m)||l.accuracy_m<0||typeof l.observed_at!=='string'||!/^\d{4}-\d{2}-\d{2}T.*(?:Z|[+-]\d{2}:\d{2})$/.test(l.observed_at)||!Number.isFinite(Date.parse(l.observed_at)))throw new Error('invalid attempt');
- return {key:a.key,photo,input:{photo_id:photo.id,location:{lat:l.lat,lon:l.lon,accuracy_m:l.accuracy_m,observed_at:l.observed_at}}};
+ if(a.walkId!==undefined&&(typeof a.walkId!=='string'||!uuid.test(a.walkId)))throw new Error('invalid walk');
+ return {key:a.key,photo,input:{photo_id:photo.id,location:{lat:l.lat,lon:l.lon,accuracy_m:l.accuracy_m,observed_at:l.observed_at}},...(a.walkId?{walkId:a.walkId}:{})};
 }
 
 const queues=new Map<string,Promise<unknown>>();

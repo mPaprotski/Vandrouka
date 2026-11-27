@@ -1,4 +1,5 @@
 import type { PositionFix } from '../location/locate.ts';
+import type { MapWalk } from '../walks/geometry.ts';
 // Virtual origin for inline HTML; no request is made to this host.
 export const MAP_DOCUMENT_ORIGIN = 'https://app.vandrouka.local/';
 
@@ -8,7 +9,7 @@ export function isMapDocumentNavigation(url: string): boolean {
 
 export const MAP_STYLE_URL = 'mapbox://styles/mpaprotski911/cmvfoqaqv00fl01s60qij53my';
 
-export type MapPlace = { id: number; name: string; lat: number; lon: number; visited?: boolean };
+export type MapPlace = { id: number; name: string; lat: number; lon: number; visited?: boolean; order?: number; selected?: boolean };
 export type MapStage = 'document' | 'library' | 'style' | 'sources';
 export type MapMessage = { type: 'progress'; stage: MapStage } | { type: 'ready' } | { type: 'tiles' } | { type: 'tile-status'; rendered: boolean; sourceRequested: boolean; sourceLoaded: boolean } | { type: 'error'; code: 'webgl' | 'load' | 'auth' } | { type: 'select'; id: number };
 
@@ -37,11 +38,15 @@ function scriptJSON(value: unknown): string {
 }
 
 export function placesScript(places: readonly MapPlace[]): string {
-  return `window.setPlaces && window.setPlaces(${scriptJSON(places.map(({ id, name, lat, lon, visited }) => ({ id, name, lat, lon, ...(typeof visited==='boolean'?{visited}:{}) })))}); true;`;
+  return `window.setPlaces && window.setPlaces(${scriptJSON(places.map(({ id, name, lat, lon, visited, order, selected }) => ({ id, name, lat, lon, ...(typeof visited==='boolean'?{visited}:{}), ...(order === undefined ? {} : { order }), ...(selected === undefined ? {} : { selected }) })))}); true;`;
 }
 
-export function userLocationScript(position: PositionFix | null): string {
-  return `window.setUserLocation && window.setUserLocation(${scriptJSON(position)}); true;`;
+export function userLocationScript(position: PositionFix | null, follow = true, force = false): string {
+  return `window.setUserLocation && window.setUserLocation(${scriptJSON(position)},${follow},${force}); true;`;
+}
+
+export function walkScript(route: MapWalk | null): string {
+  return `window.setWalk && window.setWalk(${scriptJSON(route)}); true;`;
 }
 
 export function mapDocument(token: string): string {
@@ -57,6 +62,30 @@ export function mapDocument(token: string): string {
   var userMarker=null, lastLocationTimestamp=null;
   var rendered=false, sourceRequested=false, sourceLoaded=false;
   var map, markers=[], ready=false, lastMessage={type:'progress',stage:'document'};
+  var startMarker=null, walk=null, walkKey=null;
+  window.fitWalk=function(){
+    if(!ready || !walk)return;
+    var bounds=new mapboxgl.LngLatBounds();bounds.extend([walk.start.lon,walk.start.lat]);
+    walk.lines.forEach(function(line){line.forEach(function(point){bounds.extend(point);});});
+    markers.forEach(function(marker){bounds.extend(marker.getLngLat());});
+    map.fitBounds(bounds,{padding:48,maxZoom:16,duration:500});
+  };
+  window.setWalk=function(value){
+    if(!ready)return;
+    walk=value;
+    if(startMarker){startMarker.remove();startMarker=null;}
+    var data={type:'FeatureCollection',features:[]};
+    if(walk){
+      data.features=walk.lines.map(function(line){return {type:'Feature',properties:{},geometry:{type:'LineString',coordinates:line}};});
+      var button=document.createElement('div');button.className='pin';button.textContent='С';button.style.background='#3778A7';button.setAttribute('aria-label','Старт прогулки');
+      startMarker=new mapboxgl.Marker({element:button}).setLngLat([walk.start.lon,walk.start.lat]).addTo(map);
+    }
+    if(map.getSource('walk-path'))map.getSource('walk-path').setData(data);
+    else map.addSource('walk-path',{type:'geojson',data:data});
+    if(!map.getLayer('walk-line'))map.addLayer({id:'walk-line',type:'line',source:'walk-path',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#3778A7','line-width':5}});
+    var key=walk?JSON.stringify([walk.start,walk.lines,markers.map(function(marker){return marker.getLngLat();})]):null;
+    if(walk && key!==walkKey)window.fitWalk();walkKey=key;
+  };
   function send(message){if(message.type!=='select') lastMessage=message;window.ReactNativeWebView && window.ReactNativeWebView.postMessage(JSON.stringify(message));}
   window.reportTileStatus=function(){window.ReactNativeWebView && window.ReactNativeWebView.postMessage(JSON.stringify({type:'tile-status',rendered:rendered,sourceRequested:sourceRequested,sourceLoaded:sourceLoaded}));};
   window.reportMapStatus=function(){window.ReactNativeWebView && window.ReactNativeWebView.postMessage(JSON.stringify(lastMessage));};
@@ -69,13 +98,15 @@ export function mapDocument(token: string): string {
       var button=document.createElement('button'); button.className='pin'; button.type='button';
       var label=place.name+(place.visited===true?' — посещено':place.visited===false?' — ещё не посещено':'');
       button.textContent=place.visited===true?'✓':place.visited===false?'○':'●';
+      if(place.order!==undefined)button.textContent=String(place.order);
+      if(place.selected)button.style.outline='4px solid #3778A7';
       if(place.visited===false)button.style.background='#8A633F';
       button.setAttribute('aria-label',label); button.title=label;
       button.addEventListener('click',function(event){event.stopPropagation();send({type:'select',id:place.id});});
       markers.push(new mapboxgl.Marker({element:button}).setLngLat([place.lon,place.lat]).addTo(map));
     });
   };
-  window.setUserLocation=function(position){
+  window.setUserLocation=function(position,follow,force){
     if(userMarker){userMarker.remove();userMarker=null;}
     if(!position){lastLocationTimestamp=null;return;}
     if(!ready)return;
@@ -83,7 +114,7 @@ export function mapDocument(token: string): string {
     marker.style.cssText='width:18px;height:18px;background:#3778A7;border:3px solid white;border-radius:50%;box-shadow:0 0 0 8px #3778a733';
     marker.setAttribute('aria-label','Ваше положение на момент запроса');
     userMarker=new mapboxgl.Marker({element:marker}).setLngLat([position.longitude,position.latitude]).addTo(map);
-    if(position.timestamp!==lastLocationTimestamp){map.flyTo({center:[position.longitude,position.latitude],zoom:15});lastLocationTimestamp=position.timestamp;}
+    if(follow!==false && (force || position.timestamp!==lastLocationTimestamp)){map.flyTo({center:[position.longitude,position.latitude],zoom:15});lastLocationTimestamp=position.timestamp;}
   };
   window.startMap=function(){
     send({type:'progress',stage:'library'});

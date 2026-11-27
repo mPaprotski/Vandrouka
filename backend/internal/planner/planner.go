@@ -45,7 +45,7 @@ func (p *Planner) plan(req Request, places []Place, matrix DistanceMatrix, varia
 		return Route{}, err
 	}
 
-	paceMult := req.Pace.WalkMultiplier()
+	paceMult := req.TravelMultiplier()
 
 	// Build map of selected categories for O(1) lookup.
 	selectedCats := make(map[string]bool, len(req.Categories))
@@ -87,6 +87,9 @@ func (p *Planner) plan(req Request, places []Place, matrix DistanceMatrix, varia
 	categoryCounts := make(map[string]int)
 
 	for {
+		if req.MaxStops != nil && len(stops) >= *req.MaxStops {
+			break
+		}
 		var candidates []candidate
 
 		for i, place := range places {
@@ -137,6 +140,9 @@ func (p *Planner) plan(req Request, places []Place, matrix DistanceMatrix, varia
 				return Route{}, fmt.Errorf("invalid matrix leg %d -> %d", currentLocIndex, targetLocIndex)
 			}
 			// Shared duration for budget, timestamps, and metrics; round upward.
+			if req.MaxDistanceM != nil && (totalWalkKM+leg.Kilometers)*1000 > *req.MaxDistanceM {
+				continue
+			}
 			walkNS := math.Ceil(leg.Seconds * paceMult * float64(time.Second))
 			if walkNS >= float64(math.MaxInt64) {
 				continue
@@ -298,6 +304,15 @@ func validPoint(p Point) bool {
 }
 
 func validateInputs(req Request, places []Place, matrix DistanceMatrix) (map[int64]int, error) {
+	if req.TravelMode != "" && req.TravelMode != "walking" && req.TravelMode != "cycling" {
+		return nil, fmt.Errorf("invalid travel mode")
+	}
+	if req.MaxStops != nil && (*req.MaxStops < 1 || *req.MaxStops > 100) {
+		return nil, fmt.Errorf("invalid stop limit")
+	}
+	if req.MaxDistanceM != nil && (math.IsNaN(*req.MaxDistanceM) || math.IsInf(*req.MaxDistanceM, 0) || *req.MaxDistanceM <= 0) {
+		return nil, fmt.Errorf("invalid distance limit")
+	}
 	if req.BudgetMinutes <= 0 || int64(req.BudgetMinutes) > math.MaxInt64/int64(time.Minute) {
 		return nil, fmt.Errorf("budget must be greater than zero")
 	}
