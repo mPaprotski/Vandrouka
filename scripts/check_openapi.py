@@ -55,9 +55,9 @@ def main():
     count = 0
     for path, item in spec['paths'].items():
         for method, operation in item.items():
-            if method not in {'get', 'post', 'head', 'delete'}:
+            if method not in {'get', 'post', 'head', 'put', 'patch', 'delete'}:
                 continue
-            if operation['x-implementation-status'] == 'implemented':
+            if operation.get('x-implementation-status', 'implemented') == 'implemented':
                 operations.add((method, path))
             bodies = []
             if 'requestBody' in operation:
@@ -73,9 +73,20 @@ def main():
                         check.validate(example)
                         count += 1
     registered = set()
-    for file in ['backend/internal/http/catalog.go', 'backend/internal/http/auth.go', 'backend/internal/http/media.go', 'backend/internal/http/visits.go', 'backend/internal/http/progress.go', 'backend/internal/http/exploration.go', 'backend/internal/http/history.go', 'backend/internal/http/deletions.go', 'backend/internal/http/routes.go', 'backend/internal/http/recalculate.go', 'backend/cmd/api/main.go']:
-        code = (ROOT / file).read_text()
-        registered.update((method.lower(), path) for method, path in re.findall(r'\br\.(Get|Post|Head|Delete)\("([^"]+)"', code))
+    handlers = ROOT / 'backend/internal/http'
+    sources = [f for f in handlers.glob('*.go') if not f.name.endswith('_test.go')]
+    for file in [*sources, ROOT / 'backend/cmd/api/main.go']:
+        code = file.read_text()
+        direct = re.findall(r'\br\.(Get|Post|Head|Put|Patch|Delete)\("([^"]+)"', code)
+        quest = re.findall(r'\bregister\("([A-Z]+)", "(/v1/[^"]+)"', code)
+        for method, path in direct + quest:
+            registered.add((method.lower(), path))
+
+    # Both quest photo handlers share a constant path and use MethodFunc.
+    photos = (handlers / 'quest_attempts.go').read_text()
+    photo_path = re.search(r'const path = "([^"]+)"', photos).group(1)
+    for method in re.findall(r'registerQuestEndpoint\(r, h\.authentication, "([A-Z]+)", path,', photos):
+        registered.add((method.lower(), photo_path))
     if operations != registered:
         raise ValueError(f'Implemented contract and Go routes differ: {operations ^ registered}')
     for name in ['RouteVariant', 'RouteStop', 'RouteTotals', 'RouteExplanation', 'RouteDiff']:

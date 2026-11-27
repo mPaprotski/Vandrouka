@@ -34,3 +34,8 @@ export function navigationUrls(place: { lat: number; lon: number; name: string }
 export function demoPlaces<T extends { content?: { order: number } }>(places: readonly T[]): T[] {
   return places.filter(place => place.content).sort((a, b) => a.content!.order - b.content!.order);
 }
+
+/** Remove legacy importer provenance from place descriptions. */
+export function briefSummary(value: string): string {
+  return value.split(/Объект отмечен в предоставленной выгрузке|Globus\s*:\s*GPX/i)[0].trim();
+}
